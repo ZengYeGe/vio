@@ -21,6 +21,12 @@ class FeatureTracker {
                     vector<cv::KeyPoint> &keypoints, 
                     cv::Mat &cur_desc, vector<cv::DMatch> &matches);
  private:
+  bool RatioTestFilter(vector<vector<cv::DMatch> > best_k, vector<cv::DMatch> &matches);
+  // TODO: Right now, it's O(n^2) search time.
+  bool SymmetryTestFilter(const vector<cv::DMatch> &matches1,
+                          const vector<cv::DMatch> &matches2,
+                          vector<cv::DMatch> &final_matches);
+
   cv::Ptr<cv::Feature2D> detector_;
   cv::Ptr<cv::DescriptorMatcher> matcher_;
 
