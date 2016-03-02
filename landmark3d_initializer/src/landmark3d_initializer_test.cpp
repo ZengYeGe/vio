@@ -2,6 +2,7 @@
 
 // TODO: make the directory better
 #include "../../feature_tracker/include/feature_tracker.hpp"
+#include "../../landmark_server/include/landmark_server.hpp"
 
 #include <string>
 
@@ -51,6 +52,14 @@ int main() {
 
   cv::waitKey(0);
 
+
+  LandmarkServer landmark_server;
+  landmark_server.AddFirstFrameFeature(kp[0]);
+  landmark_server.AddNewFeatureAssociationToLastFrame(kp[1], matches[0]);
+  landmark_server.AddNewFeatureAssociationToLastFrame(kp[2], matches[1]);
+ 
+  landmark_server.PrintStats();
+
   vector<vector<cv::Vec2d> > feature_vectors(2);
   cv::Matx33d K_initial, K_final;
   vector<cv::Mat> points3d;
@@ -61,29 +70,9 @@ int main() {
                            0,    0,   1);
   
   // Change data format of matched feature for initialization of 3d points.
+  landmark_server.MakeFeatureVectorsForReconstruct(feature_vectors);
 
-  // TODO: Make a landmark server
-  // For now, only pick features that appeared in 2 frames.
-  // saves each feature's id in each frame, or -1 if not seen.
-  vector<vector<int> > feature_ids_in_frame; 
-  for (int frame_id = 0; frame_id < 1; ++frame_id) {
-    vector<int> feature_id_in_frame;
-    vector<cv::Vec2d> feature_vector;
-    for (int match_id = 0; match_id < matches[frame_id].size(); ++match_id) {
-      int id0 = matches[frame_id][match_id].queryIdx;
-      int id1 = matches[frame_id][match_id].trainIdx;
-      feature_id_in_frame.push_back(id0);
-      feature_id_in_frame.push_back(id1);
-      
-      feature_vectors[frame_id].push_back(cv::Vec2d(kp[frame_id][id0].pt.x,
-                                                    kp[frame_id][id0].pt.y));
-      feature_vectors[frame_id + 1].push_back(cv::Vec2d(kp[frame_id + 1][id1].pt.x,
-                                                        kp[frame_id + 1][id1].pt.y));
-    }
-    
-  }
-
-  landmark_initializer.initialize3DPointsFromViews(2, feature_vectors, K_initial,
+  landmark_initializer.initialize3DPointsFromViews(3, feature_vectors, K_initial,
                                                    points3d, R_ests, t_ests, K_final);
 
   return 0;

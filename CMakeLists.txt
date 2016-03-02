@@ -31,6 +31,7 @@ include_directories(
 link_directories (${DIR}/src/utils /opt/local/lib)
 
 add_subdirectory(feature_tracker)
+add_subdirectory(landmark_server)
 add_subdirectory(landmark3d_initializer)
 
 

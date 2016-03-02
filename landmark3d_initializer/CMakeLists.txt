@@ -19,4 +19,5 @@ target_link_libraries( landmark3d_initializer
 
 target_link_libraries( landmark3d_initializer_test
                        feature_tracker
+                       landmark_server
                        landmark3d_initializer )
