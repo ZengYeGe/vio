@@ -9,6 +9,8 @@ set(SOURCE_FILE
 set(TARGET "feature_tracker")
 
 add_library(${TARGET} SHARED ${SOURCE_FILE})
+target_link_libraries( ${TARGET} 
+                       ${OpenCV_LIBS} )
 
 FILE(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp")
 
