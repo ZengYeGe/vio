@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
-project( SHUMIN_SLAM )
+
+set(PROJECT_NAME ShuminSLAM)
+project( ${PROJECT_NAME})
 
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
@@ -28,10 +30,25 @@ include_directories(
   ${EIGEN3_INCLUDE_DIR}
 )
 
-link_directories (${DIR}/src/utils /opt/local/lib)
-
 add_subdirectory(feature_tracker)
 add_subdirectory(landmark_server)
 add_subdirectory(landmark3d_initializer)
 
+# Here we define the include paths that will be used by our clients.
+# BUILD_INTERFACE will be used when this library is consumed in source form.
+# INSTALL_INTERFACE will be used when this library is consumed in binary form.
+#target_include_directories(${TARGET} PUBLIC
+#	                   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+#	                   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+#	                   $<INSTALL_INTERFACE:include/${TARGET}>
+#)
+
+message(STATUS "cmake current source dir:${CMAKE_CURRENT_SOURCE_DIR}")
+message(STATUS "cmake current binary dir:${CMAKE_CURRENT_BINARY_DIR}")
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/shumin_slam.config.in
+               ${CMAKE_CURRENT_BINARY_DIR}/ShuminSLAMConfig.cmake @ONLY IMMEDIATE)
+export(PACKAGE ShuminSLAM)
+
+message(STATUS "${INSTALL_CMAKE_DIR}")
 

@@ -1,0 +1,18 @@
+#######################################################
+# ShuminSLAM source dir
+set( ShuminSLAM_SOURCE_DIR "@CMAKE_CURRENT_SOURCE_DIR@")
+
+#######################################################
+# Fast build dir
+set( ShuminSLAM_DIR "@CMAKE_CURRENT_BINARY_DIR@")
+
+#######################################################
+set( ShuminSLAM_INCLUDE_DIR  "@CMAKE_INSTALL_PREFIX@/include" )
+set( ShuminSLAM_INCLUDE_DIRS "@CMAKE_INSTALL_PREFIX@/include" )
+
+set( ShuminSLAM_LIBRARIES    "@CMAKE_INSTALL_PREFIX@/lib" )
+set( ShuminSLAM_LIBRARY      "@CMAKE_INSTALL_PREFIX@/lib" )
+
+set( ShuminSLAM_LIBRARY_DIR  "@ShuminSLAM_LIBRARY_DIR@" )
+set( ShuminSLAM_LIBRARY_DIRS "@ShuminSLAM_LIBRARY_DIR@" )
+

@@ -42,6 +42,11 @@ bool Landmark3dInitializer::initialize3DPointsFromViews(
     cout << "Estimated cameras: " << R_ests.size() << endl;
     cout << "Original intrinsics: " << endl << initial_camera_matrix << endl;
     cout << "Refined intrinsics: " << endl << refined_camera_matrix << endl << endl;
+    cout << "Cameras are: " << endl;
+    for (int i = 0; i < R_ests.size(); ++i) {
+      cout << "R: " << endl << R_ests[i] << endl;
+      cout << "t: " << endl << t_ests[i] << endl;
+    }
     cout << "\n----------------------------\n" << endl;
   }
 

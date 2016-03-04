@@ -10,13 +10,17 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-add_library(landmark3d_initializer src/landmark3d_initializer.cpp)
-
-add_executable( landmark3d_initializer_test src/landmark3d_initializer_test.cpp )
-
-target_link_libraries( landmark3d_initializer
+set(TARGET "landmark3d_initializer")
+add_library(${TARGET} SHARED src/landmark3d_initializer.cpp)
+target_link_libraries( ${TARGET} 
                        ${OpenCV_LIBS} )
 
+FILE(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp")
+install(FILES ${headers} 
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME}/)
+install(TARGETS ${TARGET} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
+
+add_executable( landmark3d_initializer_test src/landmark3d_initializer_test.cpp )
 target_link_libraries( landmark3d_initializer_test
                        feature_tracker
                        landmark_server
