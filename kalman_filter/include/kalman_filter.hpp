@@ -16,6 +16,8 @@ class IMUKalmanFilter {
   }
   ~IMUKalmanFilter() {}
 
+  void getState(Matrix<double, 6, 1> &state) { state = imu_state_; }
+
   void updateWithMeasurement(const Matrix<double, 6, 1> &imu_measurement,
                              double time_stamp);
 

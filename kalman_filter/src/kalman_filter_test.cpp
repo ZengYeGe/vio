@@ -1,5 +1,5 @@
 #include <iostream>
-#include <Eigen/Dense>
+#include <Eigen/Core>
 
 #include "kalman_filter.hpp"
 

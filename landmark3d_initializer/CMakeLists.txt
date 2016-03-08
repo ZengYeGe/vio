@@ -11,7 +11,7 @@ include_directories(
 )
 
 set(TARGET "landmark3d_initializer")
-add_library(${TARGET} SHARED src/landmark3d_initializer.cpp)
+add_library(${TARGET} STATIC src/landmark3d_initializer.cpp)
 target_link_libraries( ${TARGET} 
                        ${OpenCV_LIBS} )
 

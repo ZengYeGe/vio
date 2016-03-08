@@ -8,7 +8,7 @@ set(SOURCE_FILE
 
 set(TARGET "feature_tracker")
 
-add_library(${TARGET} SHARED ${SOURCE_FILE})
+add_library(${TARGET} STATIC ${SOURCE_FILE})
 target_link_libraries( ${TARGET} 
                        ${OpenCV_LIBS} )
 
