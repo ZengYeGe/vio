@@ -26,8 +26,8 @@ void IMUKalmanFilter::predictState(double dt, Matrix<double, 6, 1> &predict_stat
   std::cout << "Transition: \n" << A_ << std::endl;
 
   predict_state = A_ * imu_state_;
-  std::cout << "Old state: \n" << imu_state_ << std::endl;
-  std::cout << "New state: \n" << predict_state << std::endl;
+//  std::cout << "Old state: \n" << imu_state_ << std::endl;
+//  std::cout << "New state: \n" << predict_state << std::endl;
 }
 
 void IMUKalmanFilter::predictErrorCovariance(Matrix<double, 6, 6> &P_predict) {
@@ -43,7 +43,7 @@ void IMUKalmanFilter::updateState(const Matrix<double, 6, 1> &measurement,
                  const Matrix<double, 6, 1> &predicted_state,
                  const Matrix<double, 6, 6> &K) {
   imu_state_ = predicted_state + K * (measurement - H_ * predicted_state); 
-  std::cout << "Updated state: \n" << imu_state_ << std::endl;
+//  std::cout << "Updated state: \n" << imu_state_ << std::endl;
 }
 
 void IMUKalmanFilter::updateErrorCovariance(const Matrix<double, 6, 6> &P_predict,
