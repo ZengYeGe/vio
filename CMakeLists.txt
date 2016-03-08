@@ -31,6 +31,7 @@ include_directories(
 )
 
 add_subdirectory(feature_tracker)
+add_subdirectory(kalman_filter)
 add_subdirectory(landmark_server)
 add_subdirectory(landmark3d_initializer)
 
