@@ -33,7 +33,7 @@ include_directories(
 add_subdirectory(feature_tracker)
 add_subdirectory(kalman_filter)
 add_subdirectory(landmark_server)
-add_subdirectory(landmark3d_initializer)
+add_subdirectory(pose_optimizer)
 
 # Here we define the include paths that will be used by our clients.
 # BUILD_INTERFACE will be used when this library is consumed in source form.

@@ -1,4 +1,4 @@
-#include "landmark3d_initializer.hpp"
+#include "pose_optimizer.hpp"
 
 // TODO: make the directory better
 #include "../../feature_tracker/include/feature_tracker.hpp"
@@ -10,25 +10,30 @@ using namespace std;
 
 int main() {
   string test_image_path =
-      "/home/fan/Project/shumin_slam/landmark3d_initializer/test_data/resized_IMG_";
+      "/home/fan/Project/shumin_slam/pose_optimizer/test_data/resized_IMG_";
 
   string image0_name = test_image_path + "2889.jpg";
   string image1_name = test_image_path + "2890.jpg";
   string image2_name = test_image_path + "2891.jpg";
 
-  cv::Mat image0 = cv::imread(image0_name);
-  cv::Mat image1 = cv::imread(image1_name);
-  cv::Mat image2 = cv::imread(image2_name);
+  cv::Mat image0_origin = cv::imread(image0_name);
+  cv::Mat image1_origin = cv::imread(image1_name);
+  cv::Mat image2_origin = cv::imread(image2_name);
 
-  if (!image0.data || !image1.data || !image2.data) {
+  if (!image0_origin.data || !image1_origin.data || !image2_origin.data) {
     std::cerr << "Unable to load image.\n";
     return -1;
   } 
 
+  cv::Mat image0, image1, image2;
+  cv::cvtColor( image0_origin, image0, CV_BGR2GRAY );
+  cv::cvtColor( image1_origin, image1, CV_BGR2GRAY );
+  cv::cvtColor( image2_origin, image2, CV_BGR2GRAY );
+
   FeatureTracker feature_tracker;
 
   bool is_projective = true;
-  Landmark3dInitializer landmark_initializer(is_projective);
+  PoseOptimizer pose_optimizer(is_projective);
 
   vector<vector<cv::KeyPoint> > kp(3);
   vector<cv::Mat> desc(3);
@@ -72,7 +77,7 @@ int main() {
   // Change data format of matched feature for initialization of 3d points.
   landmark_server.MakeFeatureVectorsForReconstruct(feature_vectors);
 
-  landmark_initializer.initialize3DPointsFromViews(3, feature_vectors, K_initial,
+  pose_optimizer.initialize3DPointsFromViews(3, feature_vectors, K_initial,
                                                    points3d, R_ests, t_ests, K_final);
 
   return 0;
