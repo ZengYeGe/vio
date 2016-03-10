@@ -7,10 +7,10 @@ using namespace std;
 
 // TODO: Make it a base class, use other method to initialize points.
 // e.g. five points, loosely, tightly coupled.
-class Landmark3dInitializer {
+class PoseOptimizer {
  public:
-  explicit Landmark3dInitializer(bool is_projective);
-  ~Landmark3dInitializer() {};
+  explicit PoseOptimizer(bool is_projective);
+  ~PoseOptimizer() {};
 
   // Point matches in several frames.
   // position value is > 0.

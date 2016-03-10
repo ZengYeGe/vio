@@ -10,8 +10,8 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-set(TARGET "landmark3d_initializer")
-add_library(${TARGET} STATIC src/landmark3d_initializer.cpp)
+set(TARGET "pose_optimizer")
+add_library(${TARGET} STATIC src/pose_optimizer.cpp)
 target_link_libraries( ${TARGET} 
                        ${OpenCV_LIBS} )
 
@@ -20,8 +20,8 @@ install(FILES ${headers}
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME}/)
 install(TARGETS ${TARGET} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
 
-add_executable( landmark3d_initializer_test src/landmark3d_initializer_test.cpp )
-target_link_libraries( landmark3d_initializer_test
+add_executable( pose_optimizer_test src/pose_optimizer_test.cpp )
+target_link_libraries( pose_optimizer_test
                        feature_tracker
                        landmark_server
-                       landmark3d_initializer )
+                       pose_optimizer )
