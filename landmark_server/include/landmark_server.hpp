@@ -13,10 +13,13 @@ class LandmarkServer {
   bool AddFirstFrameFeature(const vector<cv::KeyPoint> &kp);
   // For now, camera_pose_id0 has to be already a frame in the server.
   // kp1 is last_frame matches to new_frame
-  bool AddNewFeatureAssociationToLastFrame(const vector<cv::KeyPoint> &kp1, 
+  bool AddNewFeatureAssociationToLastFrame(const vector<cv::KeyPoint> &kp1,
                                            const vector<cv::DMatch> &matches);
 
-  bool MakeFeatureVectorsForReconstruct(vector<vector<cv::Vec2d> > &feature_vectors);
+  bool MakeFeatureVectorsForReconstruct(
+      vector<vector<cv::Vec2d> > &feature_vectors);
+
+  int num_frame() { return num_frame_; }
 
   bool PrintStats();
 
@@ -36,5 +39,4 @@ class LandmarkServer {
   vector<vector<int> > feature_in_landmark_id_;
   // (x, y) of feature ith in jth camera.
   vector<vector<cv::Vec2d> > feature_pos_in_camera_;
-
 };
