@@ -6,8 +6,14 @@ using namespace std;
 
 class KeyframeSelector {
  public:
-  KeyframeSelector() : num_matches_thres_(50) {}
+  KeyframeSelector() : num_matches_thres_(100) {}
   ~KeyframeSelector() {}
+
+  bool isKeyframe(const vector<cv::DMatch> &matches) {
+    if (matches.size() < num_matches_thres_)
+      return true;
+    return false;
+  }    
 
   bool isKeyframe(const cv::Mat &img,
                   const vector<cv::KeyPoint> &kp,

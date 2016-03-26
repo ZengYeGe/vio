@@ -41,8 +41,8 @@ int main() {
   vector<vector<cv::DMatch> > matches(2);
 
   feature_tracker.DetectFeatureInFirstFrame(image0, kp[0], desc[0]);
-  feature_tracker.TrackFeature(desc[0], image1, kp[1], desc[1], matches[0]);
-  feature_tracker.TrackFeature(desc[1], image2, kp[2], desc[2], matches[1]);
+  feature_tracker.TrackFeature(kp[0], desc[0], image1, kp[1], desc[1], matches[0]);
+  feature_tracker.TrackFeature(kp[1], desc[1], image2, kp[2], desc[2], matches[1]);
 
   cv::Mat img0to1, img1to2;
   drawMatches(image0, kp[0], image1, kp[1], matches[0], img0to1,

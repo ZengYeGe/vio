@@ -18,7 +18,8 @@ bool FeatureTracker::DetectFeatureInFirstFrame(const cv::Mat &first_frame,
    return true;
 }
 
-bool FeatureTracker::TrackFeature(cv::Mat &pre_desc, const cv::Mat &new_frame,
+bool FeatureTracker::TrackFeature(const vector<cv::KeyPoint> &pre_kp,
+                                  const cv::Mat &pre_desc, const cv::Mat &new_frame,
                                   vector<cv::KeyPoint> &keypoints,
                                   cv::Mat &cur_desc, vector<cv::DMatch> &matches) {
   detector_->detectAndCompute(new_frame, cv::noArray(), keypoints, cur_desc);
@@ -33,7 +34,10 @@ bool FeatureTracker::TrackFeature(cv::Mat &pre_desc, const cv::Mat &new_frame,
   RatioTestFilter(matches_pre_to_cur_k, matches_pre_to_cur);
   RatioTestFilter(matches_cur_to_pre_k, matches_cur_to_pre);
 
+  // matches is pre to cur
   SymmetryTestFilter(matches_pre_to_cur, matches_cur_to_pre, matches);
+  RemoveOutlierMatch(pre_kp, keypoints, matches);
+
   return true;
 }
 
@@ -65,5 +69,28 @@ bool FeatureTracker::SymmetryTestFilter(const vector<cv::DMatch> &matches1,
         }
     }
 } 
+
+bool FeatureTracker::RemoveOutlierMatch(const vector<cv::KeyPoint> &pre_kp,
+                                        const vector<cv::KeyPoint> &cur_kp,
+                                        vector<cv::DMatch> &matches) {
+  // TODO: Check the speed.
+  vector<cv::Point2f> pre_matched_kp, cur_matched_kp;
+  for (int i = 0; i < matches.size(); ++i) {
+    pre_matched_kp.push_back(pre_kp[matches[i].queryIdx].pt);
+    cur_matched_kp.push_back(cur_kp[matches[i].trainIdx].pt);
+  }
+  cv::Mat mask;
+  // TODO: Need to tune the parameters, e.g. 3
+  cv::Mat fundamental_matrix =
+    cv::findFundamentalMat(pre_matched_kp, cur_matched_kp, CV_FM_RANSAC, 3, 0.99, mask);
+  int num_outlier = 0;
+  vector<cv::DMatch> new_matches;
+  for (int i = 0; i < matches.size(); ++i) {
+    if ((unsigned int)mask.at<uchar>(i))
+      new_matches.push_back(matches[i]);
+  }
+  matches = std::move(new_matches);
+  return true;
+}
 
 
