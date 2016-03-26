@@ -89,6 +89,8 @@ bool FeatureTracker::RemoveOutlierMatch(const vector<cv::KeyPoint> &pre_kp,
     if ((unsigned int)mask.at<uchar>(i))
       new_matches.push_back(matches[i]);
   }
+  cout << "outlier matches: " << matches.size() - new_matches.size() << endl;
+  
   matches = std::move(new_matches);
   return true;
 }
