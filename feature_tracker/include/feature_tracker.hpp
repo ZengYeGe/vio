@@ -17,7 +17,8 @@ class FeatureTracker {
   bool DetectFeatureInFirstFrame(const cv::Mat &first_frame, vector<cv::KeyPoint> &keypoints,
                                  cv::Mat &desc);
   // TODO: Pass in keypoint pos for fast search. e.g. search in a window.
-  bool TrackFeature(cv::Mat &pre_desc, const cv::Mat &new_frame,
+  bool TrackFeature(const vector<cv::KeyPoint> &pre_kp,
+                    const cv::Mat &pre_desc, const cv::Mat &new_frame,
                     vector<cv::KeyPoint> &keypoints, 
                     cv::Mat &cur_desc, vector<cv::DMatch> &matches);
  private:
@@ -26,6 +27,10 @@ class FeatureTracker {
   bool SymmetryTestFilter(const vector<cv::DMatch> &matches1,
                           const vector<cv::DMatch> &matches2,
                           vector<cv::DMatch> &final_matches);
+
+  bool RemoveOutlierMatch(const vector<cv::KeyPoint> &pre_kp,
+                          const vector<cv::KeyPoint> &cur_kp,
+                          vector<cv::DMatch> &matches);
 
   cv::Ptr<cv::Feature2D> detector_;
   cv::Ptr<cv::DescriptorMatcher> matcher_;
