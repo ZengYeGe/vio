@@ -81,15 +81,16 @@ bool FeatureTracker::RemoveOutlierMatch(const vector<cv::KeyPoint> &pre_kp,
   }
   cv::Mat mask;
   // TODO: Need to tune the parameters, e.g. 3
+  // TODO: Normalize
   cv::Mat fundamental_matrix =
-    cv::findFundamentalMat(pre_matched_kp, cur_matched_kp, CV_FM_RANSAC, 3, 0.99, mask);
+    cv::findFundamentalMat(pre_matched_kp, cur_matched_kp, CV_FM_RANSAC, 0.2, 0.999, mask);
   int num_outlier = 0;
   vector<cv::DMatch> new_matches;
   for (int i = 0; i < matches.size(); ++i) {
     if ((unsigned int)mask.at<uchar>(i))
       new_matches.push_back(matches[i]);
   }
-  cout << "outlier matches: " << matches.size() - new_matches.size() << endl;
+  // cout << "outlier matches: " << matches.size() - new_matches.size() << endl;
   
   matches = std::move(new_matches);
   return true;

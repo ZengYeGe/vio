@@ -29,3 +29,4 @@ target_link_libraries( pose_optimizer_test
                        feature_tracker
                        landmark_server
                        pose_optimizer )
+
