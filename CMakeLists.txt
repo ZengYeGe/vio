@@ -31,10 +31,10 @@ include_directories(
 )
 
 add_subdirectory(feature_tracker)
-add_subdirectory(kalman_filter)
-add_subdirectory(landmark_server)
-add_subdirectory(pose_optimizer)
-add_subdirectory(test_apps)
+#add_subdirectory(kalman_filter)
+#add_subdirectory(landmark_server)
+#add_subdirectory(pose_optimizer)
+#add_subdirectory(test_apps)
 # Here we define the include paths that will be used by our clients.
 # BUILD_INTERFACE will be used when this library is consumed in source form.
 # INSTALL_INTERFACE will be used when this library is consumed in binary form.

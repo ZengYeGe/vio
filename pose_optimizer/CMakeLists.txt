@@ -4,6 +4,7 @@ if(Ceres_FOUND)
 else()
   add_definitions("-DCERES_FOUND=0")
   message(STATUS "CERES support is disabled. Ceres Solver for reconstruction API is required.")
+  return()
 endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
@@ -17,6 +18,7 @@ include_directories(
 set(TARGET "pose_optimizer")
 add_library(${TARGET} STATIC src/pose_optimizer.cpp)
 target_link_libraries( ${TARGET} 
+                       opencv_sfm
                        ${OpenCV_LIBS} )
 
 FILE(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp")
