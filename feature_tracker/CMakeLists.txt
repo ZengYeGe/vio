@@ -26,7 +26,7 @@ install(FILES ${headers}
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME}/)
 install(TARGETS ${TARGET} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
 
-add_executable( feature_tracker_test src/feature_tracker_test.cpp)
+add_executable( feature_tracker_test test/feature_tracker_test.cpp)
 target_link_libraries( feature_tracker_test 
                        ${TARGET}
                        ${OpenCV_LIBS} )
