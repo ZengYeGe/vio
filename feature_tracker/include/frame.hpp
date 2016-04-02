@@ -17,7 +17,7 @@ class Frame {
 
   void SetFeatures(FeatureSet &features) {
     features_.keypoints = std::move(features.keypoints);
-    features_.descriptors = features.descriptors;
+    features.descriptors.copyTo(features_.descriptors);
   }
 
   const FeatureSet &GetFeatures() const {

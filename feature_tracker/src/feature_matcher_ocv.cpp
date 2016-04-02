@@ -1,10 +1,11 @@
 #include "feature_matcher_ocv.hpp"
 
+#include <iostream>
+
 namespace vio {
 
 bool FeatureMatcherOCV::Match(const FeatureSet &features0, const FeatureSet &features1,
                      std::vector<cv::DMatch> &matches) {
-
   std::vector<std::vector<cv::DMatch> > matches_0to1_k, matches_1to0_k;
   matcher_->knnMatch(features0.descriptors,
                      features1.descriptors, matches_0to1_k, max_match_per_desc_);
@@ -72,7 +73,7 @@ bool FeatureMatcherOCV::RemoveOutlierMatch(const std::vector<cv::KeyPoint> &pre_
     if ((unsigned int)mask.at<uchar>(i))
       new_matches.push_back(matches[i]);
   }
-  // cout << "outlier matches: " << matches.size() - new_matches.size() << endl;
+  std::cout << "outlier matches: " << matches.size() - new_matches.size() << std::endl;
   
   matches = std::move(new_matches);
   return true;
