@@ -30,6 +30,7 @@ include_directories(
   ${EIGEN3_INCLUDE_DIR}
 )
 
+add_subdirectory(util)
 add_subdirectory(feature_tracker)
 #add_subdirectory(kalman_filter)
 #add_subdirectory(landmark_server)

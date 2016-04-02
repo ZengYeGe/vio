@@ -22,7 +22,7 @@ class Frame {
 
   const FeatureSet &GetFeatures() const {
     return features_;
-  }
+  } 
 
  private:
   cv::Mat image_;

@@ -6,7 +6,7 @@ using namespace std;
 
 class KeyframeSelector {
  public:
-  KeyframeSelector() : num_matches_thres_(100) {}
+  KeyframeSelector() : num_matches_thres_(200) {}
   ~KeyframeSelector() {}
 
   bool isKeyframe(const vector<cv::DMatch> &matches) {
