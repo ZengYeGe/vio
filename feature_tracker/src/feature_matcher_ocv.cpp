@@ -66,7 +66,7 @@ bool FeatureMatcherOCV::RemoveOutlierMatch(const std::vector<cv::KeyPoint> &pre_
   // TODO: Need to tune the parameters, e.g. 3
   // TODO: Normalize
   cv::Mat fundamental_matrix =
-    cv::findFundamentalMat(pre_matched_kp, cur_matched_kp, CV_FM_RANSAC, 0.1, 0.999, mask);
+    cv::findFundamentalMat(pre_matched_kp, cur_matched_kp, CV_FM_RANSAC, 0.5, 0.999, mask);
   int num_outlier = 0;
   std::vector<cv::DMatch> new_matches;
   for (int i = 0; i < matches.size(); ++i) {

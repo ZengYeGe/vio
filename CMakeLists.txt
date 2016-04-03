@@ -32,8 +32,9 @@ include_directories(
 
 add_subdirectory(util)
 add_subdirectory(feature_tracker)
+add_subdirectory(landmark_server)
+add_subdirectory(map_initializer)
 #add_subdirectory(kalman_filter)
-#add_subdirectory(landmark_server)
 #add_subdirectory(pose_optimizer)
 #add_subdirectory(test_apps)
 # Here we define the include paths that will be used by our clients.

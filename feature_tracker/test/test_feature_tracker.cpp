@@ -1,10 +1,6 @@
 #include "feature_tracker.hpp"
 #include "keyframe_selector.hpp"
 
-#ifdef __linux__
-#include <dirent.h>
-#endif
-
 #include <cstring>
 #include <iostream>
 #include <memory>
@@ -116,9 +112,10 @@ int TestFramesInFolder(Options option) {
     cv::waitKey(0);
 
     if (option.use_keyframe) {
-      if (keyframe_selector.isKeyframe(matches))
-        last_frame = std::move(new_frame);
+      if (!keyframe_selector.isKeyframe(matches))
+        continue;
     }
+    last_frame = std::move(new_frame);
   }
 
   return 0;  

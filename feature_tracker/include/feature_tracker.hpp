@@ -13,8 +13,8 @@ namespace vio {
 
 class FeatureTracker {
  public:
-  FeatureTracker() {};
-  ~FeatureTracker() {};
+  FeatureTracker() {}
+  ~FeatureTracker() {}
 
   static FeatureTracker *CreateFeatureTracker(cv::Ptr<cv::FeatureDetector> detector);
   static FeatureTracker *CreateFeatureTracker(cv::Ptr<cv::FeatureDetector> detector,
