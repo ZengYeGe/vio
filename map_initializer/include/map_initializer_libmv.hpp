@@ -13,7 +13,10 @@ class MapInitializerLIBMV : public MapInitializer {
                      const cv::Mat &K, std::vector<cv::Point3f> &points3d,
                      std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts) override;
  private:
-  void crossMatchFilter();
+  bool InitializeTwoFrames(const std::vector<cv::Vec2d> &kp0,
+                           const std::vector<cv::Vec2d> &kp1,
+                           const cv::Mat &K, std::vector<cv::Point3f> &points3d,
+                           std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts);
 };
 
 } // vio

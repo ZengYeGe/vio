@@ -1,6 +1,7 @@
 #include "feature_tracker.hpp"
 
 #include <opencv2/features2d.hpp>
+#include <opencv2/xfeatures2d.hpp>
 
 namespace vio {
 
@@ -22,7 +23,7 @@ class FeatureTrackerOCV : public FeatureTracker {
   virtual bool TrackFrame(const Frame &prev_frame,
                      Frame &output_frame,
                      std::vector<cv::DMatch> &matches) override;
- private:
+ protected:
   void InitTracker();
   void ComputeFeatures(Frame &frame);
 

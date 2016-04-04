@@ -4,6 +4,7 @@
 #include <string>
 
 #include <opencv2/viz.hpp> 
+#include <opencv2/xfeatures2d.hpp>
 
 // TODO: make the directory better
 #include "../../feature_tracker/include/feature_tracker.hpp"
@@ -79,8 +80,11 @@ int TestFramesInFolder(Options option) {
     return -1;
   }
 
+  // TODO: Add option for selecting feature detector.
   cv::Ptr<cv::Feature2D> detector = cv::ORB::create(10000);
-  vio::FeatureTracker *feature_tracker = vio::FeatureTracker::CreateFeatureTracker(detector);
+  cv::Ptr<cv::Feature2D> descriptor = cv::xfeatures2d::DAISY::create();
+  // vio::FeatureTracker *feature_tracker = vio::FeatureTracker::CreateFeatureTracker(detector);
+  vio::FeatureTracker *feature_tracker = vio::FeatureTracker::CreateFeatureTracker(detector, descriptor);
 
   std::unique_ptr<vio::Frame> last_frame(new vio::Frame(image0));
   feature_tracker->TrackFirstFrame(*last_frame);

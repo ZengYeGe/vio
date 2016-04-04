@@ -11,7 +11,7 @@ bool FeatureMatcherOCV::Match(const FeatureSet &features0, const FeatureSet &fea
                      features1.descriptors, matches_0to1_k, max_match_per_desc_);
   matcher_->knnMatch(features1.descriptors,
                      features0.descriptors, matches_1to0_k, max_match_per_desc_);
- 
+
   // Pick matches where the first one is much better than the second match.  
   std::vector<cv::DMatch> matches_0to1, matches_1to0;
   RatioTestFilter(matches_0to1_k, matches_0to1);
@@ -20,7 +20,7 @@ bool FeatureMatcherOCV::Match(const FeatureSet &features0, const FeatureSet &fea
   // matches is pre to cur
   SymmetryTestFilter(matches_0to1, matches_1to0, matches);
   RemoveOutlierMatch(features0.keypoints, features1.keypoints, matches);
- 
+
   return true;
 }
 
@@ -66,7 +66,7 @@ bool FeatureMatcherOCV::RemoveOutlierMatch(const std::vector<cv::KeyPoint> &pre_
   // TODO: Need to tune the parameters, e.g. 3
   // TODO: Normalize
   cv::Mat fundamental_matrix =
-    cv::findFundamentalMat(pre_matched_kp, cur_matched_kp, CV_FM_RANSAC, 0.5, 0.999, mask);
+    cv::findFundamentalMat(pre_matched_kp, cur_matched_kp, CV_FM_RANSAC, 0.2, 0.999, mask);
   int num_outlier = 0;
   std::vector<cv::DMatch> new_matches;
   for (int i = 0; i < matches.size(); ++i) {

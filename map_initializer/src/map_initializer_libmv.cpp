@@ -12,11 +12,16 @@ MapInitializer *MapInitializer::CreateMapInitializerLIBMV() {
 bool MapInitializerLIBMV::Initialize(const std::vector<std::vector<cv::Vec2d> > &feature_vectors,
                    const cv::Mat &K, std::vector<cv::Point3f> &points3d,
                    std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts) {
-  if (feature_vectors.size() < 3) {
+  if (feature_vectors.size() < 2) {
     std::cerr << "Error: libmv initializer not support views < 3.\n";
     return false;
   }
   
+  if (feature_vectors.size() == 2) {
+    std::cout << "Only two frames given. Initialize from two views.\n";
+    return InitializeTwoFrames(feature_vectors[0], feature_vectors[1], K, points3d, Rs, ts);
+  }
+
   std::vector<cv::Mat> all_2d_points;
   const int num_frame = feature_vectors.size();
   const int num_features = feature_vectors[0].size();
@@ -60,5 +65,44 @@ bool MapInitializerLIBMV::Initialize(const std::vector<std::vector<cv::Vec2d> > 
   std::cout << "\n----------------------------\n" << std::endl;
   return true;
 }
- 
+
+bool MapInitializerLIBMV::InitializeTwoFrames(const std::vector<cv::Vec2d> &kp0,
+                                              const std::vector<cv::Vec2d> &kp1,
+                                              const cv::Mat &K, std::vector<cv::Point3f> &points3d,
+                                              std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts) {
+  if (kp0.size() != kp1.size()) {
+    std::cerr << "Error: keypoints number of two frames not match. Quit.\n";
+    return false;
+  }
+  // Convert keypoints to cv::sfm format.
+  int num_pts = kp0.size();
+  cv::Mat_<double> x1 = cv::Mat_<double>(2, num_pts);
+  cv::Mat_<double> x2 = cv::Mat_<double>(2, num_pts);
+  
+  for (int i = 0; i < num_pts; ++i) {
+    x1(0, i) = kp0[i][0];
+    x1(1, i) = kp0[i][1];
+    x2(0, i) = kp1[i][0];
+    x2(1, i) = kp1[i][1];
+  }
+  
+  std::vector<cv::Mat_<double> > points2d;
+  points2d.push_back(x1);
+  points2d.push_back(x2);
+  cv::Matx33d K_estimated;
+  cv::Mat_<double> points3d_mat;
+  std::vector<cv::Mat> Ps_estimated;
+
+  cv::sfm::reconstruct(points2d, Ps_estimated, points3d_mat, K_estimated, true);
+  // Convert mat to point3f
+  points3d.clear();
+  for (int i = 0; i < num_pts; ++i) {
+    cv::Point3f point3d((float) points3d_mat(0, i),
+                      (float) points3d_mat(1, i),
+                      (float) points3d_mat(2, i));
+    points3d.push_back(point3d);
+  }
+  return true;
+}
+
 } // vio
