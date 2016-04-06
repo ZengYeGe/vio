@@ -7,11 +7,7 @@ namespace vio {
 
 class FeatureTrackerOCV : public FeatureTracker {
  public:
-  enum DetectorType {
-    UNKNOWN = 0,
-    DETECTORONLY,
-    DETECTORDESCRIPTOR
-  };
+  enum DetectorType { UNKNOWN = 0, DETECTORONLY, DETECTORDESCRIPTOR };
 
   FeatureTrackerOCV(cv::Ptr<cv::FeatureDetector> detector);
   FeatureTrackerOCV(cv::Ptr<cv::FeatureDetector> detector,
@@ -20,9 +16,9 @@ class FeatureTrackerOCV : public FeatureTracker {
   FeatureTrackerOCV() = delete;
 
   virtual bool TrackFirstFrame(Frame &output_frame) override;
-  virtual bool TrackFrame(const Frame &prev_frame,
-                     Frame &output_frame,
-                     std::vector<cv::DMatch> &matches) override;
+  virtual bool TrackFrame(const Frame &prev_frame, Frame &output_frame,
+                          std::vector<cv::DMatch> &matches) override;
+
  protected:
   void InitTracker();
   void ComputeFeatures(Frame &frame);
@@ -30,6 +26,5 @@ class FeatureTrackerOCV : public FeatureTracker {
   DetectorType detector_type_;
   cv::Ptr<cv::Feature2D> detector_;
   cv::Ptr<cv::DescriptorExtractor> extractor_;
-
-};  
-} // vio
+};
+}  // vio

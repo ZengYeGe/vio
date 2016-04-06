@@ -9,17 +9,19 @@ MapInitializer *MapInitializer::CreateMapInitializerLIBMV() {
   return initializer;
 }
 
-bool MapInitializerLIBMV::Initialize(const std::vector<std::vector<cv::Vec2d> > &feature_vectors,
-                   const cv::Mat &K, std::vector<cv::Point3f> &points3d,
-                   std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts) {
+bool MapInitializerLIBMV::Initialize(
+    const std::vector<std::vector<cv::Vec2d> > &feature_vectors,
+    const cv::Mat &K, std::vector<cv::Point3f> &points3d,
+    std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts) {
   if (feature_vectors.size() < 2) {
     std::cerr << "Error: libmv initializer not support views < 3.\n";
     return false;
   }
-  
+
   if (feature_vectors.size() == 2) {
     std::cout << "Only two frames given. Initialize from two views.\n";
-    return InitializeTwoFrames(feature_vectors[0], feature_vectors[1], K, points3d, Rs, ts);
+    return InitializeTwoFrames(feature_vectors[0], feature_vectors[1], K,
+                               points3d, Rs, ts);
   }
 
   std::vector<cv::Mat> all_2d_points;
@@ -38,7 +40,8 @@ bool MapInitializerLIBMV::Initialize(const std::vector<std::vector<cv::Vec2d> > 
 
   cv::Mat refined_camera_matrix = cv::Mat(K).clone();
   std::vector<cv::Mat> points3d_mat;
-  cv::sfm::reconstruct(all_2d_points, Rs, ts, refined_camera_matrix, points3d_mat, true);
+  cv::sfm::reconstruct(all_2d_points, Rs, ts, refined_camera_matrix,
+                       points3d_mat, true);
 
   // Convert mat to point3f
   points3d.clear();
@@ -51,25 +54,25 @@ bool MapInitializerLIBMV::Initialize(const std::vector<std::vector<cv::Vec2d> > 
   std::cout << "Initialized 3D points: " << points3d.size() << std::endl;
   std::cout << "Estimated cameras: " << Rs.size() << std::endl;
   std::cout << "Original intrinsics: " << std::endl
-       << K << std::endl;
+            << K << std::endl;
   std::cout << "Refined intrinsics: " << std::endl
-       << refined_camera_matrix << std::endl
-       << std::endl;
+            << refined_camera_matrix << std::endl
+            << std::endl;
   std::cout << "Cameras are: " << std::endl;
   for (int i = 0; i < Rs.size(); ++i) {
     std::cout << "R: " << std::endl
-         << Rs[i] << std::endl;
+              << Rs[i] << std::endl;
     std::cout << "t: " << std::endl
-         << ts[i] << std::endl;
+              << ts[i] << std::endl;
   }
   std::cout << "\n----------------------------\n" << std::endl;
   return true;
 }
 
-bool MapInitializerLIBMV::InitializeTwoFrames(const std::vector<cv::Vec2d> &kp0,
-                                              const std::vector<cv::Vec2d> &kp1,
-                                              const cv::Mat &K, std::vector<cv::Point3f> &points3d,
-                                              std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts) {
+bool MapInitializerLIBMV::InitializeTwoFrames(
+    const std::vector<cv::Vec2d> &kp0, const std::vector<cv::Vec2d> &kp1,
+    const cv::Mat &K, std::vector<cv::Point3f> &points3d,
+    std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts) {
   if (kp0.size() != kp1.size()) {
     std::cerr << "Error: keypoints number of two frames not match. Quit.\n";
     return false;
@@ -78,14 +81,14 @@ bool MapInitializerLIBMV::InitializeTwoFrames(const std::vector<cv::Vec2d> &kp0,
   int num_pts = kp0.size();
   cv::Mat_<double> x1 = cv::Mat_<double>(2, num_pts);
   cv::Mat_<double> x2 = cv::Mat_<double>(2, num_pts);
-  
+
   for (int i = 0; i < num_pts; ++i) {
     x1(0, i) = kp0[i][0];
     x1(1, i) = kp0[i][1];
     x2(0, i) = kp1[i][0];
     x2(1, i) = kp1[i][1];
   }
-  
+
   std::vector<cv::Mat_<double> > points2d;
   points2d.push_back(x1);
   points2d.push_back(x2);
@@ -97,12 +100,11 @@ bool MapInitializerLIBMV::InitializeTwoFrames(const std::vector<cv::Vec2d> &kp0,
   // Convert mat to point3f
   points3d.clear();
   for (int i = 0; i < num_pts; ++i) {
-    cv::Point3f point3d((float) points3d_mat(0, i),
-                      (float) points3d_mat(1, i),
-                      (float) points3d_mat(2, i));
+    cv::Point3f point3d((float)points3d_mat(0, i), (float)points3d_mat(1, i),
+                        (float)points3d_mat(2, i));
     points3d.push_back(point3d);
   }
   return true;
 }
 
-} // vio
+}  // vio

@@ -9,14 +9,16 @@ class MapInitializerLIBMV : public MapInitializer {
   MapInitializerLIBMV() {}
   ~MapInitializerLIBMV() {}
 
-  virtual bool Initialize(const std::vector<std::vector<cv::Vec2d> > &feature_vectors,
-                     const cv::Mat &K, std::vector<cv::Point3f> &points3d,
-                     std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts) override;
+  virtual bool Initialize(
+      const std::vector<std::vector<cv::Vec2d> > &feature_vectors,
+      const cv::Mat &K, std::vector<cv::Point3f> &points3d,
+      std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts) override;
+
  private:
   bool InitializeTwoFrames(const std::vector<cv::Vec2d> &kp0,
-                           const std::vector<cv::Vec2d> &kp1,
-                           const cv::Mat &K, std::vector<cv::Point3f> &points3d,
+                           const std::vector<cv::Vec2d> &kp1, const cv::Mat &K,
+                           std::vector<cv::Point3f> &points3d,
                            std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts);
 };
 
-} // vio
+}  // vio

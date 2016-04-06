@@ -17,13 +17,14 @@ class FeatureMatcherOCV : public FeatureMatcher {
     // matcher_ = cv::DescriptorMatcher::create("BruteForce-Hamming");
     matcher_ = cv::DescriptorMatcher::create("BruteForce");
   }
-  ~FeatureMatcherOCV() {};
+  ~FeatureMatcherOCV(){};
 
   virtual bool Match(const FeatureSet &features0, const FeatureSet &features1,
                      std::vector<cv::DMatch> &matches) override;
- private:
 
-  bool RatioTestFilter(std::vector<std::vector<cv::DMatch> > best_k, std::vector<cv::DMatch> &matches);
+ private:
+  bool RatioTestFilter(std::vector<std::vector<cv::DMatch> > best_k,
+                       std::vector<cv::DMatch> &matches);
   // TODO: Right now, it's O(n^2) search time.
   bool SymmetryTestFilter(const std::vector<cv::DMatch> &matches1,
                           const std::vector<cv::DMatch> &matches2,
@@ -37,6 +38,6 @@ class FeatureMatcherOCV : public FeatureMatcher {
   double nn_match_ratio_;
 };
 
-} // vio 
+}  // vio
 
 #endif

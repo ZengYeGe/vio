@@ -7,26 +7,20 @@ namespace vio {
 class Frame {
  public:
   // TODO: Really need to copy the image?
-  explicit Frame(const cv::Mat &image) {
-    image.copyTo(image_);
-  }
+  explicit Frame(const cv::Mat &image) { image.copyTo(image_); }
 
-  const cv::Mat &GetImage() const {
-    return image_;
-  }
+  const cv::Mat &GetImage() const { return image_; }
 
   void SetFeatures(FeatureSet &features) {
     features_.keypoints = std::move(features.keypoints);
     features.descriptors.copyTo(features_.descriptors);
   }
 
-  const FeatureSet &GetFeatures() const {
-    return features_;
-  } 
+  const FeatureSet &GetFeatures() const { return features_; }
 
  private:
   cv::Mat image_;
   FeatureSet features_;
 };
 
-} // namespace vio
+}  // namespace vio

@@ -7,13 +7,13 @@ namespace vio {
 
 class FeatureMatcher {
  public:
-  FeatureMatcher() {};
-  ~FeatureMatcher() {};
+  FeatureMatcher(){};
+  ~FeatureMatcher(){};
 
   virtual bool Match(const FeatureSet &features0, const FeatureSet &features1,
                      std::vector<cv::DMatch> &matches) = 0;
-};  
+};
 
-} // vio
+}  // vio
 
 #endif

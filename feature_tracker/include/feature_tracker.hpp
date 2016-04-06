@@ -16,18 +16,20 @@ class FeatureTracker {
   FeatureTracker() {}
   ~FeatureTracker() {}
 
-  static FeatureTracker *CreateFeatureTracker(cv::Ptr<cv::FeatureDetector> detector);
-  static FeatureTracker *CreateFeatureTracker(cv::Ptr<cv::FeatureDetector> detector,
-                                              cv::Ptr<cv::DescriptorExtractor> extractor);
+  static FeatureTracker *CreateFeatureTracker(
+      cv::Ptr<cv::FeatureDetector> detector);
+  static FeatureTracker *CreateFeatureTracker(
+      cv::Ptr<cv::FeatureDetector> detector,
+      cv::Ptr<cv::DescriptorExtractor> extractor);
 
   virtual bool TrackFirstFrame(Frame &output_frame) = 0;
   // TODO: Might need to use customized Match class.
-  virtual bool TrackFrame(const Frame &prev_frame,
-                     Frame &output_frame,
-                     std::vector<cv::DMatch> &matches) = 0;
+  virtual bool TrackFrame(const Frame &prev_frame, Frame &output_frame,
+                          std::vector<cv::DMatch> &matches) = 0;
+
  protected:
   FeatureMatcher *matcher_;
-};  
-} // vio
+};
+}  // vio
 
 #endif

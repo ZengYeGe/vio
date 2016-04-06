@@ -14,6 +14,6 @@ class FeatureSet {
   cv::Mat descriptors;
 };
 
-} // vio
+}  // vio
 
 #endif

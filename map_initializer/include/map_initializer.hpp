@@ -13,7 +13,7 @@ enum MapInitializerType {
   NORMALIZED8POINTFUNDMENTAL,
   FIVEPOINT,
   FIVEPOINTEASY
-};  
+};
 
 class MapInitializer {
  public:
@@ -30,9 +30,10 @@ class MapInitializer {
   }
   static MapInitializer *CreateMapInitializerLIBMV();
 
-  virtual bool Initialize(const std::vector<std::vector<cv::Vec2d> > &feature_vectors,
-                     const cv::Mat &K, std::vector<cv::Point3f> &points3d,
-                     std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts) = 0;
+  virtual bool Initialize(
+      const std::vector<std::vector<cv::Vec2d> > &feature_vectors,
+      const cv::Mat &K, std::vector<cv::Point3f> &points3d,
+      std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts) = 0;
 };
 
-} // vio
+}  // vio
