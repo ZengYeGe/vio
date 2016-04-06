@@ -20,20 +20,18 @@ class MapInitializer {
   MapInitializer() {}
   ~MapInitializer() {}
 
-  static MapInitializer *CreateMapInitializer(MapInitializerType type) {
-    switch (type) {
-      case LIVMV:
-        return CreateMapInitializerLIBMV();
-      default:
-        return nullptr;
-    }
-  }
+  static MapInitializer *CreateMapInitializer(MapInitializerType type);
   static MapInitializer *CreateMapInitializerLIBMV();
 
   virtual bool Initialize(
       const std::vector<std::vector<cv::Vec2d> > &feature_vectors,
       const cv::Mat &K, std::vector<cv::Point3f> &points3d,
       std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts) = 0;
+
+ private:
+  Normalize(const std::vector<cv::Point2f> &points,
+            std::vector<cv::Point2f> &norm_points,
+            cv::Mat &p2norm_p);
 };
 
 }  // vio
