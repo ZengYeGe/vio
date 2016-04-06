@@ -1,5 +1,6 @@
 #include "map_initializer.hpp"
 
+#include <fstream>
 #include <memory>
 #include <string>
 
@@ -19,12 +20,15 @@ struct Options {
   Options() : use_keyframe(false) {}
   string path;
   string format;
+  string match_file_name;
   bool use_keyframe;
 };
 
 // TODO: Add two views test.
-// int TestTwoFrame();
+int TestTwoFrameWithAccurateMatchFile(std::string file_name);
 int TestFramesInFolder(Options option);
+void RunInitializer(vector<vector<cv::Vec2d> > &feature_vector);
+// TODO: Put into util.
 void VisualizeCamerasAndPoints(const cv::Matx33d &K,
                                const std::vector<cv::Mat> &Rs,
                                const std::vector<cv::Mat> &ts,
@@ -40,6 +44,8 @@ int main(int argc, char** argv) {
     } else if (!strcmp(argv[i], "--keyframe")) {
       option.use_keyframe = true;
       cout << "Using keyframe.\n";
+    } else if (!strcmp(argv[i], "--accuratetwo")) {
+      option.match_file_name = argv[++i];
     }
   }
 
@@ -51,10 +57,54 @@ int main(int argc, char** argv) {
   cout << "       test\n";
   cout << "            -p, --path full_path \n";
   cout << "            -f, --format image format, e.g png, jpg\n";
+  cout << "            --keyframe, select key frame\n";
+  // TODO: Add test two frames with good baseline and bad baseline.
+  cout << "            --accuratetwo  path_to_match_file, test using accurate matches.\n";
 
   return -1;
 }
+int TestTwoFrameWithAccurateMatchFile(Options options) {
+  cv::Mat_<double> x1, x2;
+  int npts;
+    ifstream myfile(options.match_file_name.c_str());
+    if (!myfile.is_open()) {
+      cout << "Unable to read file: " << argv[1] << endl;
+      exit(0);
 
+    } else {
+      string line;
+
+      // Read number of points
+      getline(myfile, line);
+      npts = (int) atof(line.c_str());
+
+      x1 = Mat_<double>(2, npts);
+      x2 = Mat_<double>(2, npts);
+
+      // Read the point coordinates
+      for (int i = 0; i < npts; ++i) {
+        getline(myfile, line);
+        stringstream s(line);
+        string cord;
+
+        s >> cord;
+        x1(0, i) = atof(cord.c_str());
+        s >> cord;
+        x1(1, i) = atof(cord.c_str());
+
+        s >> cord;
+        x2(0, i) = atof(cord.c_str());
+        s >> cord;
+        x2(1, i) = atof(cord.c_str());
+
+      }
+      myfile.close();
+    }
+  // Change to initializer format 
+
+
+  return 0;
+}
 int TestFramesInFolder(Options option) {
 #ifndef __linux__
   cout << "Error: Test folder Not supported. Currently only support Linux.\n"
@@ -133,7 +183,7 @@ int TestFramesInFolder(Options option) {
   }
 
   landmark_server.PrintStats();
-
+  // TODO: Replace with RunInitializer
   vector<vector<cv::Vec2d> > feature_vectors(images.size());
   cv::Matx33d K_initial;
   vector<cv::Point3f> points3d;
@@ -145,12 +195,27 @@ int TestFramesInFolder(Options option) {
   // TODO: Verify this is correct
   landmark_server.MakeFeatureVectorsForReconstruct(feature_vectors);
   
+  // TODO: Add option to select initializer.
   vio::MapInitializer *map_initializer = vio::MapInitializer::CreateMapInitializer(vio::LIVMV);
   map_initializer->Initialize(feature_vectors, cv::Mat(K_initial), points3d, Rs_est, ts_est);
   
   VisualizeCamerasAndPoints(K_initial, Rs_est, ts_est, points3d);
 
   return 0;  
+}
+
+void RunInitializer(vector<vector<cv::Vec2d> > &feature_vector) {
+  cv::Matx33d K_initial;
+  vector<cv::Point3f> points3d;
+  vector<cv::Mat> Rs_est, ts_est;
+  K_initial = cv::Matx33d(350, 0, 240, 0, 350, 360, 0, 0, 1);
+
+  // TODO: Add option to select initializer.
+  vio::MapInitializer *map_initializer = vio::MapInitializer::CreateMapInitializer(vio::LIVMV);
+  map_initializer->Initialize(feature_vectors, cv::Mat(K_initial), points3d, Rs_est, ts_est);
+  
+  VisualizeCamerasAndPoints(K_initial, Rs_est, ts_est, points3d);
+
 }
 
 void VisualizeCamerasAndPoints(const cv::Matx33d &K,
