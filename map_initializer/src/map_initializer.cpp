@@ -1,65 +1,66 @@
 #include "map_initializer.hpp"
 
-static MapInitializer *MapInitializer::CreateMapInitializer(MapInitializerType type) {
-    switch (type) {
-      case LIVMV:
-        return CreateMapInitializerLIBMV();
-      default:
-        return nullptr;
-    }
-  }
+namespace vio {
 
-void MapInitializer::Normalize(const std::vector<cv::Point2f> &points,
-            std::vector<cv::Point2f> &norm_points,
-            cv::Mat &p2norm_p) {
+MapInitializer *MapInitializer::CreateMapInitializer(MapInitializerType type) {
+  switch (type) {
+    case LIVMV:
+      return CreateMapInitializerLIBMV();
+    case NORMALIZED8POINTFUNDAMENTAL:
+      return CreateMapInitializer8Point();
+    default:
+      return nullptr;
+  }
+}
+
+void MapInitializer::Normalize(const std::vector<cv::Vec2d> &points,
+                               std::vector<cv::Vec2d> &normalized_points,
+                               cv::Mat &p2norm_p) {
   // Hartley, etc, p107
   // 1. The points are translated so that their centroid is at the origin.
-  // 2. The points are then scaled so that the average distance from the origin is equal to sqrt(2).
+  // 2. The points are then scaled so that the average distance from the origin
+  // is equal to sqrt(2).
   // 3. Appy on two images independently
 
   // Libmv uses a non-isotropic scaling. p109
-  float meanX = 0.0, meanY = 0.0;
+  double meanX = 0.0, meanY = 0.0;
   const int num_points = points.size();
 
   normalized_points.resize(num_points);
 
   for (int i = 0; i < num_points; ++i) {
-    meanX += points[i].x;
-    meanY += points[i].y;
+    meanX += points[i][0];
+    meanY += points[i][1];
   }
 
   meanX = meanX / num_points;
   meanY = meanY / num_points;
 
-  float meanDevX = 0, meanDevY = 0;
+  double meanDevX = 0, meanDevY = 0;
 
   for (int i = 0; i < num_points; ++i) {
-    normalized_points[i].x = points[i].x - meanX;
-    normalized_points[i].y = points[i].y - meanY;
+    normalized_points[i][0] = points[i][0] - meanX;
+    normalized_points[i][1] = points[i][1] - meanY;
 
-    meanDevX += abs(normalized_points[i].x);
-    meanDevY += abs(normalized_points[i].y);
+    meanDevX += abs(normalized_points[i][0]);
+    meanDevY += abs(normalized_points[i][1]);
   }
 
   meanDevX = meanDevX / num_points;
   meanDevY = meanDevY / num_points;
 
-  float sX = 1.0 / meanDevX, sY = 1.0 / meanDevY;
+  double sX = 1.0 / meanDevX, sY = 1.0 / meanDevY;
 
   for (int i = 0; i < num_points; ++i) {
-    normalized_points[i].x = normalized_points[i].x * sX;
-    normalized_points[i].y = normalized_points[i].y * sY;
+    normalized_points[i][0] = normalized_points[i][0] * sX;
+    normalized_points[i][1] = normalized_points[i][1] * sY;
   }
 
-/*
-  p2norm_p << sX,  0, -meanX *sX,
-               0, sY, -meanY *sY,
-               0,  0,          1;
-*/
-
   p2norm_p = cv::Mat::eye(3, 3, CV_64F);
-  p2norm_p.at<float>(0, 0) = sX;
-  p2norm_p.at<float>(1, 1) = sY;
-  p2norm_p.at<float>(0, 2) = -meanX * sX;
-  p2norm_p.at<float>(1, 2) = -meanY * sY;
+  p2norm_p.at<double>(0, 0) = sX;
+  p2norm_p.at<double>(1, 1) = sY;
+  p2norm_p.at<double>(0, 2) = -meanX * sX;
+  p2norm_p.at<double>(1, 2) = -meanY * sY;
 }
+
+}  // vio
