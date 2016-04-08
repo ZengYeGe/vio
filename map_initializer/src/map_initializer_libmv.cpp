@@ -104,6 +104,20 @@ bool MapInitializerLIBMV::InitializeTwoFrames(
                         (float)points3d_mat(2, i));
     points3d.push_back(point3d);
   }
+  std::cout << "\n--------Initialization--------------------\n" << std::endl;
+  std::cout << "2D feature number: " << kp0.size() << std::endl;
+  std::cout << "Initialized 3D points: " << points3d.size() << std::endl;
+  std::cout << "Original intrinsics: " << std::endl
+            << K << std::endl;
+  std::cout << "Refined intrinsics: " << std::endl
+            << K_estimated << std::endl
+            << std::endl;
+  std::cout << "Cameras are: " << std::endl;
+  for (int i = 0; i < Ps_estimated.size(); ++i) {
+    std::cout << "P: " << std::endl
+              << Ps_estimated[i] << std::endl;
+  }
+  std::cout << "\n----------------------------\n" << std::endl;
   return true;
 }
 

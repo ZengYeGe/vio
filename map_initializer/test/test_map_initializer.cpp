@@ -213,11 +213,14 @@ void RunInitializer(vector<vector<cv::Vec2d> > &feature_vectors) {
   cv::Matx33d K_initial;
   vector<cv::Point3f> points3d;
   vector<cv::Mat> Rs_est, ts_est;
-  K_initial = cv::Matx33d(350, 0, 240, 0, 350, 360, 0, 0, 1);
+  if (feature_vectors.size() == 0)
+    K_initial = cv::Matx33d(1, 0, 0, 0, 1, 0, 0, 0, 1); 
+  else
+    K_initial = cv::Matx33d(350, 0, 240, 0, 350, 360, 0, 0, 1);
 
   // TODO: Add option to select initializer.
-  //vio::MapInitializer *map_initializer =
-  //    vio::MapInitializer::CreateMapInitializer(vio::LIVMV);
+//  vio::MapInitializer *map_initializer =
+//      vio::MapInitializer::CreateMapInitializer(vio::LIVMV);
   vio::MapInitializer *map_initializer =
       vio::MapInitializer::CreateMapInitializer(vio::NORMALIZED8POINTFUNDAMENTAL);
   map_initializer->Initialize(feature_vectors, cv::Mat(K_initial), points3d,

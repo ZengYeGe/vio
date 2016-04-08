@@ -48,30 +48,44 @@ bool MapInitializer8Point::InitializeTwoFrames(
   // Recover the 4 motion hypotheses
   DecomposeE(E, R1, R2, t);
 
+  std::cout << "E:\n" << E << std::endl;
+  std::cout << "R1:\n" << R1 << "\nR2:\n" << R2 << "\nt:\n" << t << std::endl;
+
   cv::Mat t1 = t;
   cv::Mat t2 = -t;
 
   // Reconstruct with the 4 hyphoteses and check
-  vector<cv::Point3f> vP3D1, vP3D2, vP3D3, vP3D4;
-  vector<bool> vbTriangulated1, vbTriangulated2, vbTriangulated3,
+  std::vector<cv::Point3f> vP3D1, vP3D2, vP3D3, vP3D4;
+  std::vector<bool> vbTriangulated1, vbTriangulated2, vbTriangulated3,
       vbTriangulated4;
-  float parallax1, parallax2, parallax3, parallax4;
+  double parallax1, parallax2, parallax3, parallax4;
+  // TODO: For now, all points are inlier.
+  std::vector<bool> match_inlier_mask(kp0.size(), true);
+  // TODO: What is this?
+  double mSigma2 = 1.0;
 
-  int nGood1 = EvaluateSolutionRT(R1, t1, mvKeys1, mvKeys2, mvMatches12, vbMatchesInliers,
-                       K, vP3D1, 4.0 * mSigma2, vbTriangulated1, parallax1);
-  int nGood2 = EvaluateSolutionRT(R2, t1, mvKeys1, mvKeys2, mvMatches12, vbMatchesInliers,
-                       K, vP3D2, 4.0 * mSigma2, vbTriangulated2, parallax2);
-  int nGood3 = EvaluateSolutionRT(R1, t2, mvKeys1, mvKeys2, mvMatches12, vbMatchesInliers,
-                       K, vP3D3, 4.0 * mSigma2, vbTriangulated3, parallax3);
-  int nGood4 = EvaluateSolutionRT(R2, t2, mvKeys1, mvKeys2, mvMatches12, vbMatchesInliers,
-                       K, vP3D4, 4.0 * mSigma2, vbTriangulated4, parallax4);
+  int nGood1 = EvaluateSolutionRT(R1, t1, kp0, kp1, match_inlier_mask, K, vP3D1,
+                                  4.0 * mSigma2, vbTriangulated1, parallax1);
+  int nGood2 = EvaluateSolutionRT(R2, t1, kp0, kp1, match_inlier_mask, K, vP3D2,
+                                  4.0 * mSigma2, vbTriangulated2, parallax2);
+  int nGood3 = EvaluateSolutionRT(R1, t2, kp0, kp1, match_inlier_mask, K, vP3D3,
+                                  4.0 * mSigma2, vbTriangulated3, parallax3);
+  int nGood4 = EvaluateSolutionRT(R2, t2, kp0, kp1, match_inlier_mask, K, vP3D4,
+                                  4.0 * mSigma2, vbTriangulated4, parallax4);
 
-  int maxGood = max(nGood1, max(nGood2, max(nGood3, nGood4)));
+  std::cout << "Solution 1 has " << nGood1 << " points.\n";
+  std::cout << "Solution 2 has " << nGood2 << " points.\n";
+  std::cout << "Solution 3 has " << nGood3 << " points.\n";
+  std::cout << "Solution 4 has " << nGood4 << " points.\n";
 
-  R21 = cv::Mat();
-  t21 = cv::Mat();
+  int maxGood = std::max(nGood1, std::max(nGood2, std::max(nGood3, nGood4)));
 
-  int nMinGood = max(static_cast<int>(0.9 * N), minTriangulated);
+  cv::Mat R21 = cv::Mat();
+  cv::Mat t21 = cv::Mat();
+
+  int num_match = kp0.size();
+  int minTriangulated = 50;
+  int nMinGood = std::max(static_cast<int>(0.9 * num_match), minTriangulated);
 
   int nsimilar = 0;
   if (nGood1 > 0.7 * maxGood) nsimilar++;
@@ -85,10 +99,13 @@ bool MapInitializer8Point::InitializeTwoFrames(
     return false;
   }
 
+  double minParallax = 1.0;
+  std::vector<bool> vbTriangulated;
   // If best reconstruction has enough parallax initialize
   if (maxGood == nGood1) {
     if (parallax1 > minParallax) {
-      vP3D = vP3D1;
+      std::cout << "Best solution is 1.\n";
+      points3d = vP3D1;
       vbTriangulated = vbTriangulated1;
 
       R1.copyTo(R21);
@@ -97,7 +114,8 @@ bool MapInitializer8Point::InitializeTwoFrames(
     }
   } else if (maxGood == nGood2) {
     if (parallax2 > minParallax) {
-      vP3D = vP3D2;
+      std::cout << "Best solution is 2.\n";
+      points3d = vP3D2;
       vbTriangulated = vbTriangulated2;
 
       R2.copyTo(R21);
@@ -106,7 +124,8 @@ bool MapInitializer8Point::InitializeTwoFrames(
     }
   } else if (maxGood == nGood3) {
     if (parallax3 > minParallax) {
-      vP3D = vP3D3;
+      std::cout << "Best solution is 3.\n";
+      points3d = vP3D3;
       vbTriangulated = vbTriangulated3;
 
       R1.copyTo(R21);
@@ -115,7 +134,8 @@ bool MapInitializer8Point::InitializeTwoFrames(
     }
   } else if (maxGood == nGood4) {
     if (parallax4 > minParallax) {
-      vP3D = vP3D4;
+      std::cout << "Best solution is 4.\n";
+      points3d = vP3D4;
       vbTriangulated = vbTriangulated4;
 
       R2.copyTo(R21);
@@ -125,8 +145,6 @@ bool MapInitializer8Point::InitializeTwoFrames(
   }
 
   return false;
-
-  return true;
 }
 
 bool MapInitializer8Point::ComputeF(const std::vector<cv::Vec2d> &kp0,
@@ -244,8 +262,8 @@ int MapInitializer8Point::EvaluateSolutionRT(
   t.copyTo(P2.rowRange(0, 3).col(3));
   P2 = K * P2;
 
-  cout << "P1: \n" << P1 << endl
-       << "P2:\n" << P2 << endl;
+  // std::cout << "P1: \n" << P1 << std::endl
+  //     << "P2:\n" << P2 << std::endl;
 
   cv::Mat O2 = -R.t() * t;
 
@@ -256,15 +274,15 @@ int MapInitializer8Point::EvaluateSolutionRT(
     cv::Mat p3dC1;
 
     Triangulate(kp0[i], kp1[i], P1, P2, p3dC1);
-
-    // TODO: Make sure isfinite is in std
-    if (!std::isfinite(p3dC1.at<double>(0)) ||
-        !std::isfinite(p3dC1.at<double>(1)) ||
-        !std::isfinite(p3dC1.at<double>(2))) {
-      vbGood[i] = false;
-      continue;
-    }
-
+    /*
+        // TODO: Make sure isfinite is in std
+        if (!std::isfinite(p3dC1.at<double>(0)) ||
+            !std::isfinite(p3dC1.at<double>(1)) ||
+            !std::isfinite(p3dC1.at<double>(2))) {
+          vbGood[i] = false;
+          continue;
+        }
+    */
     // Check parallax
     cv::Mat normal1 = p3dC1 - O1;
     double dist1 = cv::norm(normal1);
@@ -272,8 +290,12 @@ int MapInitializer8Point::EvaluateSolutionRT(
     cv::Mat normal2 = p3dC1 - O2;
     double dist2 = cv::norm(normal2);
 
+    // std::cout << "Dist 1 " << dist1 << ", Dist 2 " << dist2 << std::endl;
+    // std::cout << "3D point: " << p3dC1 << std::endl;
+
     double cosParallax = normal1.dot(normal2) / (dist1 * dist2);
 
+    // std::cout << "Parallax: " << cosParallax << std::endl;
     // Check depth in front of first camera (only if enough parallax, as
     // "infinite" points can easily go to negative depth)
     if (p3dC1.at<double>(2) <= 0 && cosParallax < 0.99998) continue;
@@ -293,6 +315,8 @@ int MapInitializer8Point::EvaluateSolutionRT(
     double squareError1 = (im1x - kp0[i][0]) * (im1x - kp0[i][0]) +
                           (im1y - kp0[i][1]) * (im1y - kp0[i][1]);
 
+    std::cout << "Square Error 1 " << squareError1 << std::endl;
+
     if (squareError1 > th2) continue;
 
     // Check reprojection error in second image
@@ -303,6 +327,8 @@ int MapInitializer8Point::EvaluateSolutionRT(
 
     double squareError2 = (im2x - kp1[i][0]) * (im2x - kp1[i][0]) +
                           (im2y - kp1[i][1]) * (im2y - kp1[i][1]);
+
+    std::cout << "Square Error 2 " << squareError2 << std::endl;
 
     if (squareError2 > th2) continue;
 
