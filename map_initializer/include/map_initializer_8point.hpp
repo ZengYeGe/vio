@@ -26,6 +26,7 @@ class MapInitializer8Point : public MapInitializer {
   cv::Mat ComputeFOpenCV(const std::vector<cv::Vec2d> &kp0,
                          const std::vector<cv::Vec2d> &kp1);
 
+  bool SolveProjectionFromF(const cv::Mat &F, cv::Mat &P1, cv::Mat &P2);
   // cv::Mat ComputeEfromF(const cv::Mat &F, const cv::Mat &K);
   void DecomposeE(const cv::Mat &E, cv::Mat &R1, cv::Mat &R2, cv::Mat &t);
   void Triangulate(const cv::Vec2d &kp1, const cv::Vec2d &kp2,
@@ -37,6 +38,7 @@ class MapInitializer8Point : public MapInitializer {
                          const cv::Mat &K, std::vector<cv::Point3f> &points_3d,
                          double th2, std::vector<bool> &vbGood,
                          double &parallax);
+  cv::Mat SkewSymmetricMatrix(const cv::Mat &a);
 };
 
 }  // vio

@@ -35,13 +35,26 @@ bool MapInitializer8Point::InitializeTwoFrames(
   Normalize(kp0, norm_kp0, norm_T0);
   Normalize(kp1, norm_kp1, norm_T1);
 
-  cv::Mat F;
-  if (!ComputeF(kp0, kp1, F)) return false;
+  std::cout << "Norm Matrix 0: \n" << norm_T0 << std::endl;
+  std::cout << "Norm Matrix 1: \n" << norm_T1 << std::endl;
 
+  cv::Mat F;
+  if (!ComputeF(norm_kp0, norm_kp1, F)) return false;
+  F = norm_T1.t() * F * norm_T0;
+
+  // Make last element 1
+  MakeMatrixInhomogeneous(F);
   std::cout << "F :\n" << F << std::endl;
 
   cv::Mat F_ocv = ComputeFOpenCV(kp0, kp1);
   std::cout << "F from OpenCV: \n" << F_ocv << std::endl;
+
+  // P1 should be [I | 0]
+  cv::Mat P1, P2;
+  SolveProjectionFromF(F, P1, P2);
+
+  // TODO:Get this work first
+  // Triangulate(kp0, kp1, P1, P2, points3d);
 
   cv::Mat E = K.t() * F * K;
   cv::Mat R1, R2, t;
@@ -178,6 +191,7 @@ bool MapInitializer8Point::ComputeF(const std::vector<cv::Vec2d> &kp0,
   cv::SVDecomp(Fpre, w, u, vt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
   w.at<double>(2) = 0;
 
+  // Make detF = 0
   F = u * cv::Mat::diag(w) * vt;
   return true;
 }
@@ -195,6 +209,36 @@ cv::Mat MapInitializer8Point::ComputeFOpenCV(
   cv::Mat F = cv::findFundamentalMat(points0, points1, CV_FM_8POINT, 3, 0.99,
                                      mask);  // CV_FM_RANSAC
   return F;
+}
+
+bool MapInitializer8Point::SolveProjectionFromF(const cv::Mat &F, cv::Mat &P1,
+                                                cv::Mat &P2) {
+  P1 = cv::Mat::eye(3, 4, CV_64F);
+  P2 = cv::Mat::zeros(3, 4, CV_64F);
+  cv::Mat e2 = cv::Mat::zeros(3, 1, CV_64F);
+  cv::SVD::solveZ(F.t(), e2);
+  // TODO: Verify e2 is valid.
+  cv::Mat P33 = P2(cv::Rect(0, 0, 3, 3));
+  P33 = SkewSymmetricMatrix(e2) * F;
+
+  e2.copyTo(P2(cv::Rect(3, 0, 1, 3)));
+
+  std::cout << "Compute P from F...\nP1:\n" << P1 << "\nP2:\n" << P2
+            << std::endl;
+
+  return true;
+}
+
+cv::Mat MapInitializer8Point::SkewSymmetricMatrix(const cv::Mat &a) {
+  cv::Mat sm(3, 3, CV_64F, cv::Scalar(0));
+  sm.at<double>(0, 1) = -a.at<double>(2);
+  sm.at<double>(0, 2) = a.at<double>(1);
+  sm.at<double>(1, 0) = a.at<double>(2);
+  sm.at<double>(1, 2) = -a.at<double>(0);
+  sm.at<double>(2, 0) = -a.at<double>(1);
+  sm.at<double>(2, 1) = a.at<double>(0);
+
+  return sm;
 }
 
 void MapInitializer8Point::DecomposeE(const cv::Mat &E, cv::Mat &R1,
@@ -315,7 +359,7 @@ int MapInitializer8Point::EvaluateSolutionRT(
     double squareError1 = (im1x - kp0[i][0]) * (im1x - kp0[i][0]) +
                           (im1y - kp0[i][1]) * (im1y - kp0[i][1]);
 
-    std::cout << "Square Error 1 " << squareError1 << std::endl;
+    // std::cout << "Square Error 1 " << squareError1 << std::endl;
 
     if (squareError1 > th2) continue;
 

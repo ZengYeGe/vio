@@ -33,6 +33,7 @@ class MapInitializer {
  protected:
   void Normalize(const std::vector<cv::Vec2d> &points,
                  std::vector<cv::Vec2d> &norm_points, cv::Mat &p2norm_p);
+  bool MakeMatrixInhomogeneous(cv::Mat &M);
 };
 
 }  // vio
