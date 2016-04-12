@@ -39,7 +39,7 @@ bool MapInitializer8Point::InitializeTwoFrames(
   std::cout << "Norm Matrix 1: \n" << norm_T1 << std::endl;
 
   cv::Mat F;
-  if (!ComputeF(norm_kp0, norm_kp1, F)) return false;
+  if (!ComputeFundamentalDLT(norm_kp0, norm_kp1, F)) return false;
   F = norm_T1.t() * F * norm_T0;
 
   // Make last element 1
@@ -49,118 +49,84 @@ bool MapInitializer8Point::InitializeTwoFrames(
   cv::Mat F_ocv = ComputeFOpenCV(kp0, kp1);
   std::cout << "F from OpenCV: \n" << F_ocv << std::endl;
 
+  // TODO: If K is unknown, find P
   // P1 should be [I | 0]
   cv::Mat P1, P2;
   SolveProjectionFromF(F, P1, P2);
 
-  // TODO:Get this work first
-  // Triangulate(kp0, kp1, P1, P2, points3d);
+  TriangulatePoints(kp0, kp1, P1, P2, points3d);
 
+  // TODO: Make tinyxml work
+  // TODO: Hand pick matches for two images of calibration board?
+  // TODO: Calibrate Nexus 5P
+
+
+  // If K is unknown
   cv::Mat E = K.t() * F * K;
-  cv::Mat R1, R2, t;
+  std::vector<cv::Mat> Rs(2), ts(2);
   // Recover the 4 motion hypotheses
-  DecomposeE(E, R1, R2, t);
+  DecomposeE(E, Rs[0], Rs[1], ts[0]);
+  ts[1] = -ts[0];
 
-  std::cout << "E:\n" << E << std::endl;
-  std::cout << "R1:\n" << R1 << "\nR2:\n" << R2 << "\nt:\n" << t << std::endl;
-
-  cv::Mat t1 = t;
-  cv::Mat t2 = -t;
-
-  // Reconstruct with the 4 hyphoteses and check
-  std::vector<cv::Point3f> vP3D1, vP3D2, vP3D3, vP3D4;
-  std::vector<bool> vbTriangulated1, vbTriangulated2, vbTriangulated3,
-      vbTriangulated4;
-  double parallax1, parallax2, parallax3, parallax4;
   // TODO: For now, all points are inlier.
   std::vector<bool> match_inlier_mask(kp0.size(), true);
-  // TODO: What is this?
-  double mSigma2 = 1.0;
 
-  int nGood1 = EvaluateSolutionRT(R1, t1, kp0, kp1, match_inlier_mask, K, vP3D1,
-                                  4.0 * mSigma2, vbTriangulated1, parallax1);
-  int nGood2 = EvaluateSolutionRT(R2, t1, kp0, kp1, match_inlier_mask, K, vP3D2,
-                                  4.0 * mSigma2, vbTriangulated2, parallax2);
-  int nGood3 = EvaluateSolutionRT(R1, t2, kp0, kp1, match_inlier_mask, K, vP3D3,
-                                  4.0 * mSigma2, vbTriangulated3, parallax3);
-  int nGood4 = EvaluateSolutionRT(R2, t2, kp0, kp1, match_inlier_mask, K, vP3D4,
-                                  4.0 * mSigma2, vbTriangulated4, parallax4);
+  cv::Mat R_final, t_final;
+  SelectSolutionRT(Rs, ts, K, kp0, kp1, match_inlier_mask, R_final, t_final, points3d);
 
-  std::cout << "Solution 1 has " << nGood1 << " points.\n";
-  std::cout << "Solution 2 has " << nGood2 << " points.\n";
-  std::cout << "Solution 3 has " << nGood3 << " points.\n";
-  std::cout << "Solution 4 has " << nGood4 << " points.\n";
+  // Get P from R, t
+  // Triangulate
 
-  int maxGood = std::max(nGood1, std::max(nGood2, std::max(nGood3, nGood4)));
-
-  cv::Mat R21 = cv::Mat();
-  cv::Mat t21 = cv::Mat();
-
-  int num_match = kp0.size();
-  int minTriangulated = 50;
-  int nMinGood = std::max(static_cast<int>(0.9 * num_match), minTriangulated);
-
-  int nsimilar = 0;
-  if (nGood1 > 0.7 * maxGood) nsimilar++;
-  if (nGood2 > 0.7 * maxGood) nsimilar++;
-  if (nGood3 > 0.7 * maxGood) nsimilar++;
-  if (nGood4 > 0.7 * maxGood) nsimilar++;
-
-  // If there is not a clear winner or not enough triangulated points reject
-  // initialization
-  if (maxGood < nMinGood || nsimilar > 1) {
-    return false;
-  }
-
-  double minParallax = 1.0;
-  std::vector<bool> vbTriangulated;
-  // If best reconstruction has enough parallax initialize
-  if (maxGood == nGood1) {
-    if (parallax1 > minParallax) {
-      std::cout << "Best solution is 1.\n";
-      points3d = vP3D1;
-      vbTriangulated = vbTriangulated1;
-
-      R1.copyTo(R21);
-      t1.copyTo(t21);
-      return true;
-    }
-  } else if (maxGood == nGood2) {
-    if (parallax2 > minParallax) {
-      std::cout << "Best solution is 2.\n";
-      points3d = vP3D2;
-      vbTriangulated = vbTriangulated2;
-
-      R2.copyTo(R21);
-      t1.copyTo(t21);
-      return true;
-    }
-  } else if (maxGood == nGood3) {
-    if (parallax3 > minParallax) {
-      std::cout << "Best solution is 3.\n";
-      points3d = vP3D3;
-      vbTriangulated = vbTriangulated3;
-
-      R1.copyTo(R21);
-      t2.copyTo(t21);
-      return true;
-    }
-  } else if (maxGood == nGood4) {
-    if (parallax4 > minParallax) {
-      std::cout << "Best solution is 4.\n";
-      points3d = vP3D4;
-      vbTriangulated = vbTriangulated4;
-
-      R2.copyTo(R21);
-      t2.copyTo(t21);
-      return true;
-    }
-  }
-
-  return false;
+  return true;
 }
 
-bool MapInitializer8Point::ComputeF(const std::vector<cv::Vec2d> &kp0,
+template <typename Point3Type>
+bool MapInitializer8Point::SelectSolutionRT(const std::vector<cv::Mat> &Rs,
+                       const std::vector<cv::Mat> &ts,
+                       const cv::Mat &K,
+                       const std::vector<cv::Vec2d> &kp0,
+                       const std::vector<cv::Vec2d> &kp1,
+                       const std::vector<bool> &match_inliers, // not used
+                       cv::Mat &R_best, cv::Mat &t_best,
+                       std::vector<Point3Type> &points_3d) {
+  int max_num_point_inlier = 0;
+  int best_R_id = -1, best_t_id = -1;
+  for (int R_id = 0; R_id < 2; ++R_id) {
+    for (int t_id = 0; t_id < 2; ++t_id) {
+      std::vector<Point3Type> tmp_points3d;
+      std::vector<bool> triangulated_mask;  // not used yet
+      double parallax;
+      double th2 = 4.0 * 1.0;
+      double minParallax = 1.0;
+
+      int num_point_inlier = EvaluateSolutionRT(R[R_id], t[t_id], K, kp0, kp1, match_inliers,
+                                     tmp_points3d, th2, triangulated_mask, parallax);
+      std::cout << "Solution " << R_id * 2 + t_id + 1 << " has " << num_point_inlier
+                << " points.\n";
+      if (num_point_inlier > max_num_point_inlier && parallax > minParallax) {
+        // Make sure there is a clear winner
+        if (num_point_inlier > 0.7 * max_num_point_inlier)
+          return false;
+        max_num_point_inlier = num_point_inlier;
+        best_R_id = R_id;
+        best_t_id = t_id;
+        points_3d = std::move(tmp_points3d);
+      }
+    }
+  }
+   
+  int min_triangulated = 50;
+  if (max_num_point_inlier < min_triangulated || max_num_point_inlier < kp0.size()) {
+    std::cerr << "Not enough inlier 3D points.\n";
+    return false;
+  }
+  R[best_R_id].copyTo(R_best);
+  t[best_t_id].copyTo(t_best);
+  
+  return true;
+}
+
+bool MapInitializer8Point::ComputeFundamentalDLT(const std::vector<cv::Vec2d> &kp0,
                                     const std::vector<cv::Vec2d> &kp1,
                                     cv::Mat &F) {
   if (kp0.size() < 8 || kp0.size() != kp1.size()) return false;
@@ -261,6 +227,36 @@ void MapInitializer8Point::DecomposeE(const cv::Mat &E, cv::Mat &R1,
   if (cv::determinant(R2) < 0) R2 = -R2;
 }
 
+template <typename Point3Type>
+void MapInitializer8Point::TriangulatePoints(const std::vector<cv::Vec2d> &kp0,
+                       const std::vector<cv::Vec2d> &kp1,
+                       const cv::Mat &P1, const cv::Mat &P2, std::vector<Point3Type> &points3d) {
+  points3d.resize(kp0.size());
+  for (int i = 0; i < kp0.size(); ++i) {
+    TriangulateDLT(kp0[i], kp1[i], P1, P2, points3d[i]);
+  }
+}
+
+template <typename Point3Type>
+void MapInitializer8Point::TriangulateDLT(const cv::Vec2d &kp1, const cv::Vec2d &kp2,
+                      const cv::Mat &P1, const cv::Mat &P2, Point3Type &point3d) {
+  cv::Mat A(4, 4, CV_64F);
+
+  A.row(0) = kp1[0] * P1.row(2) - P1.row(0);
+  A.row(1) = kp1[1] * P1.row(2) - P1.row(1);
+  A.row(2) = kp2[0] * P2.row(2) - P2.row(0);
+  A.row(3) = kp2[1] * P2.row(2) - P2.row(1);
+
+  cv::Mat u, w, vt;
+  cv::SVD::compute(A, w, u, vt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+  
+  // It's homogeneous
+  cv::Mat p3d_mat = vt.row(3).t();
+  point3d.x = p3d_mat.at<double>(0) / p3d_mat.at<double>(3);
+  point3d.y = p3d_mat.at<double>(1) / p3d_mat.at<double>(3);
+  point3d.z = p3d_mat.at<double>(2) / p3d_mat.at<double>(3);
+}
+
 void MapInitializer8Point::Triangulate(const cv::Vec2d &kp1,
                                        const cv::Vec2d &kp2, const cv::Mat &P1,
                                        const cv::Mat &P2, cv::Mat &x3D) {
@@ -278,9 +274,9 @@ void MapInitializer8Point::Triangulate(const cv::Vec2d &kp1,
 }
 
 int MapInitializer8Point::EvaluateSolutionRT(
-    const cv::Mat &R, const cv::Mat &t, const std::vector<cv::Vec2d> &kp0,
+    const cv::Mat &R, const cv::Mat &t, const cv::Mat &K, const std::vector<cv::Vec2d> &kp0,
     const std::vector<cv::Vec2d> &kp1, const std::vector<bool> &match_inliers,
-    const cv::Mat &K, std::vector<cv::Point3f> &points_3d, double th2,
+    std::vector<cv::Point3f> &points_3d, double th2,
     std::vector<bool> &vbGood, double &parallax) {
   // Calibration parameters
   const double fx = K.at<double>(0, 0);
