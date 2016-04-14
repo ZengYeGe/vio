@@ -53,17 +53,14 @@ bool MapInitializerLIBMV::Initialize(
   std::cout << "2D feature number: " << feature_vectors[0].size() << std::endl;
   std::cout << "Initialized 3D points: " << points3d.size() << std::endl;
   std::cout << "Estimated cameras: " << Rs.size() << std::endl;
-  std::cout << "Original intrinsics: " << std::endl
-            << K << std::endl;
+  std::cout << "Original intrinsics: " << std::endl << K << std::endl;
   std::cout << "Refined intrinsics: " << std::endl
             << refined_camera_matrix << std::endl
             << std::endl;
   std::cout << "Cameras are: " << std::endl;
   for (int i = 0; i < Rs.size(); ++i) {
-    std::cout << "R: " << std::endl
-              << Rs[i] << std::endl;
-    std::cout << "t: " << std::endl
-              << ts[i] << std::endl;
+    std::cout << "R: " << std::endl << Rs[i] << std::endl;
+    std::cout << "t: " << std::endl << ts[i] << std::endl;
   }
   std::cout << "\n----------------------------\n" << std::endl;
   return true;
@@ -107,15 +104,13 @@ bool MapInitializerLIBMV::InitializeTwoFrames(
   std::cout << "\n--------Initialization--------------------\n" << std::endl;
   std::cout << "2D feature number: " << kp0.size() << std::endl;
   std::cout << "Initialized 3D points: " << points3d.size() << std::endl;
-  std::cout << "Original intrinsics: " << std::endl
-            << K << std::endl;
+  std::cout << "Original intrinsics: " << std::endl << K << std::endl;
   std::cout << "Refined intrinsics: " << std::endl
             << K_estimated << std::endl
             << std::endl;
   std::cout << "Cameras are: " << std::endl;
   for (int i = 0; i < Ps_estimated.size(); ++i) {
-    std::cout << "P: " << std::endl
-              << Ps_estimated[i] << std::endl;
+    std::cout << "P: " << std::endl << Ps_estimated[i] << std::endl;
   }
   std::cout << "\n----------------------------\n" << std::endl;
   return true;
