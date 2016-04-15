@@ -18,7 +18,7 @@ enum MapInitializerType {
 
 class MapInitializer {
  public:
-  MapInitializer() {}
+  MapInitializer() : verbose_(false) {}
   ~MapInitializer() {}
 
   static MapInitializer *CreateMapInitializer(MapInitializerType type);
@@ -28,12 +28,15 @@ class MapInitializer {
   virtual bool Initialize(
       const std::vector<std::vector<cv::Vec2d> > &feature_vectors,
       const cv::Mat &K, std::vector<cv::Point3f> &points3d,
-      std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts) = 0;
+      std::vector<bool> &points3d_mask, std::vector<cv::Mat> &Rs,
+      std::vector<cv::Mat> &ts) = 0;
 
  protected:
   void Normalize(const std::vector<cv::Vec2d> &points,
                  std::vector<cv::Vec2d> &norm_points, cv::Mat &p2norm_p);
   bool MakeMatrixInhomogeneous(cv::Mat &M);
+
+  bool verbose_;
 };
 
 }  // vio

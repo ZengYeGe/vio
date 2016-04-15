@@ -12,7 +12,8 @@ MapInitializer *MapInitializer::CreateMapInitializerLIBMV() {
 bool MapInitializerLIBMV::Initialize(
     const std::vector<std::vector<cv::Vec2d> > &feature_vectors,
     const cv::Mat &K, std::vector<cv::Point3f> &points3d,
-    std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts) {
+    std::vector<bool> &points3d_mask, std::vector<cv::Mat> &Rs,
+    std::vector<cv::Mat> &ts) {
   if (feature_vectors.size() < 2) {
     std::cerr << "Error: libmv initializer not support views < 3.\n";
     return false;

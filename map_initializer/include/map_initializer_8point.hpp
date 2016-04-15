@@ -12,14 +12,31 @@ class MapInitializer8Point : public MapInitializer {
   virtual bool Initialize(
       const std::vector<std::vector<cv::Vec2d> > &feature_vectors,
       const cv::Mat &K, std::vector<cv::Point3f> &points3d,
-      std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts) override;
+      std::vector<bool> &points3d_mask, std::vector<cv::Mat> &Rs,
+      std::vector<cv::Mat> &ts) override;
 
  protected:
   bool InitializeTwoFrames(const std::vector<cv::Vec2d> &kp0,
                            const std::vector<cv::Vec2d> &kp1, const cv::Mat &K,
                            std::vector<cv::Point3f> &points3d,
+                           std::vector<bool> &points3d_mask,
                            std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts);
 
+  // Find correct R, t combination.
+  template <typename Point3Type>
+  bool SelectSolutionRT(const std::vector<cv::Mat> &R,
+                        const std::vector<cv::Mat> &t, const cv::Mat &K,
+                        const std::vector<cv::Vec2d> &kp0,
+                        const std::vector<cv::Vec2d> &kp1,
+                        const std::vector<bool> &match_inliers, cv::Mat &R_best,
+                        cv::Mat &t_best, std::vector<Point3Type> &points_3d,
+                        std::vector<bool> &point3d_mask);
+  int EvaluateSolutionRT(const cv::Mat &R, const cv::Mat &t, const cv::Mat &K,
+                         const std::vector<cv::Vec2d> &kp0,
+                         const std::vector<cv::Vec2d> &kp1,
+                         const std::vector<bool> &match_inliers,
+                         std::vector<cv::Point3f> &points_3d,
+                         std::vector<bool> &points3d_mask);
   // Handle n points, at least 8.
   bool ComputeFundamentalDLT(const std::vector<cv::Vec2d> &kp0,
                              const std::vector<cv::Vec2d> &kp1, cv::Mat &F);
@@ -41,22 +58,6 @@ class MapInitializer8Point : public MapInitializer {
                       const cv::Mat &P1, const cv::Mat &P2,
                       Point3Type &point3d);
 
-  void Triangulate(const cv::Vec2d &kp1, const cv::Vec2d &kp2,
-                   const cv::Mat &P1, const cv::Mat &P2, cv::Mat &x3D);
-  // Find correct R, t combination.
-  template <typename Point3Type>
-  bool SelectSolutionRT(const std::vector<cv::Mat> &R,
-                        const std::vector<cv::Mat> &t, const cv::Mat &K,
-                        const std::vector<cv::Vec2d> &kp0,
-                        const std::vector<cv::Vec2d> &kp1,
-                        const std::vector<bool> &match_inliers, cv::Mat &R_best,
-                        cv::Mat &t_best, std::vector<Point3Type> &points_3d);
-  int EvaluateSolutionRT(const cv::Mat &R, const cv::Mat &t, const cv::Mat &K,
-                         const std::vector<cv::Vec2d> &kp0,
-                         const std::vector<cv::Vec2d> &kp1,
-                         const std::vector<bool> &match_inliers,
-                         std::vector<cv::Point3f> &points_3d, double th2,
-                         std::vector<bool> &vbGood, double &parallax);
   cv::Mat SkewSymmetricMatrix(const cv::Mat &a);
 };
 

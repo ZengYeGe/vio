@@ -12,7 +12,8 @@ class MapInitializerLIBMV : public MapInitializer {
   virtual bool Initialize(
       const std::vector<std::vector<cv::Vec2d> > &feature_vectors,
       const cv::Mat &K, std::vector<cv::Point3f> &points3d,
-      std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts) override;
+      std::vector<bool> &points3d_mask, std::vector<cv::Mat> &Rs,
+      std::vector<cv::Mat> &ts) override;
 
  private:
   bool InitializeTwoFrames(const std::vector<cv::Vec2d> &kp0,
