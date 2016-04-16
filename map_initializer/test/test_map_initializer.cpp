@@ -4,7 +4,6 @@
 #include <memory>
 #include <string>
 
-#include <opencv2/viz.hpp>
 #include <opencv2/xfeatures2d.hpp>
 
 // TODO: make the directory better
@@ -230,68 +229,4 @@ void RunInitializer(vector<vector<cv::Vec2d> > &feature_vectors) {
   VisualizeCamerasAndPoints(K_initial, Rs_est, ts_est, points3d);
 }
 
-void VisualizeCamerasAndPoints(const cv::Matx33d &K,
-                               const std::vector<cv::Mat> &Rs,
-                               const std::vector<cv::Mat> &ts,
-                               const std::vector<cv::Point3f> &points) {
-  /// Create 3D windows
 
-  viz::Viz3d window("Coordinate Frame");
-  window.setWindowSize(Size(500, 500));
-  window.setWindowPosition(Point(150, 150));
-  window.setBackgroundColor();  // black by default
-
-  // Create the pointcloud
-  cout << "Recovering points  ... ";
-
-  // recover estimated points3d
-  vector<Vec3f> point_cloud_est;
-  for (int i = 0; i < points.size(); ++i)
-    point_cloud_est.push_back(Vec3f(points[i]));
-
-  cout << "[DONE]" << endl;
-
-  /// Recovering cameras
-  cout << "Recovering cameras ... ";
-
-  vector<Affine3d> path;
-  for (size_t i = 0; i < Rs.size(); ++i) path.push_back(Affine3d(Rs[i], ts[i]));
-
-  cout << "[DONE]" << endl;
-
-  /// Add the pointcloud
-  if (point_cloud_est.size() > 0) {
-    cout << "Rendering points   ... ";
-
-    viz::WCloud cloud_widget(point_cloud_est, viz::Color::green());
-    window.showWidget("point_cloud", cloud_widget);
-
-    cout << "[DONE]" << endl;
-  } else {
-    cout << "Cannot render points: Empty pointcloud" << endl;
-  }
-
-  /// Add cameras
-  if (path.size() > 0) {
-    cout << "Rendering Cameras  ... ";
-
-    window.showWidget("cameras_frames_and_lines",
-                      viz::WTrajectory(path, viz::WTrajectory::BOTH, 0.1,
-                                       viz::Color::green()));
-    window.showWidget(
-        "cameras_frustums",
-        viz::WTrajectoryFrustums(path, K, 0.1, viz::Color::yellow()));
-
-    window.setViewerPose(path[0]);
-
-    cout << "[DONE]" << endl;
-  } else {
-    cout << "Cannot render the cameras: Empty path" << endl;
-  }
-
-  /// Wait for key 'q' to close the window
-  cout << endl
-       << "Press 'q' to close each windows ... " << endl;
-
-  window.spin();
-}
