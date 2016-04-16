@@ -103,8 +103,8 @@ int TestFramesInFolder(Options option) {
     int thickness = 2;
     for (int i = 0; i < matches.size(); ++i) {
       line(output_img,
-           new_frame->GetFeatures().keypoints[matches[i].trainIdx].pt,
-           last_frame->GetFeatures().keypoints[matches[i].queryIdx].pt,
+           new_frame->keypoints()[matches[i].trainIdx].pt,
+           last_frame->keypoints()[matches[i].queryIdx].pt,
            cv::Scalar(255, 0, 0), thickness);
     }
 
@@ -139,8 +139,8 @@ int TestTwoFrame() {
   feature_tracker->TrackFrame(first_frame, second_frame, matches);
 
   cv::Mat output_img;
-  drawMatches(first_frame.GetImage(), first_frame.GetFeatures().keypoints,
-              second_frame.GetImage(), second_frame.GetFeatures().keypoints,
+  drawMatches(first_frame.GetImage(), first_frame.keypoints(),
+              second_frame.GetImage(), second_frame.keypoints(),
               matches, output_img, cv::Scalar(255, 0, 0),
               cv::Scalar(255, 0, 0));
 

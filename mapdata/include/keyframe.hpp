@@ -1,33 +1,22 @@
 #include <opencv2/opencv.hpp>
 
+#include "frame.hpp"
+
 namespace vio {
 
-class KeyFrame {
+class Keyframe : public Frame {
  public:
-  // TODO: Really need to copy the image?
-  explicit KeyFrame(const cv::Mat &image) { image.copyTo(image_); }
-
-  const cv::Mat &GetImage() const { return image_; }
-
-  void SetFeatures(FeatureSet &features) {
-    features_.keypoints = std::move(features.keypoints);
-    features.descriptors.copyTo(features_.descriptors);
+  Keyframe(Frame &frame) : Frame(frame) {
+    unique_frame_id++;
+    frame_id = unique_frame_id;
   }
 
-  void set_keypoints(std::vector<cv::KeyPoint> &keypoints) {
-    keypoints_ = std::move(keypoints);
-  }
-  void set_descriptors(cv::Mat &descriptors) {
-    descriptors_ = descriptors;
-  }
-
+  Keyframe() = delete;
 
  private:
-  cv::Mat image_;
-
-  std::vector<cv::KeyPoint> keypoints_;
-  cv::Mat descriptors_;
-
+  static int unique_frame_id;
+  int frame_id;
 };
 
+int Keyframe::unique_frame_id = 0;
 }  // namespace vio

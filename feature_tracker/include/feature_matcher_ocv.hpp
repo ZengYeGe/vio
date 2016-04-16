@@ -3,8 +3,6 @@
 
 #include "feature_matcher.hpp"
 
-#include <opencv2/features2d.hpp>
-
 #include <vector>
 
 namespace vio {
@@ -19,7 +17,9 @@ class FeatureMatcherOCV : public FeatureMatcher {
   }
   ~FeatureMatcherOCV(){};
 
-  virtual bool Match(const FeatureSet &features0, const FeatureSet &features1,
+  virtual bool Match(const std::vector<cv::KeyPoint> &kp0,
+                     const std::vector<cv::KeyPoint> &kp1, const cv::Mat &desc0,
+                     const cv::Mat &desc1,
                      std::vector<cv::DMatch> &matches) override;
 
  private:

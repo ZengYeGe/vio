@@ -7,7 +7,7 @@ file(GLOB SOURCE_FILE
     "src/*.cpp"
 )
 
-#message(STATUS "${SOURCE_FILE}")
+message(STATUS "${SOURCE_FILE}")
 
 set(TARGET "mapdata")
 

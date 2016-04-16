@@ -4,14 +4,13 @@
 
 namespace vio {
 
-bool FeatureMatcherOCV::Match(const FeatureSet &features0,
-                              const FeatureSet &features1,
+bool FeatureMatcherOCV::Match(const std::vector<cv::KeyPoint> &kp0,
+                              const std::vector<cv::KeyPoint> &kp1,
+                              const cv::Mat &desc0, const cv::Mat &desc1,
                               std::vector<cv::DMatch> &matches) {
   std::vector<std::vector<cv::DMatch> > matches_0to1_k, matches_1to0_k;
-  matcher_->knnMatch(features0.descriptors, features1.descriptors,
-                     matches_0to1_k, max_match_per_desc_);
-  matcher_->knnMatch(features1.descriptors, features0.descriptors,
-                     matches_1to0_k, max_match_per_desc_);
+  matcher_->knnMatch(desc0, desc1, matches_0to1_k, max_match_per_desc_);
+  matcher_->knnMatch(desc0, desc1, matches_1to0_k, max_match_per_desc_);
 
   // Pick matches where the first one is much better than the second match.
   std::vector<cv::DMatch> matches_0to1, matches_1to0;
@@ -20,7 +19,7 @@ bool FeatureMatcherOCV::Match(const FeatureSet &features0,
 
   // matches is pre to cur
   SymmetryTestFilter(matches_0to1, matches_1to0, matches);
-  RemoveOutlierMatch(features0.keypoints, features1.keypoints, matches);
+  RemoveOutlierMatch(kp0, kp1, matches);
 
   return true;
 }

@@ -1,13 +1,14 @@
 #ifndef VIO_FEATURE_TRACKER_
 #define VIO_FEATURE_TRACKER_
 
-#include <opencv2/opencv.hpp>
 #include <opencv2/features2d.hpp>
+#include <opencv2/opencv.hpp>
 
 #include <vector>
 
+#include "../../mapdata/include/frame.hpp"
+
 #include "feature_matcher.hpp"
-#include "frame.hpp"
 
 namespace vio {
 
