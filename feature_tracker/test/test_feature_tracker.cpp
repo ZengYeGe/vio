@@ -79,7 +79,7 @@ int TestFramesInFolder(Options option) {
   vio::FeatureTracker *feature_tracker =
       vio::FeatureTracker::CreateFeatureTracker(detector);
 
-  std::unique_ptr<vio::Frame> last_frame(new vio::Frame(image0));
+  std::unique_ptr<vio::ImageFrame> last_frame(new vio::ImageFrame(image0));
   feature_tracker->TrackFirstFrame(*last_frame);
 
   KeyframeSelector keyframe_selector;
@@ -92,7 +92,7 @@ int TestFramesInFolder(Options option) {
       cerr << "Error: Unable to load image " << images[0] << endl;
       return -1;
     }
-    std::unique_ptr<vio::Frame> new_frame(new vio::Frame(image1));
+    std::unique_ptr<vio::ImageFrame> new_frame(new vio::ImageFrame(image1));
     std::vector<cv::DMatch> matches;
     feature_tracker->TrackFrame(*last_frame, *new_frame, matches);
 
@@ -132,9 +132,9 @@ int TestTwoFrame() {
   cv::Ptr<cv::Feature2D> detector = cv::ORB::create(10000);
   vio::FeatureTracker *feature_tracker =
       vio::FeatureTracker::CreateFeatureTracker(detector);
-  vio::Frame first_frame(image0);
+  vio::ImageFrame first_frame(image0);
   feature_tracker->TrackFirstFrame(first_frame);
-  vio::Frame second_frame(image1);
+  vio::ImageFrame second_frame(image1);
   std::vector<cv::DMatch> matches;
   feature_tracker->TrackFrame(first_frame, second_frame, matches);
 

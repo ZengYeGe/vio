@@ -1,14 +1,19 @@
+#include <memory>
+
 #include <opencv2/opencv.hpp>
 
-#include "frame.hpp"
+#include "image_frame.hpp"
 
 namespace vio {
 
-class Keyframe : public Frame {
+class Keyframe {
  public:
-  Keyframe(Frame &frame) : Frame(frame) {
+  // TODO: Frame no safe
+  Keyframe(std::unique_ptr<ImageFrame> frame) {
     unique_frame_id++;
     frame_id = unique_frame_id;
+
+    image_frame_ = std::move(frame);
   }
 
   Keyframe() = delete;
@@ -16,6 +21,8 @@ class Keyframe : public Frame {
  private:
   static int unique_frame_id;
   int frame_id;
+
+  std::unique_ptr<ImageFrame> image_frame_;
 };
 
 int Keyframe::unique_frame_id = 0;

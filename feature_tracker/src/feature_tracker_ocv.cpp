@@ -32,11 +32,11 @@ FeatureTrackerOCV::FeatureTrackerOCV(
   InitTracker();
 }
 
-bool FeatureTrackerOCV::TrackFirstFrame(Frame &output_frame) {
+bool FeatureTrackerOCV::TrackFirstFrame(ImageFrame &output_frame) {
   ComputeFeatures(output_frame);
   return true;
 }
-bool FeatureTrackerOCV::TrackFrame(const Frame &prev_frame, Frame &new_frame,
+bool FeatureTrackerOCV::TrackFrame(const ImageFrame &prev_frame, ImageFrame &new_frame,
                                    std::vector<cv::DMatch> &matches) {
   ComputeFeatures(new_frame);
   matcher_->Match(prev_frame.keypoints(), new_frame.keypoints(),
@@ -46,7 +46,7 @@ bool FeatureTrackerOCV::TrackFrame(const Frame &prev_frame, Frame &new_frame,
 
 void FeatureTrackerOCV::InitTracker() { matcher_ = new FeatureMatcherOCV(); }
 
-void FeatureTrackerOCV::ComputeFeatures(Frame &frame) {
+void FeatureTrackerOCV::ComputeFeatures(ImageFrame &frame) {
   if (detector_type_ == DETECTORONLY) {
     std::vector<cv::KeyPoint> kp;
     cv::Mat desc;

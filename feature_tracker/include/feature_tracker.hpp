@@ -6,7 +6,7 @@
 
 #include <vector>
 
-#include "../../mapdata/include/frame.hpp"
+#include "../../mapdata/include/image_frame.hpp"
 
 #include "feature_matcher.hpp"
 
@@ -23,9 +23,9 @@ class FeatureTracker {
       cv::Ptr<cv::FeatureDetector> detector,
       cv::Ptr<cv::DescriptorExtractor> extractor);
 
-  virtual bool TrackFirstFrame(Frame &output_frame) = 0;
+  virtual bool TrackFirstFrame(ImageFrame &output_frame) = 0;
   // TODO: Might need to use customized Match class.
-  virtual bool TrackFrame(const Frame &prev_frame, Frame &output_frame,
+  virtual bool TrackFrame(const ImageFrame &prev_frame, ImageFrame &output_frame,
                           std::vector<cv::DMatch> &matches) = 0;
 
  protected:

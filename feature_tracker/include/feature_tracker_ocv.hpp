@@ -15,13 +15,13 @@ class FeatureTrackerOCV : public FeatureTracker {
 
   FeatureTrackerOCV() = delete;
 
-  virtual bool TrackFirstFrame(Frame &output_frame) override;
-  virtual bool TrackFrame(const Frame &prev_frame, Frame &output_frame,
+  virtual bool TrackFirstFrame(ImageFrame &output_frame) override;
+  virtual bool TrackFrame(const ImageFrame &prev_frame, ImageFrame &output_frame,
                           std::vector<cv::DMatch> &matches) override;
 
  protected:
   void InitTracker();
-  void ComputeFeatures(Frame &frame);
+  void ComputeFeatures(ImageFrame &frame);
 
   DetectorType detector_type_;
   cv::Ptr<cv::Feature2D> detector_;
