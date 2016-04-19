@@ -25,7 +25,8 @@ class FeatureTracker {
 
   virtual bool TrackFirstFrame(ImageFrame &output_frame) = 0;
   // TODO: Might need to use customized Match class.
-  virtual bool TrackFrame(const ImageFrame &prev_frame, ImageFrame &output_frame,
+  virtual bool TrackFrame(const ImageFrame &prev_frame,
+                          ImageFrame &output_frame,
                           std::vector<cv::DMatch> &matches) = 0;
 
  protected:

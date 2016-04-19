@@ -36,7 +36,8 @@ bool FeatureTrackerOCV::TrackFirstFrame(ImageFrame &output_frame) {
   ComputeFeatures(output_frame);
   return true;
 }
-bool FeatureTrackerOCV::TrackFrame(const ImageFrame &prev_frame, ImageFrame &new_frame,
+bool FeatureTrackerOCV::TrackFrame(const ImageFrame &prev_frame,
+                                   ImageFrame &new_frame,
                                    std::vector<cv::DMatch> &matches) {
   ComputeFeatures(new_frame);
   matcher_->Match(prev_frame.keypoints(), new_frame.keypoints(),

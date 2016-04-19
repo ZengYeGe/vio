@@ -16,7 +16,8 @@ class FeatureTrackerOCV : public FeatureTracker {
   FeatureTrackerOCV() = delete;
 
   virtual bool TrackFirstFrame(ImageFrame &output_frame) override;
-  virtual bool TrackFrame(const ImageFrame &prev_frame, ImageFrame &output_frame,
+  virtual bool TrackFrame(const ImageFrame &prev_frame,
+                          ImageFrame &output_frame,
                           std::vector<cv::DMatch> &matches) override;
 
  protected:

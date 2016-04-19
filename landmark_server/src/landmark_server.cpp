@@ -22,6 +22,7 @@ bool LandmarkServer::AddFirstFrameFeature(const vector<cv::KeyPoint> &kp) {
 
   return true;
 }
+
 bool LandmarkServer::AddNewFeatureAssociationToLastFrame(
     const vector<cv::KeyPoint> &kp1, const vector<cv::DMatch> &matches) {
   // Add new camera frame
