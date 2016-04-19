@@ -1,3 +1,6 @@
+#ifndef VIO_KEYFRAME_
+#define VIO_KEYFRAME_
+
 #include <memory>
 
 #include <opencv2/opencv.hpp>
@@ -19,6 +22,8 @@ class Keyframe {
   Keyframe() = delete;
 
   int frame_id() const { return frame_id_; };
+  
+  const ImageFrame &image_frame() const { return *image_frame_; }
 
  private:
   static int unique_frame_id_;
@@ -27,5 +32,6 @@ class Keyframe {
   std::unique_ptr<ImageFrame> image_frame_;
 };
 
-int Keyframe::unique_frame_id_ = 0;
 }  // namespace vio
+
+#endif

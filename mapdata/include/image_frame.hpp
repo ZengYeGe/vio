@@ -1,3 +1,6 @@
+#ifndef VIO_IMAGE_FRAME_
+#define VIO_IMAGE_FRAME_
+
 #include <opencv2/opencv.hpp>
 
 namespace vio {
@@ -20,7 +23,7 @@ class ImageFrame {
     keypoints_ = std::move(keypoints);
   }
   const cv::Mat &descriptors() const { return descriptors_; }
-  void set_descriptors(cv::Mat &descriptors) { descriptors_ = descriptors; }
+  void set_descriptors(cv::Mat &descriptors) { descriptors.copyTo(descriptors_); }
 
  protected:
   cv::Mat image_;
@@ -30,3 +33,5 @@ class ImageFrame {
 };
 
 }  // namespace vio
+
+#endif

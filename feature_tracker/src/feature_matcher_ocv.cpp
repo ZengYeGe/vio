@@ -10,7 +10,7 @@ bool FeatureMatcherOCV::Match(const std::vector<cv::KeyPoint> &kp0,
                               std::vector<cv::DMatch> &matches) {
   std::vector<std::vector<cv::DMatch> > matches_0to1_k, matches_1to0_k;
   matcher_->knnMatch(desc0, desc1, matches_0to1_k, max_match_per_desc_);
-  matcher_->knnMatch(desc0, desc1, matches_1to0_k, max_match_per_desc_);
+  matcher_->knnMatch(desc1, desc0, matches_1to0_k, max_match_per_desc_);
 
   // Pick matches where the first one is much better than the second match.
   std::vector<cv::DMatch> matches_0to1, matches_1to0;
@@ -70,7 +70,7 @@ bool FeatureMatcherOCV::RemoveOutlierMatch(
   // TODO: Need to tune the parameters, e.g. 3
   // TODO: Normalize
   cv::Mat fundamental_matrix = cv::findFundamentalMat(
-      pre_matched_kp, cur_matched_kp, CV_FM_RANSAC, 0.2, 0.999, mask);
+      pre_matched_kp, cur_matched_kp, CV_FM_RANSAC, 0.5, 0.99, mask);
   int num_outlier = 0;
   std::vector<cv::DMatch> new_matches;
   for (int i = 0; i < matches.size(); ++i) {

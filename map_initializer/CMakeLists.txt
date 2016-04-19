@@ -27,11 +27,3 @@ file(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp")
 install(FILES ${headers} 
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME}/)
 install(TARGETS ${TARGET} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
-
-add_executable( map_initializer_test test/test_map_initializer.cpp)
-target_link_libraries( map_initializer_test 
-                       util
-                       feature_tracker
-                       landmark_server
-                       ${TARGET}
-                       ${OpenCV_LIBS} )

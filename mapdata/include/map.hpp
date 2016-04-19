@@ -1,3 +1,6 @@
+#ifndef VIO_MAP_
+#define VIO_MAP_
+
 #include <memory>
 #include <unordered_map>
 
@@ -33,17 +36,20 @@ class Map {
                                          std::vector<cv::DMatch> &matches);
 
   /* ---------------- Initialization ----------------------------------------*/
-  // TODO: For now, only two views are used
-  bool PrepareTwoFrameInitializationData(
-      std::vector<std::vector<cv::Vec2d> > &feature_vectors);
+  bool PrepareInitializationData(std::vector<std::vector<cv::Vec2d> > &feature_vectors);
   bool AddTwoFrameInitalizedLandmarks(int first_frame_id, int second_frame_id,
                                       const std::vector<cv::Point3d> &points3d,
                                       const std::vector<bool> &match_mask);
-
-  /* ---------------- PnP Tracker ------------------------------------------*/
+   /* ---------------- PnP Tracker ------------------------------------------*/
   bool PrepareEstimateLastFramePoseData();
   bool AddPoseEdge(int first_frame_id, int second_frame_id,
                    const cv::Mat &relative_pose);
+
+  /* ----------------------------------------------------------------------*/
+  // Remove not triangulated landmarks.
+  void ClearRedundantLandmarks();
+
+  // PrintStats
 
   const Keyframe &GetLastKeyframe() const;
 
@@ -72,3 +78,5 @@ class Map {
 };
 
 }  // vio
+
+#endif
