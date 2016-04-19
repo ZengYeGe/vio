@@ -36,11 +36,12 @@ class Map {
                                          std::vector<cv::DMatch> &matches);
 
   /* ---------------- Initialization ----------------------------------------*/
-  bool PrepareInitializationData(std::vector<std::vector<cv::Vec2d> > &feature_vectors);
+  bool PrepareInitializationData(
+      std::vector<std::vector<cv::Vec2d> > &feature_vectors);
   bool AddTwoFrameInitalizedLandmarks(int first_frame_id, int second_frame_id,
                                       const std::vector<cv::Point3d> &points3d,
                                       const std::vector<bool> &match_mask);
-   /* ---------------- PnP Tracker ------------------------------------------*/
+  /* ---------------- PnP Tracker ------------------------------------------*/
   bool PrepareEstimateLastFramePoseData();
   bool AddPoseEdge(int first_frame_id, int second_frame_id,
                    const cv::Mat &relative_pose);
@@ -51,7 +52,7 @@ class Map {
 
   // PrintStats
 
-  const Keyframe &GetLastKeyframe() const;
+  const Keyframe &GetLastKeyframe() const { return *(keyframes_.back()); }
 
   int num_frame() const { return keyframes_.size(); }
 

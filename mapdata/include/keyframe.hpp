@@ -22,7 +22,7 @@ class Keyframe {
   Keyframe() = delete;
 
   int frame_id() const { return frame_id_; };
-  
+
   const ImageFrame &image_frame() const { return *image_frame_; }
 
  private:

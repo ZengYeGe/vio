@@ -7,7 +7,6 @@
 // TODO: make the directory better
 #include "../../feature_tracker/include/feature_tracker.hpp"
 #include "../../feature_tracker/include/keyframe_selector.hpp"
-#include "../../landmark_server/include/landmark_server.hpp"
 #include "../../map_initializer/include/map_initializer.hpp"
 #include "../../util/include/util.hpp"
 #include "../../mapdata/include/map.hpp"

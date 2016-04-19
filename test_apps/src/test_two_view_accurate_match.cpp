@@ -42,7 +42,6 @@ int TestTwoFrameWithAccurateMatchFile(Options options) {
     feature_vectors[0][i][1] = x1(1, i);
     feature_vectors[1][i][0] = x2(0, i);
     feature_vectors[1][i][1] = x2(1, i);
-
   }
   myfile.close();
 
@@ -50,4 +49,3 @@ int TestTwoFrameWithAccurateMatchFile(Options options) {
 
   return 0;
 }
-

@@ -23,7 +23,9 @@ class ImageFrame {
     keypoints_ = std::move(keypoints);
   }
   const cv::Mat &descriptors() const { return descriptors_; }
-  void set_descriptors(cv::Mat &descriptors) { descriptors.copyTo(descriptors_); }
+  void set_descriptors(cv::Mat &descriptors) {
+    descriptors.copyTo(descriptors_);
+  }
 
  protected:
   cv::Mat image_;
