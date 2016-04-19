@@ -33,9 +33,10 @@ int TestFramesInFolder(Options option) {
       vio::FeatureTracker::CreateFeatureTracker(detector, descriptor);
 
   std::unique_ptr<vio::ImageFrame> last_frame(new vio::ImageFrame(image0));
-  // std::unique_ptr<vio::ImageFrame> last_frame_key(new vio::ImageFrame(image0));
+  std::unique_ptr<vio::ImageFrame> last_frame_key(new vio::ImageFrame(image0));
 
   feature_tracker->TrackFirstFrame(*last_frame);
+  feature_tracker->TrackFirstFrame(*last_frame_key);
   std::cout << "Found " << last_frame->keypoints().size() << " features.\n";
 
   KeyframeSelector keyframe_selector;
@@ -46,8 +47,8 @@ int TestFramesInFolder(Options option) {
   vio::Map vio_map;
 
   // TODO: Doesn't make sense
-//  std::unique_ptr<vio::Keyframe> first_keyframe(new vio::Keyframe(std::move(last_frame_key)));
-//  vio_map.AddFirstKeyframe(std::move(first_keyframe));
+  std::unique_ptr<vio::Keyframe> first_keyframe(new vio::Keyframe(std::move(last_frame_key)));
+  vio_map.AddFirstKeyframe(std::move(first_keyframe));
 
   cv::namedWindow("tracking_result", cv::WINDOW_AUTOSIZE);
   int num_frames = 0;
@@ -58,10 +59,11 @@ int TestFramesInFolder(Options option) {
       return -1;
     }
     std::unique_ptr<vio::ImageFrame> new_frame(new vio::ImageFrame(image1));
-//    std::unique_ptr<vio::ImageFrame> new_frame_key(new vio::ImageFrame(image1));
+    std::unique_ptr<vio::ImageFrame> new_frame_key(new vio::ImageFrame(image1));
 
     std::vector<cv::DMatch> matches;
     feature_tracker->TrackFrame(*last_frame, *new_frame, matches);
+    feature_tracker->TrackFrame(*last_frame, *new_frame_key, matches);
 
     std::cout << "Found " << matches.size() << " matches.\n";
 
@@ -86,8 +88,8 @@ int TestFramesInFolder(Options option) {
     landmark_server.AddNewFeatureAssociationToLastFrame(
         new_frame->keypoints(), matches);
 
-//    std::unique_ptr<vio::Keyframe> new_keyframe(new vio::Keyframe(std::move(new_frame_key)));
-//    vio_map.AddNewKeyframeMatchToLastKeyframe(std::move(new_keyframe), matches);
+    std::unique_ptr<vio::Keyframe> new_keyframe(new vio::Keyframe(std::move(new_frame_key)));
+    vio_map.AddNewKeyframeMatchToLastKeyframe(std::move(new_keyframe), matches);
 
     last_frame = std::move(new_frame);
     num_frames++;
@@ -98,11 +100,13 @@ int TestFramesInFolder(Options option) {
   // TODO: Replace with RunInitializer
 
   vector<vector<cv::Vec2d> > feature_vectors(images.size());
+  vector<vector<cv::Vec2d> > feature_vectors_key(images.size());
   // TODO: Add namespace vio to landmakr_server
   // TODO: Verify this is correct
   landmark_server.MakeFeatureVectorsForReconstruct(feature_vectors);
+  vio_map.PrepareInitializationData(feature_vectors_key);
 
-  RunInitializer(feature_vectors);
+  RunInitializer(feature_vectors_key);
 
   return 0;
 }

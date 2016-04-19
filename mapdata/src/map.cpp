@@ -28,16 +28,10 @@ bool Map::AddNewKeyframeMatchToLastKeyframe(std::unique_ptr<Keyframe> frame,
   FeatureMatchEdge match_edge;
   match_edge.first_frame_index = keyframes_.size() - 2;
   match_edge.second_frame_index = keyframes_.size() - 1;
-  match_edge.matches = std::move(matches);
-
-  if (!landmarks_initialized_) {
-    std::cout << "Added a new frame without landmarks initialized.\n";
-    return true;
-  }
 
   const int l_index = match_edge.first_frame_index;   // last frame index
   const int n_index = match_edge.second_frame_index;  // new frame index
-  feature_to_landmark.resize(feature_to_landmark.size() + 1);
+  feature_to_landmark.resize(n_index + 1);
 
   for (int i = 0; i < matches.size(); ++i) {
       // Find existing landmark
@@ -59,7 +53,8 @@ bool Map::AddNewKeyframeMatchToLastKeyframe(std::unique_ptr<Keyframe> frame,
         landmark_to_feature[landmark_id][n_index] = matches[i].trainIdx;
       }
   }
-  
+  match_edge.matches = std::move(matches);
+ 
   return true;
 }
 
@@ -85,7 +80,7 @@ bool Map::PrepareInitializationData(
   for (int ld_id = 0; ld_id < num_landmark; ++ld_id) {
     for (auto &ld_feature_id : landmark_to_feature[ld_id]) {
       const cv::KeyPoint &kp =
-          keyframes_[ld_feature_id.first]->image_frame().keypoints()[ld_feature_id.second];
+          (keyframes_[ld_feature_id.first]->image_frame().keypoints())[ld_feature_id.second];
       feature_vectors[ld_feature_id.first][ld_id] = cv::Vec2d(kp.pt.x, kp.pt.y);
     }
   }
