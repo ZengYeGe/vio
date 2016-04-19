@@ -35,7 +35,6 @@ include_directories(
 add_subdirectory(util)
 add_subdirectory(mapdata)
 add_subdirectory(feature_tracker)
-add_subdirectory(landmark_server)
 add_subdirectory(map_initializer)
 #add_subdirectory(kalman_filter)
 #add_subdirectory(pose_optimizer)

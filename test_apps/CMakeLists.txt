@@ -16,7 +16,6 @@ target_link_libraries( ${TARGET}
                        util
                        mapdata
                        feature_tracker
-                       landmark_server
                        map_initializer
                        ${OpenCV_LIBS} )
 
