@@ -5,7 +5,7 @@
 namespace vio {
 
 // TODO: Implement each of them.
-enum MapInitializerType {
+enum MapInitializerMethod {
   LIVMV,
   ORBSLAM,
   PTAM,
@@ -21,7 +21,7 @@ class MapInitializer {
   MapInitializer() : verbose_(false) {}
   ~MapInitializer() {}
 
-  static MapInitializer *CreateMapInitializer(MapInitializerType type);
+  static MapInitializer *CreateMapInitializer(MapInitializerMethod method);
   static MapInitializer *CreateMapInitializerLIBMV();
   static MapInitializer *CreateMapInitializer8Point();
 

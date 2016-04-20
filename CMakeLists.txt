@@ -36,6 +36,7 @@ add_subdirectory(util)
 add_subdirectory(mapdata)
 add_subdirectory(feature_tracker)
 add_subdirectory(map_initializer)
+add_subdirectory(pnp_estimator)
 add_subdirectory(kalman_filter)
 add_subdirectory(test_apps)
 

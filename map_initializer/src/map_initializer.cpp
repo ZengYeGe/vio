@@ -2,8 +2,8 @@
 
 namespace vio {
 
-MapInitializer *MapInitializer::CreateMapInitializer(MapInitializerType type) {
-  switch (type) {
+MapInitializer *MapInitializer::CreateMapInitializer(MapInitializerMethod method) {
+  switch (method) {
     case LIVMV:
       return CreateMapInitializerLIBMV();
     case NORMALIZED8POINTFUNDAMENTAL:
