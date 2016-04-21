@@ -8,6 +8,7 @@
 #include "../../feature_tracker/include/feature_tracker.hpp"
 #include "../../feature_tracker/include/keyframe_selector.hpp"
 #include "../../map_initializer/include/map_initializer.hpp"
+#include "../../pnp_estimator/include/pnp_estimator.hpp"
 #include "../../util/include/util.hpp"
 #include "../../mapdata/include/map.hpp"
 

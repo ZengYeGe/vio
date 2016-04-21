@@ -16,7 +16,7 @@ struct Landmark {
 
 struct PoseEdge {
   cv::Mat R;
-  cv::Mat t; 
+  cv::Mat t;
   int first_frame_index;
   int second_frame_index;
 };
@@ -53,10 +53,13 @@ class Map {
                          const std::vector<cv::Mat> &Rs,
                          const std::vector<cv::Mat> &ts);
 
-   /* ---------------- PnP Tracker ------------------------------------------*/
-  bool PrepareEstimateLastFramePoseData();
-  bool AddPoseEdge(int first_frame_id, int second_frame_id,
-                   const cv::Mat &R, const cv::Mat &t);
+  /* ---------------- PnP Tracker ------------------------------------------*/
+  bool PrepareEstimateLastFramePoseData(std::vector<cv::Point3f> &points3d,
+                                        std::vector<cv::Point2f> &points2d,
+                                        std::vector<int> &points_index);
+  bool SetLastFramePose(const cv::Mat &R, const cv::Mat &t);
+  bool AddPoseEdge(int first_frame_id, int second_frame_id, const cv::Mat &R,
+                   const cv::Mat &t);
 
   /* ----------------------------------------------------------------------*/
   // Remove not triangulated landmarks.
@@ -73,6 +76,7 @@ class Map {
 
   std::unordered_map<int, int> keyframe_id_to_index_;
   std::vector<std::unique_ptr<Keyframe> > keyframes_;
+
   // pose_edges[i] is the transformation from keyframes_[i] to keyframes_[i + 1]
   std::vector<PoseEdge> pose_edges_;
   // match_edges[i] is the match between keyframes_[i] and keyframes_[i + 1]
@@ -84,7 +88,7 @@ class Map {
   // landmark_to_feature[i][j] is the no. of feature of ith landmark in
   // |landmarks_| in |keyframes_[j]|
   // The size should be [size of landmarks][size of keyframes]
-  std::vector<std::unordered_map<int, int> > landmark_to_feature;
+  std::vector<std::unordered_map<int, int> > landmark_to_feature_;
   // Refer to the part in |landmark_to_feature| which are not initialized.
   int uninitialized_landmark_range_start_;
   int uninitialized_landmark_range_end_;
@@ -92,7 +96,7 @@ class Map {
   // feature_to_landmark[i][j] is the no. of landmark of ith feature in
   // keyframe[j]
   // The size should be [size of keyframe][number of features in keyframe i]
-  std::vector<std::unordered_map<int, int> > feature_to_landmark;
+  std::vector<std::unordered_map<int, int> > feature_to_landmark_;
 };
 
 }  // vio
