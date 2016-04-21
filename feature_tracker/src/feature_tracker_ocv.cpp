@@ -40,8 +40,9 @@ bool FeatureTrackerOCV::TrackFrame(const ImageFrame &prev_frame,
                                    ImageFrame &new_frame,
                                    std::vector<cv::DMatch> &matches) {
   ComputeFeatures(new_frame);
-  matcher_->Match(prev_frame.keypoints(), new_frame.keypoints(),
-                  prev_frame.descriptors(), new_frame.descriptors(), matches);
+  if (!matcher_->Match(prev_frame.keypoints(), new_frame.keypoints(),
+                  prev_frame.descriptors(), new_frame.descriptors(), matches))
+    return false;
   return true;
 }
 

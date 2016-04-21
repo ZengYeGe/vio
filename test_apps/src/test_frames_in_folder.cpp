@@ -66,8 +66,9 @@ int TestFramesInFolder(Options option) {
     // ------------------------------------------------------------------
 
     std::vector<cv::DMatch> matches;
-    feature_tracker->TrackFrame(vio_map.GetLastKeyframe().image_frame(),
-                                *new_frame, matches);
+    if (!feature_tracker->TrackFrame(vio_map.GetLastKeyframe().image_frame(),
+                                *new_frame, matches))
+      return -1;
     std::cout << "Found " << matches.size() << " matches.\n";
 
     // -------------------- Show tracking -------------------------------

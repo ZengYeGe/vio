@@ -17,9 +17,26 @@ bool FeatureMatcherOCV::Match(const std::vector<cv::KeyPoint> &kp0,
   RatioTestFilter(matches_0to1_k, matches_0to1);
   RatioTestFilter(matches_1to0_k, matches_1to0);
 
+  if (matches_0to1.size() < 10 || matches_1to0.size() < 10) {
+    std::cerr << "Error: Not enough matches after ratio test.\n";
+    std::cerr << "Match 0 to 1: " << matches_0to1.size() << " / "
+              << matches_0to1_k.size() << std::endl;
+    std::cerr << "Match 1 to 0: " << matches_1to0.size() << " / "
+              << matches_1to0_k.size() << std::endl;
+    return false;
+  }
   // matches is pre to cur
   SymmetryTestFilter(matches_0to1, matches_1to0, matches);
+  if (matches.size() < 5) {
+    std::cerr << "Error: Not enough matches after symmetry test.\n";
+    return false;
+  }
   RemoveOutlierMatch(kp0, kp1, matches);
+
+  if (matches.size() < 3) {
+    std::cerr << "Error: Not enough matches after outlier removal.\n";
+    return false;
+  }
 
   return true;
 }
