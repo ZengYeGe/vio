@@ -63,8 +63,8 @@ class Map {
 
   /* ----------------------------------------------------------------------*/
   // Remove not triangulated landmarks.
-  // Only clean range from |uninitialized_landmark_range_start_|
-  // to |uninitialized_landmark_range_end_|
+  // Only clean range from |uninited_landmark_range_start_|
+  // to |uninited_landmark_range_end_|
   void ClearRedundantLandmarks();
 
   const Keyframe &GetLastKeyframe() const { return *(keyframes_.back()); }
@@ -90,8 +90,8 @@ class Map {
   // The size should be [size of landmarks][size of keyframes]
   std::vector<std::unordered_map<int, int> > landmark_to_feature_;
   // Refer to the part in |landmark_to_feature| which are not initialized.
-  int uninitialized_landmark_range_start_;
-  int uninitialized_landmark_range_end_;
+  int uninited_landmark_range_start_;
+  int uninited_landmark_range_end_;
 
   // feature_to_landmark[i][j] is the no. of landmark of ith feature in
   // keyframe[j]

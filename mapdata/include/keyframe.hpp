@@ -16,7 +16,7 @@ struct FramePose {
 class Keyframe {
  public:
   // TODO: Frame no safe
-  Keyframe(std::unique_ptr<ImageFrame> frame) {
+  Keyframe(std::unique_ptr<ImageFrame> frame) : pose_inited_(false) {
     unique_frame_id_++;
     frame_id_ = unique_frame_id_;
 
@@ -33,7 +33,10 @@ class Keyframe {
     t.copyTo(pose_.t);
   }
   const cv::Mat &GetRot() const { return pose_.R; };
-  const cv::Mat &GetTra() const { return pose_.t; };
+  const cv::Mat &GetT() const { return pose_.t; };
+
+  bool pose_inited() const { return pose_inited_; };
+  void set_pose_inited(bool inited) { pose_inited_ = inited; }
 
  private:
   static int unique_frame_id_;
@@ -42,6 +45,7 @@ class Keyframe {
   std::unique_ptr<ImageFrame> image_frame_;
 
   FramePose pose_;
+  bool pose_inited_;
 };
 
 }  // namespace vio

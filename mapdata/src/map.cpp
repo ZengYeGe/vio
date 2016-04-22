@@ -4,7 +4,8 @@
 
 namespace vio {
 
-Map::Map() : map_state_(WAIT_FOR_FIRSTFRAME) {}
+Map::Map()
+  : map_state_(WAIT_FOR_FIRSTFRAME) {}
 
 bool Map::AddFirstKeyframe(std::unique_ptr<Keyframe> frame) {
   if (map_state_ != WAIT_FOR_FIRSTFRAME) {
@@ -19,6 +20,7 @@ bool Map::AddFirstKeyframe(std::unique_ptr<Keyframe> frame) {
   keyframes_[0]->set_pose(R, t);
 
   map_state_ = WAIT_FOR_SECONDFRAME;
+  uninited_landmark_range_start_ = 0;
 }
 
 bool Map::AddNewKeyframeMatchToLastKeyframe(std::unique_ptr<Keyframe> frame,
@@ -39,8 +41,6 @@ bool Map::AddNewKeyframeMatchToLastKeyframe(std::unique_ptr<Keyframe> frame,
   const int n_index = match_edge.second_frame_index;  // new frame index
   feature_to_landmark_.resize(n_index + 1);
 
-  uninitialized_landmark_range_start_ = landmark_to_feature_.size();
-
   for (int i = 0; i < matches.size(); ++i) {
     // Find existing landmark
     auto ld_id_ptr = feature_to_landmark_[l_index].find(matches[i].queryIdx);
@@ -53,6 +53,9 @@ bool Map::AddNewKeyframeMatchToLastKeyframe(std::unique_ptr<Keyframe> frame,
       landmark_to_feature_.back()[l_index] = matches[i].queryIdx;
       feature_to_landmark_[l_index][matches[i].queryIdx] = landmark_id;
       feature_to_landmark_[n_index][matches[i].trainIdx] = landmark_id;
+
+      // New uninitialized points added.
+      uninited_landmark_range_end_ = landmark_to_feature_.size() - 1;
     } else {
       int landmark_id = ld_id_ptr->second;
       // Link a feature to a landmark
@@ -62,15 +65,12 @@ bool Map::AddNewKeyframeMatchToLastKeyframe(std::unique_ptr<Keyframe> frame,
     }
   }
 
-  uninitialized_landmark_range_end_ = landmark_to_feature_.size() - 1;
-
   match_edge.matches = std::move(matches);
   if (map_state_ == WAIT_FOR_SECONDFRAME) map_state_ = WAIT_FOR_INIT;
 
   return true;
 }
 
-// TODO: Unfinished
 bool Map::PrepareInitializationData(
     std::vector<std::vector<cv::Vec2d> > &feature_vectors) {
   if (map_state_ != WAIT_FOR_INIT) {
@@ -118,7 +118,7 @@ bool Map::AddInitialization(const std::vector<cv::Point3f> &points3d,
 
   // TODO: Refactor. Only add keyframe after initialization.
 
-  // TODO: Use pprof to see where si the bottleneck
+  // TODO: Use pprof to see where is the bottleneck
   // TODO: Try use GPU to replace the bottleneck
   std::vector<std::unordered_map<int, int> > inited_landmark_to_feature;
   for (int ld_id = 0; ld_id < points3d.size(); ++ld_id) {
@@ -144,8 +144,12 @@ bool Map::AddInitialization(const std::vector<cv::Point3f> &points3d,
             << " landmarks.";
   landmark_to_feature_ = std::move(inited_landmark_to_feature);
 
+  uninited_landmark_range_start_ = landmark_to_feature_.size();
+  uninited_landmark_range_end_ = landmark_to_feature_.size();
+
   for (int i = 0; i < keyframes_.size(); ++i) {
     keyframes_[i]->set_pose(Rs[i], ts[i]);
+    keyframes_[i]->set_pose_inited(true);
   }
 
   map_state_ = INITIALIZED;
@@ -155,7 +159,14 @@ bool Map::AddInitialization(const std::vector<cv::Point3f> &points3d,
 bool Map::PrepareEstimateLastFramePoseData(std::vector<cv::Point3f> &points3d,
                                            std::vector<cv::Point2f> &points2d,
                                            std::vector<int> &points_index) {
-  if (map_state_ != INITIALIZED) return false;
+  if (map_state_ != INITIALIZED) {
+    std::cerr << "Error: Map not initialized yet.\n";
+    return false;
+  }
+  if (keyframes_.back()->pose_inited()) {
+    std::cerr << "Error: Last frame already inited pose.\n";
+    return false;
+  }
 
   points3d.clear();
   points2d.clear();
@@ -164,7 +175,7 @@ bool Map::PrepareEstimateLastFramePoseData(std::vector<cv::Point3f> &points3d,
   for (auto &feature : feature_to_landmark_.back()) {
     const int feature_id = feature.first;
     const int ld_id = feature.second;
-    if (ld_id >= uninitialized_landmark_range_start_) continue;
+    if (ld_id >= uninited_landmark_range_start_) continue;
     points_index.push_back(feature_id);
     points3d.push_back(landmarks_[ld_id].position);
     points2d.push_back(
@@ -172,6 +183,7 @@ bool Map::PrepareEstimateLastFramePoseData(std::vector<cv::Point3f> &points3d,
   }
 
   std::cout << "Found " << points_index.size() << " 2d to 3d match for pnp.\n";
+  keyframes_.back()->set_pose_inited(true);
 
   return true;
 }
