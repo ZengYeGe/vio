@@ -25,7 +25,7 @@ int TestFramesInFolder(Options option) {
   }
 
   // TODO: Add option for selecting feature detector.
-  cv::Ptr<cv::Feature2D> detector = cv::ORB::create(10000);
+  cv::Ptr<cv::Feature2D> detector = cv::ORB::create(3000);
   cv::Ptr<cv::Feature2D> descriptor = cv::xfeatures2d::DAISY::create();
   // vio::FeatureTracker *feature_tracker =
   // vio::FeatureTracker::CreateFeatureTracker(detector);

@@ -20,7 +20,6 @@ bool Map::AddFirstKeyframe(std::unique_ptr<Keyframe> frame) {
   keyframes_[0]->set_pose(R, t);
 
   map_state_ = WAIT_FOR_SECONDFRAME;
-  uninited_landmark_range_start_ = 0;
 }
 
 bool Map::AddNewKeyframeMatchToLastKeyframe(std::unique_ptr<Keyframe> frame,
@@ -33,29 +32,23 @@ bool Map::AddNewKeyframeMatchToLastKeyframe(std::unique_ptr<Keyframe> frame,
   keyframes_.push_back(std::move(frame));
 
   // -------------- Add new match edge
-  FeatureMatchEdge match_edge;
-  match_edge.first_frame_index = keyframes_.size() - 2;
-  match_edge.second_frame_index = keyframes_.size() - 1;
+  match_edges_.resize(match_edges_.size() + 1);
+  match_edges_.back().first_frame_index = keyframes_.size() - 2;
+  match_edges_.back().second_frame_index = keyframes_.size() - 1;
+  const int l_index = match_edges_.back().first_frame_index;   // last frame index
+  const int n_index = match_edges_.back().second_frame_index;  // new frame index
 
-  const int l_index = match_edge.first_frame_index;   // last frame index
-  const int n_index = match_edge.second_frame_index;  // new frame index
   feature_to_landmark_.resize(n_index + 1);
-
   for (int i = 0; i < matches.size(); ++i) {
     // Find existing landmark
     auto ld_id_ptr = feature_to_landmark_[l_index].find(matches[i].queryIdx);
     // If the feature is not a landmark yet
     if (ld_id_ptr == feature_to_landmark_[l_index].end()) {
       // Add a new landmark
-      const int landmark_id = landmark_to_feature_.size();
-      landmark_to_feature_.resize(landmark_id + 1);
-      landmark_to_feature_.back()[n_index] = matches[i].trainIdx;
-      landmark_to_feature_.back()[l_index] = matches[i].queryIdx;
-      feature_to_landmark_[l_index][matches[i].queryIdx] = landmark_id;
-      feature_to_landmark_[n_index][matches[i].trainIdx] = landmark_id;
-
-      // New uninitialized points added.
-      uninited_landmark_range_end_ = landmark_to_feature_.size() - 1;
+      const int num_uninited_ld = uninited_landmark_to_feature_.size();
+      uninited_landmark_to_feature_.resize(num_uninited_ld + 1);
+      uninited_landmark_to_feature_.back()[n_index] = matches[i].trainIdx;
+      uninited_landmark_to_feature_.back()[l_index] = matches[i].queryIdx;
     } else {
       int landmark_id = ld_id_ptr->second;
       // Link a feature to a landmark
@@ -65,7 +58,7 @@ bool Map::AddNewKeyframeMatchToLastKeyframe(std::unique_ptr<Keyframe> frame,
     }
   }
 
-  match_edge.matches = std::move(matches);
+  match_edges_.back().matches = std::move(matches);
   if (map_state_ == WAIT_FOR_SECONDFRAME) map_state_ = WAIT_FOR_INIT;
 
   return true;
@@ -83,7 +76,7 @@ bool Map::PrepareInitializationData(
 
   const int start_frame_id = 0;
   const int end_frame_id = keyframes_.size() - 1;
-  const int num_landmark = landmark_to_feature_.size();
+  const int num_landmark = uninited_landmark_to_feature_.size();
 
   // Initialize feature vector
   // TODO: Optimize, if the initialization cost much time.
@@ -91,7 +84,7 @@ bool Map::PrepareInitializationData(
     feature_vectors[frame_id].resize(num_landmark, cv::Vec2d(-1, -1));
   }
   for (int ld_id = 0; ld_id < num_landmark; ++ld_id) {
-    for (auto &ld_feature_id : landmark_to_feature_[ld_id]) {
+    for (auto &ld_feature_id : uninited_landmark_to_feature_[ld_id]) {
       const cv::KeyPoint &kp = (keyframes_[ld_feature_id.first]
                                     ->image_frame()
                                     .keypoints())[ld_feature_id.second];
@@ -110,8 +103,8 @@ bool Map::AddInitialization(const std::vector<cv::Point3f> &points3d,
     return false;
   }
   if (Rs.size() != keyframes_.size() || ts.size() != keyframes_.size() ||
-      points3d.size() != landmark_to_feature_.size() ||
-      points3d_mask.size() != landmark_to_feature_.size()) {
+      points3d.size() != uninited_landmark_to_feature_.size() ||
+      points3d_mask.size() != uninited_landmark_to_feature_.size()) {
     std::cerr << "Error: Initialization data doesn't match Map data.\n";
     return false;
   }
@@ -120,32 +113,28 @@ bool Map::AddInitialization(const std::vector<cv::Point3f> &points3d,
 
   // TODO: Use pprof to see where is the bottleneck
   // TODO: Try use GPU to replace the bottleneck
-  std::vector<std::unordered_map<int, int> > inited_landmark_to_feature;
+  landmark_to_feature_.clear();
   for (int ld_id = 0; ld_id < points3d.size(); ++ld_id) {
     if (points3d_mask[ld_id]) {
-      inited_landmark_to_feature.push_back(
-          std::move(landmark_to_feature_[ld_id]));
-
+      landmark_to_feature_.push_back(
+          std::move(uninited_landmark_to_feature_[ld_id]));
       Landmark new_ld;
       new_ld.position = points3d[ld_id];
-
+      const int landmark_id = landmarks_.size();
       landmarks_.push_back(new_ld);
-    } else {
-      for (auto &feature_in_frame : landmark_to_feature_[ld_id]) {
+
+      for (auto &feature_in_frame : landmark_to_feature_.back()) {
         const int frame_id = feature_in_frame.first;
         const int feature_id = feature_in_frame.second;
-        feature_to_landmark_[frame_id].erase(
-            feature_to_landmark_[frame_id].find(feature_id));
+        feature_to_landmark_[frame_id][feature_id] = landmark_id;
       }
     }
   }
-  std::cout << "Cleaned up "
-            << landmark_to_feature_.size() - inited_landmark_to_feature.size()
-            << " landmarks.";
-  landmark_to_feature_ = std::move(inited_landmark_to_feature);
 
-  uninited_landmark_range_start_ = landmark_to_feature_.size();
-  uninited_landmark_range_end_ = landmark_to_feature_.size();
+  std::cout << "Inited points: " << landmarks_.size() << " / " 
+            << uninited_landmark_to_feature_.size()
+            << " landmarks.";
+  uninited_landmark_to_feature_.clear();
 
   for (int i = 0; i < keyframes_.size(); ++i) {
     keyframes_[i]->set_pose(Rs[i], ts[i]);
@@ -172,14 +161,22 @@ bool Map::PrepareEstimateLastFramePoseData(std::vector<cv::Point3f> &points3d,
   points2d.clear();
   points_index.clear();
 
-  for (auto &feature : feature_to_landmark_.back()) {
-    const int feature_id = feature.first;
-    const int ld_id = feature.second;
-    if (ld_id >= uninited_landmark_range_start_) continue;
-    points_index.push_back(feature_id);
-    points3d.push_back(landmarks_[ld_id].position);
-    points2d.push_back(
-        keyframes_.back()->image_frame().keypoints()[feature_id].pt);
+  const int l_index = match_edges_.back().first_frame_index;
+  const int n_index = match_edges_.back().second_frame_index;
+  const std::vector<cv::DMatch> &matches = match_edges_.back().matches;
+
+  // TODO: This is duplicated when add a new keyframe
+  for (int i = 0; i < matches.size(); ++i) {
+    auto ld_id_ptr = feature_to_landmark_[n_index].find(matches[i].trainIdx);
+    // If the feature is not a landmark yet
+    if (ld_id_ptr != feature_to_landmark_[n_index].end()) {
+      const int ft_id = ld_id_ptr->first;
+      const int ld_id = ld_id_ptr->second;
+      points_index.push_back(ft_id);
+      points3d.push_back(landmarks_[ld_id].position);
+      points2d.push_back(
+        keyframes_.back()->image_frame().keypoints()[ft_id].pt);
+    }
   }
 
   std::cout << "Found " << points_index.size() << " 2d to 3d match for pnp.\n";

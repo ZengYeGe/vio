@@ -89,9 +89,8 @@ class Map {
   // |landmarks_| in |keyframes_[j]|
   // The size should be [size of landmarks][size of keyframes]
   std::vector<std::unordered_map<int, int> > landmark_to_feature_;
-  // Refer to the part in |landmark_to_feature| which are not initialized.
-  int uninited_landmark_range_start_;
-  int uninited_landmark_range_end_;
+  // Temporary landmarks that generated from feature matches
+  std::vector<std::unordered_map<int, int> > uninited_landmark_to_feature_;
 
   // feature_to_landmark[i][j] is the no. of landmark of ith feature in
   // keyframe[j]
