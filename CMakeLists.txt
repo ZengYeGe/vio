@@ -16,6 +16,8 @@ endif()
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lprofiler")
+
 find_package( Ceres REQUIRED )
 find_package( OpenCV REQUIRED )
 find_package( Eigen3 REQUIRED )
