@@ -10,6 +10,7 @@
 #include "../../map_initializer/include/map_initializer.hpp"
 #include "../../pnp_estimator/include/pnp_estimator.hpp"
 #include "../../util/include/util.hpp"
+#include "../../multiview_helper/include/multiview.hpp"
 #include "../../mapdata/include/map.hpp"
 
 using namespace std;

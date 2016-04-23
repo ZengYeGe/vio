@@ -67,7 +67,7 @@ int TestFramesInFolder(Options option) {
 
     std::vector<cv::DMatch> matches;
     if (!feature_tracker->TrackFrame(vio_map.GetLastKeyframe().image_frame(),
-                                *new_frame, matches))
+                                     *new_frame, matches))
       return -1;
     std::cout << "Found " << matches.size() << " matches.\n";
 
@@ -123,6 +123,8 @@ int TestFramesInFolder(Options option) {
       t_all = std::move(ts_est);
       points3d_all = std::move(points3d);
 
+      vio_map.PrintStats();
+
       continue;
     }
     std::vector<cv::Point3f> points3d;
@@ -136,12 +138,27 @@ int TestFramesInFolder(Options option) {
     cv::Mat t;
     pnp_estimator->EstimatePose(points2d, points3d, cv::Mat(K_initial), inliers,
                                 R, t);
-
     vio_map.SetLastFramePose(R, t);
+
+    // Add new landmarks
+    std::vector<cv::Vec2d> kp0, kp1;
+    vio::FramePose pose0, pose1;
+    vio_map.PrepareUninitedPointsFromLastTwoFrames(kp0, kp1, pose0, pose1);
+
+    std::vector<cv::Point3f> new_points3d;
+    std::vector<bool> new_points3d_mask;
+    vio::TriangulatePoints(kp0, kp1, cv::Mat(K_initial), pose0.R, pose0.t,
+                           pose1.R, pose1.t, new_points3d, new_points3d_mask);
+
+    // TODO: points not added
+    vio_map.AddInitedPoints(new_points3d, new_points3d_mask);
 
     R_all.push_back(R);
     t_all.push_back(t);
+    points3d_all.insert(points3d_all.end(), new_points3d.begin(),
+                        new_points3d.end());
     VisualizeCamerasAndPoints(K_initial, R_all, t_all, points3d_all);
+    vio_map.PrintStats();
   }
 
   return 0;

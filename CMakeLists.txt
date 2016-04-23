@@ -35,6 +35,7 @@ include_directories(
 )
 
 add_subdirectory(util)
+add_subdirectory(multiview_helper)
 add_subdirectory(mapdata)
 add_subdirectory(feature_tracker)
 add_subdirectory(map_initializer)

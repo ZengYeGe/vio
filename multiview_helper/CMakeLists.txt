@@ -11,6 +11,6 @@ file(GLOB SOURCE_FILE
 )
 
 # TODO: Find other way than use as library
-set(TARGET "util")
+set(TARGET "multiview_helper")
 
-add_library(${TARGET} STATIC ${SOURCE_FILE})
+add_library(${TARGET} SHARED ${SOURCE_FILE})

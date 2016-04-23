@@ -13,14 +13,14 @@ namespace vio {
 struct Landmark {
   cv::Point3f position;
 };
-
+/*
 struct PoseEdge {
   cv::Mat R;
   cv::Mat t;
   int first_frame_index;
   int second_frame_index;
 };
-
+*/
 struct FeatureMatchEdge {
   std::vector<cv::DMatch> matches;
   int first_frame_index;
@@ -61,6 +61,15 @@ class Map {
   bool AddPoseEdge(int first_frame_id, int second_frame_id, const cv::Mat &R,
                    const cv::Mat &t);
 
+  /*-----------------New Lanmdarks-----------------------------------------*/
+  bool PrepareUninitedPointsFromLastTwoFrames(std::vector<cv::Vec2d> &kp0,
+                                              std::vector<cv::Vec2d> &kp1,
+                                              FramePose &p0, FramePose &p1);
+  bool AddInitedPoints(const std::vector<cv::Point3f> &points3d,
+                       const std::vector<bool> &points3d_mask);
+
+
+  bool PrintStats();
   /* ----------------------------------------------------------------------*/
   // Remove not triangulated landmarks.
   // Only clean range from |uninited_landmark_range_start_|
@@ -72,13 +81,13 @@ class Map {
   int num_frame() const { return keyframes_.size(); }
 
  private:
+  bool AddCoordToUninitedPoints(const std::vector<cv::Point3f> &points3d,
+                                const std::vector<bool> &points3d_mask);
   MapState map_state_;
 
   std::unordered_map<int, int> keyframe_id_to_index_;
   std::vector<std::unique_ptr<Keyframe> > keyframes_;
 
-  // pose_edges[i] is the transformation from keyframes_[i] to keyframes_[i + 1]
-  std::vector<PoseEdge> pose_edges_;
   // match_edges[i] is the match between keyframes_[i] and keyframes_[i + 1]
   // TODO: Not sure it's needed.
   std::vector<FeatureMatchEdge> match_edges_;

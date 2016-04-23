@@ -32,6 +32,7 @@ class Keyframe {
     R.copyTo(pose_.R);
     t.copyTo(pose_.t);
   }
+  const FramePose &pose() const { return pose_; }
   const cv::Mat &GetRot() const { return pose_.R; };
   const cv::Mat &GetT() const { return pose_.t; };
 

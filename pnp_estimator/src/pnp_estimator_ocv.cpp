@@ -35,7 +35,7 @@ bool PnPEstimatorOCV::EstimatePose(const std::vector<cv::Point2f> &image_points,
                      useExtrinsicGuess, iter_count, reprojection_error,
                      confidence, inliers_mat, pnp_method);
   std::cout << "PnP found " << inliers_mat.rows << " / " << points3d.size()
-            << " match inliers.";
+            << " match inliers.\n";
 
   inliers.resize(points3d.size(), false);
   for (int i = 0; i < inliers_mat.rows; ++i) {

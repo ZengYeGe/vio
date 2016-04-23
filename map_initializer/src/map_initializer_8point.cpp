@@ -136,7 +136,7 @@ bool MapInitializer8Point::SelectSolutionRT(
   Rs[best_R_id].copyTo(R_best);
   ts[best_t_id].copyTo(t_best);
 
-  std::cout << "Best solution has " << points_3d.size() << " points.\n";
+  std::cout << "Best solution has " << max_num_point_inlier << " points.\n";
 
   return true;
 }
@@ -340,7 +340,7 @@ int MapInitializer8Point::EvaluateSolutionRT(
     float depth1 = point3d.z;
     float depth2 = p3dC2.at<float>(2);
 
-    if (depth1 <= 0 && depth2 <= 0) {
+    if (depth1 <= 0 || depth2 <= 0) {
       points3d_mask.push_back(false);
       points_3d.push_back(cv::Point3f(0, 0, 0));
       continue;
