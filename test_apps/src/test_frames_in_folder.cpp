@@ -25,7 +25,7 @@ int TestFramesInFolder(Options option) {
   }
 
   // TODO: Add option for selecting feature detector.
-  cv::Ptr<cv::Feature2D> detector = cv::ORB::create(3000);
+  cv::Ptr<cv::Feature2D> detector = cv::ORB::create(10000);
   cv::Ptr<cv::Feature2D> descriptor = cv::xfeatures2d::DAISY::create();
   // vio::FeatureTracker *feature_tracker =
   // vio::FeatureTracker::CreateFeatureTracker(detector);
@@ -39,7 +39,8 @@ int TestFramesInFolder(Options option) {
 
   KeyframeSelector keyframe_selector;
 
-  cv::Matx33d K_initial = cv::Matx33d(350, 0, 240, 0, 350, 360, 0, 0, 1);
+  // cv::Matx33d K_initial = cv::Matx33d(350, 0, 240, 0, 350, 360, 0, 0, 1);
+  cv::Matx33d K_initial = cv::Matx33d(517.3, 0, 318.6, 0, 516.5, 255.3, 0, 0, 1);
 
   vio::Map vio_map;
   vio::PnPEstimator *pnp_estimator =
@@ -82,8 +83,8 @@ int TestFramesInFolder(Options option) {
                .pt,
            cv::Scalar(255, 0, 0), thickness);
     }
-    cv::imshow("tracking_result", output_img);
-    cv::waitKey(0);
+    // cv::imshow("tracking_result", output_img);
+    // cv::waitKey(0);
     // ---------------------------------------------------------------
 
     if (option.use_keyframe) {
@@ -157,9 +158,8 @@ int TestFramesInFolder(Options option) {
     t_all.push_back(t);
     points3d_all.insert(points3d_all.end(), new_points3d.begin(),
                         new_points3d.end());
-    VisualizeCamerasAndPoints(K_initial, R_all, t_all, points3d_all);
-    vio_map.PrintStats();
+   vio_map.PrintStats();
   }
-
+  VisualizeCamerasAndPoints(K_initial, R_all, t_all, points3d_all);
   return 0;
 }

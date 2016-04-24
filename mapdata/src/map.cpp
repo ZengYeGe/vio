@@ -225,6 +225,7 @@ bool Map::AddCoordToUninitedPoints(const std::vector<cv::Point3f> &points3d,
     return false;
   }
 
+  int new_ld_count = 0;
   for (int ld_id = 0; ld_id < points3d.size(); ++ld_id) {
     if (points3d_mask[ld_id]) {
       landmark_to_feature_.push_back(
@@ -232,6 +233,7 @@ bool Map::AddCoordToUninitedPoints(const std::vector<cv::Point3f> &points3d,
       Landmark new_ld;
       new_ld.position = points3d[ld_id];
       const int landmark_id = landmarks_.size();
+      new_ld_count++;
       landmarks_.push_back(new_ld);
 
       for (auto &feature_in_frame : landmark_to_feature_.back()) {
@@ -242,7 +244,7 @@ bool Map::AddCoordToUninitedPoints(const std::vector<cv::Point3f> &points3d,
     }
   }
 
-  std::cout << "Added landmarks: " << landmarks_.size() << " / "
+  std::cout << "Added landmarks: " << new_ld_count << " / "
             << uninited_landmark_to_feature_.size() << std::endl;
   uninited_landmark_to_feature_.clear();
 
