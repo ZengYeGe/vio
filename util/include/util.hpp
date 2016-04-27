@@ -16,4 +16,3 @@ void VisualizeCamerasAndPoints(const cv::Matx33d &K,
                                const std::vector<cv::Mat> &Rs,
                                const std::vector<cv::Mat> &ts,
                                const std::vector<cv::Point3f> &points);
- 

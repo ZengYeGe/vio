@@ -29,4 +29,3 @@ int TestTwoFrameWithAccurateMatchFile(Options option);
 int TestFramesInFolder(Options option);
 
 void RunInitializer(vector<vector<cv::Vec2d> > &feature_vector);
-

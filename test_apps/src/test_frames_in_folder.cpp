@@ -40,7 +40,8 @@ int TestFramesInFolder(Options option) {
   KeyframeSelector keyframe_selector;
 
   // cv::Matx33d K_initial = cv::Matx33d(350, 0, 240, 0, 350, 360, 0, 0, 1);
-  cv::Matx33d K_initial = cv::Matx33d(517.3, 0, 318.6, 0, 516.5, 255.3, 0, 0, 1);
+  // cv::Matx33d K_initial = cv::Matx33d(517.3, 0, 318.6, 0, 516.5, 255.3, 0, 0, 1);
+  cv::Matx33d K_initial = cv::Matx33d(688.28, 0, 317.04, 0, 688.28, 216.87, 0, 0, 1);
 
   vio::Map vio_map;
   vio::PnPEstimator *pnp_estimator =

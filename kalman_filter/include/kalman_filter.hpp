@@ -7,8 +7,7 @@ using namespace Eigen;
 // Only orientation.
 class IMUKalmanFilter {
  public:
-  IMUKalmanFilter()
-      : time_stamp_(0) {
+  IMUKalmanFilter() : time_stamp_(0) {
     A_ = Matrix<double, 6, 6>::Identity();
     H_ = Matrix<double, 6, 6>::Identity();
     Q_ = Matrix<double, 6, 6>::Identity();
@@ -52,7 +51,7 @@ class IMUKalmanFilter {
   //   0, 1, 0,  0, dt,  0,
   //   0, 0, 1,  0,  0, dt,
   //   0, 0, 0,  1,  0,  0,
-  //   0, 0, 0,  0,  1,  0,  
+  //   0, 0, 0,  0,  1,  0,
   //   0, 0, 0,  0,  0,  1  ]
   Matrix<double, 6, 6> A_;
   // Observation matrix
@@ -65,4 +64,3 @@ class IMUKalmanFilter {
 
   double time_stamp_;
 };
- 

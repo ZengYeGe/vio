@@ -68,7 +68,6 @@ class Map {
   bool AddInitedPoints(const std::vector<cv::Point3f> &points3d,
                        const std::vector<bool> &points3d_mask);
 
-
   bool PrintStats();
   /* ----------------------------------------------------------------------*/
   // Remove not triangulated landmarks.
