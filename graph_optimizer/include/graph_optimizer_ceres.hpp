@@ -13,14 +13,14 @@ class GraphOptimizerCeres : public GraphOptimizer {
  public:
   GraphOptimizerCeres() {}
 
-  bool Optimize(const std::vector<cv::Mat> &K, std::vector<cv::Mat> &Rs,
+  bool Optimize(const cv::Mat &K, std::vector<cv::Mat> &Rs,
                 std::vector<cv::Mat> &ts, std::vector<cv::Point3f> &points,
                 const std::vector<int> &obs_camera_idx,
                 const std::vector<int> &obs_point_idx,
                 const std::vector<cv::Vec2d> &obs_feature) override;
 
  private:
-  bool ConstructProblem(const std::vector<cv::Mat> &Rs,
+  bool ConstructProblem(const cv::Mat &K, const std::vector<cv::Mat> &Rs,
                         const std::vector<cv::Mat> &ts,
                         const std::vector<cv::Point3f> &points);
 

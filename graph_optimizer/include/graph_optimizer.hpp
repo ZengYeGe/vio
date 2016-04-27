@@ -11,7 +11,7 @@ class GraphOptimizer {
   static GraphOptimizer *CreateGraphOptimizer(GraphOptimizerMethod method);
   static GraphOptimizer *CreateGraphOptimizerCeres();
 
-  virtual bool Optimize(const std::vector<cv::Mat> &K, std::vector<cv::Mat> &Rs,
+  virtual bool Optimize(const cv::Mat &K, std::vector<cv::Mat> &Rs,
                         std::vector<cv::Mat> &ts,
                         std::vector<cv::Point3f> &points,
                         const std::vector<int> &obs_camera_idx,

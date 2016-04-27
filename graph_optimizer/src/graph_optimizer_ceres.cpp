@@ -9,14 +9,14 @@ GraphOptimizer *GraphOptimizer::CreateGraphOptimizerCeres() {
   return optimizer;
 }
 
-bool GraphOptimizerCeres::Optimize(const std::vector<cv::Mat> &K,
+bool GraphOptimizerCeres::Optimize(const cv::Mat &K,
                               std::vector<cv::Mat> &Rs,
                               std::vector<cv::Mat> &ts,
                               std::vector<cv::Point3f> &points,
                               const std::vector<int> &obs_camera_idx,
                               const std::vector<int> &obs_point_idx,
                               const std::vector<cv::Vec2d> &obs_feature) {
-  ConstructProblem(Rs, ts, points);
+  ConstructProblem(K, Rs, ts, points);
 
   ceres::Problem problem;
   const int num_obs = obs_feature.size();
@@ -50,7 +50,8 @@ bool GraphOptimizerCeres::Optimize(const std::vector<cv::Mat> &K,
   return false;
 }
 
-bool GraphOptimizerCeres::ConstructProblem(const std::vector<cv::Mat> &Rs,
+bool GraphOptimizerCeres::ConstructProblem(const cv::Mat &K,
+                              const std::vector<cv::Mat> &Rs,
                               const std::vector<cv::Mat> &ts,
                               const std::vector<cv::Point3f> &points) {
   const int num_cameras = Rs.size();
@@ -74,7 +75,19 @@ bool GraphOptimizerCeres::ConstructProblem(const std::vector<cv::Mat> &Rs,
 bool GraphOptimizerCeres::AssignOptimizedResult(std::vector<cv::Mat> &Rs,
                               std::vector<cv::Mat> &ts,
                               std::vector<cv::Point3f> &points) {
-  return true;
+  const int num_cameras = cameras_.size() / 9;
+  const int num_points = points_.size() / 3;
+
+  for (int i = 0; i < num_cameras; ++i) {
+    // cameras_[i * 9 + 0] = 
+  }
+
+  for (int i = 0; i < num_points; ++i) {
+    points[i].x = points_[i * 3 + 0];
+    points[i].y = points_[i * 3 + 1];
+    points[i].z = points_[i * 3 + 2];
+  }
+   return true;
 }
 
 } // vio

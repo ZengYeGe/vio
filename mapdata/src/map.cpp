@@ -208,6 +208,45 @@ bool Map::SetLastFramePose(const cv::Mat &R, const cv::Mat &t) {
   keyframes_.back()->set_pose_inited(true);
   keyframes_.back()->set_pose(R, t);
 };
+bool Map::PrepareOptimization(std::vector<cv::Mat> &Rs,
+                           std::vector<cv::Mat> &ts,
+                           std::vector<cv::Point3f> &points,
+                           std::vector<int> &obs_camera_idx,
+                           std::vector<int> &obs_point_idx,
+                           std::vector<cv::Vec2d> &obs_feature) {
+  const int num_camera = keyframes_.size();
+  const int num_points = landmarks_.size();
+  Rs.resize(num_camera);
+  ts.resize(num_camera);
+  points.resize(num_points);
+  for (int i = 0; i < keyframes_.size(); ++i) {
+    keyframes_[i]->pose().R.copyTo(Rs[i]);
+    keyframes_[i]->pose().t.copyTo(ts[i]);
+  }
+
+  obs_camera_idx.clear();
+  obs_point_idx.clear();
+  obs_feature.clear();
+  for (int i = 0; i < landmarks_.size(); ++i) {
+    const int num_obs = landmark_to_feature_[i].size();
+    const int obs_start_id = obs_camera_idx.size();
+
+    obs_camera_idx.resize(obs_camera_idx.size() + num_obs);
+    obs_point_idx.resize(obs_point_idx.size() + num_obs);
+    obs_feature.resize(obs_feature.size() + num_obs);
+
+    int count = 0;
+    for (auto &obs : landmark_to_feature_[i]) {
+      obs_camera_idx[obs_start_id + count] = obs.first;
+      obs_point_idx[obs_start_id + count] = i;
+
+      const cv::KeyPoint &kp = keyframes_[obs.first]->image_frame().keypoints()[obs.second];
+      obs_feature[obs_start_id + count] = cv::Vec2d(kp.pt.x, kp.pt.y);
+      count++;
+    }
+  }
+
+}
 
 bool Map::PrintStats() {
   std::cout << "\nMap stats:\n"
