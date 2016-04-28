@@ -19,6 +19,7 @@ target_link_libraries( ${TARGET}
                        multiview_helper
                        mapdata
                        feature_tracker
+                       graph_optimizer
                        pnp_estimator
                        map_initializer
                        ${OpenCV_LIBS} )

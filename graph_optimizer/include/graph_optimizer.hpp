@@ -6,7 +6,9 @@ enum GraphOptimizerMethod { CERES, G2O };
 
 class GraphOptimizer {
  public:
-  GraphOptimizer();
+  // Even abstract class, need to have implementation for non pure function
+  // Otherwise will have link error
+  GraphOptimizer() {}
 
   static GraphOptimizer *CreateGraphOptimizer(GraphOptimizerMethod method);
   static GraphOptimizer *CreateGraphOptimizerCeres();

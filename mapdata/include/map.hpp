@@ -69,12 +69,15 @@ class Map {
                        const std::vector<bool> &points3d_mask);
 
   /* ---------------Bundle adjustment-------------------------------------*/
-  bool PrepareOptimization(std::vector<cv::Mat> &Rs,
-                           std::vector<cv::Mat> &ts,
+  bool PrepareOptimization(std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts,
                            std::vector<cv::Point3f> &points,
                            std::vector<int> &obs_camera_idx,
                            std::vector<int> &obs_point_idx,
                            std::vector<cv::Vec2d> &obs_feature);
+
+  bool ApplyOptimization(const std::vector<cv::Mat> &Rs,
+                         const std::vector<cv::Mat> &ts,
+                         const std::vector<cv::Point3f> &points);
 
   bool PrintStats();
 

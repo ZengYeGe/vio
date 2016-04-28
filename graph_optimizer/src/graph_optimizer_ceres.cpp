@@ -26,12 +26,15 @@ bool GraphOptimizerCeres::Optimize(const cv::Mat &K,
     // dimensional residual. Internally, the cost function stores the observed
     // image location and compares the reprojection against the observation.
     double observation[2];
+    observation[0] = obs_feature[i][0];
+    observation[1] = obs_feature[i][1];
+
     ceres::CostFunction* cost_function =
         SnavelyReprojectionError::Create(observation[0],
                                          observation[1]);
     problem.AddResidualBlock(cost_function,
                              NULL /* squared loss */,
-                             &cameras_[obs_camera_idx[i]],
+                             &cameras_[obs_camera_idx[i]][0],
                              &points_[obs_point_idx[i]]);
   }   
   // Make Ceres automatically detect the bundle structure. Note that the
@@ -56,11 +59,27 @@ bool GraphOptimizerCeres::ConstructProblem(const cv::Mat &K,
                               const std::vector<cv::Point3f> &points) {
   const int num_cameras = Rs.size();
   const int num_points = points.size();
-  cameras_.resize(num_cameras * 9);
+  cameras_.resize(num_cameras);
   points_.resize(num_points * 3);
 
   for (int i = 0; i < num_cameras; ++i) {
-    // cameras_[i * 9 + 0] = 
+    cameras_[i].resize(9);
+
+    double angle_axis[3];
+    MatRotToAngleAxis(Rs[i], angle_axis);
+
+    cameras_[i][0] = angle_axis[0];
+    cameras_[i][1] = angle_axis[1];
+    cameras_[i][2] = angle_axis[2];
+
+    cameras_[i][3] = ts[i].at<double>(0);
+    cameras_[i][4] = ts[i].at<double>(1);
+    cameras_[i][5] = ts[i].at<double>(2);
+
+    cameras_[i][6] = K.at<double>(0, 0);
+
+    cameras_[i][7] = 0;
+    cameras_[i][8] = 0;
   }
 
   for (int i = 0; i < num_points; ++i) {
@@ -79,15 +98,54 @@ bool GraphOptimizerCeres::AssignOptimizedResult(std::vector<cv::Mat> &Rs,
   const int num_points = points_.size() / 3;
 
   for (int i = 0; i < num_cameras; ++i) {
-    // cameras_[i * 9 + 0] = 
+    double angle_axis[3];
+    double R[9];
+    angle_axis[0] = cameras_[i][0];
+    angle_axis[1] = cameras_[i][1];
+    angle_axis[2] = cameras_[i][2];
+
+    AngleAxisToMatRot(angle_axis, Rs[i]);
+    ts[i].at<double>(0) = cameras_[i][3];
+    ts[i].at<double>(1) = cameras_[i][4];
+    ts[i].at<double>(2) = cameras_[i][5];
   }
 
+  // TODO: double to float
   for (int i = 0; i < num_points; ++i) {
     points[i].x = points_[i * 3 + 0];
     points[i].y = points_[i * 3 + 1];
     points[i].z = points_[i * 3 + 2];
   }
    return true;
+}
+
+void GraphOptimizerCeres::MatRotToAngleAxis(const cv::Mat &R_mat, double *angle_axis) {
+  double R[9];
+  R[0] = R_mat.at<double>(0, 0);
+  R[1] = R_mat.at<double>(0, 1);
+  R[2] = R_mat.at<double>(0, 2);
+  R[3] = R_mat.at<double>(1, 0);
+  R[4] = R_mat.at<double>(1, 1);
+  R[5] = R_mat.at<double>(1, 2);
+  R[6] = R_mat.at<double>(2, 0);
+  R[7] = R_mat.at<double>(2, 1);
+  R[8] = R_mat.at<double>(2, 2);
+  ceres::RotationMatrixToAngleAxis(R, angle_axis);
+}
+
+void GraphOptimizerCeres::AngleAxisToMatRot(const double *angle_axis, cv::Mat &R_mat) {
+  R_mat = cv::Mat(3, 3, CV_64F);
+  double R[9];
+  ceres::AngleAxisToRotationMatrix(angle_axis, R); 
+  R_mat.at<double>(0, 0) = R[0];
+  R_mat.at<double>(0, 1) = R[1];
+  R_mat.at<double>(0, 2) = R[2];
+  R_mat.at<double>(1, 0) = R[3];
+  R_mat.at<double>(1, 1) = R[4];
+  R_mat.at<double>(1, 2) = R[5];
+  R_mat.at<double>(2, 0) = R[6];
+  R_mat.at<double>(2, 1) = R[7];
+  R_mat.at<double>(2, 2) = R[8];
 }
 
 } // vio

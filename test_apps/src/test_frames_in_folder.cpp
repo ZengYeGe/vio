@@ -40,8 +40,10 @@ int TestFramesInFolder(Options option) {
   KeyframeSelector keyframe_selector;
 
   // cv::Matx33d K_initial = cv::Matx33d(350, 0, 240, 0, 350, 360, 0, 0, 1);
-  // cv::Matx33d K_initial = cv::Matx33d(517.3, 0, 318.6, 0, 516.5, 255.3, 0, 0, 1);
-  cv::Matx33d K_initial = cv::Matx33d(688.28, 0, 317.04, 0, 688.28, 216.87, 0, 0, 1);
+  // cv::Matx33d K_initial = cv::Matx33d(517.3, 0, 318.6, 0, 516.5, 255.3, 0, 0,
+  // 1);
+  cv::Matx33d K_initial =
+      cv::Matx33d(688.28, 0, 317.04, 0, 688.28, 216.87, 0, 0, 1);
 
   vio::Map vio_map;
   vio::PnPEstimator *pnp_estimator =
@@ -159,8 +161,24 @@ int TestFramesInFolder(Options option) {
     t_all.push_back(t);
     points3d_all.insert(points3d_all.end(), new_points3d.begin(),
                         new_points3d.end());
-   vio_map.PrintStats();
+    vio_map.PrintStats();
   }
+
   VisualizeCamerasAndPoints(K_initial, R_all, t_all, points3d_all);
+
+  // Optimization
+  std::vector<cv::Mat> Rs;
+  std::vector<cv::Mat> ts;
+  std::vector<cv::Point3f> points;
+  std::vector<int> obs_camera_idx;
+  std::vector<int> obs_point_idx;
+  std::vector<cv::Vec2d> obs_feature;
+  vio_map.PrepareOptimization(Rs, ts, points, obs_camera_idx, obs_point_idx, obs_feature);
+
+  vio::GraphOptimizer *optimizer = vio::GraphOptimizer::CreateGraphOptimizer(vio::CERES);
+
+  optimizer->Optimize(cv::Mat(K_initial), Rs, ts, points, obs_camera_idx, obs_point_idx, obs_feature);
+
+  vio_map.ApplyOptimization(Rs, ts, points);
   return 0;
 }

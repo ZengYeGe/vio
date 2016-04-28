@@ -208,6 +208,7 @@ bool Map::SetLastFramePose(const cv::Mat &R, const cv::Mat &t) {
   keyframes_.back()->set_pose_inited(true);
   keyframes_.back()->set_pose(R, t);
 };
+
 bool Map::PrepareOptimization(std::vector<cv::Mat> &Rs,
                            std::vector<cv::Mat> &ts,
                            std::vector<cv::Point3f> &points,
@@ -245,7 +246,23 @@ bool Map::PrepareOptimization(std::vector<cv::Mat> &Rs,
       count++;
     }
   }
+  return true;
+}
 
+bool Map::ApplyOptimization(const std::vector<cv::Mat> &Rs,
+                            const std::vector<cv::Mat> &ts,
+                            const std::vector<cv::Point3f> &points) {
+  const int num_camera = Rs.size();
+  const int num_points = points.size();
+  
+  for (int i = 0; i < num_camera; ++i) {
+    keyframes_[i]->set_pose(Rs[i], ts[i]);
+  } 
+  
+  for (int i = 0; i < points.size(); ++i) {
+    landmarks_[i].position = points[i];
+  }
+  return true;
 }
 
 bool Map::PrintStats() {

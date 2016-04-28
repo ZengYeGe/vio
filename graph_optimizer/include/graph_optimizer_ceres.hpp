@@ -26,9 +26,11 @@ class GraphOptimizerCeres : public GraphOptimizer {
 
   bool AssignOptimizedResult(std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts,
                              std::vector<cv::Point3f> &points);
-  // size is 9 * num_cameras
-  std::vector<double> cameras_;
-  // size is 3 * num_points
+
+  void MatRotToAngleAxis(const cv::Mat &R, double *axis_angle);
+  void AngleAxisToMatRot(const double *axis_angle, cv::Mat &R);
+
+  std::vector<std::vector<double> > cameras_;
   std::vector<double> points_;
 };
 
