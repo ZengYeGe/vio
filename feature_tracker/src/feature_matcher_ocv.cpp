@@ -2,20 +2,37 @@
 
 #include <iostream>
 
+#include "../../util/include/timer.hpp"
+
 namespace vio {
 
 bool FeatureMatcherOCV::Match(const std::vector<cv::KeyPoint> &kp0,
                               const std::vector<cv::KeyPoint> &kp1,
                               const cv::Mat &desc0, const cv::Mat &desc1,
                               std::vector<cv::DMatch> &matches) {
+  Timer timer;
+  timer.Start();
+
   std::vector<std::vector<cv::DMatch> > matches_0to1_k, matches_1to0_k;
   matcher_->knnMatch(desc0, desc1, matches_0to1_k, max_match_per_desc_);
   matcher_->knnMatch(desc1, desc0, matches_1to0_k, max_match_per_desc_);
+
+//  matcher_->radiusMatch(desc0, desc1, matches_0to1_k, 20);
+//  matcher_->radiusMatch(desc1, desc0, matches_1to0_k, 20);
+
+
+  timer.Stop();
+  std::cout << "Knn match time used: " << timer.GetInMs() << std::endl;
+  timer.Start();
 
   // Pick matches where the first one is much better than the second match.
   std::vector<cv::DMatch> matches_0to1, matches_1to0;
   RatioTestFilter(matches_0to1_k, matches_0to1);
   RatioTestFilter(matches_1to0_k, matches_1to0);
+
+  timer.Stop();
+  std::cout << "Ratio test time used: " << timer.GetInMs() << std::endl;
+  timer.Start();
 
   if (matches_0to1.size() < 10 || matches_1to0.size() < 10) {
     std::cerr << "Error: Not enough matches after ratio test.\n";
@@ -31,7 +48,15 @@ bool FeatureMatcherOCV::Match(const std::vector<cv::KeyPoint> &kp0,
     std::cerr << "Error: Not enough matches after symmetry test.\n";
     return false;
   }
+
+  timer.Stop();
+  std::cout << "Symmetry test time used: " << timer.GetInMs() << std::endl;
+  timer.Start();
+
   RemoveOutlierMatch(kp0, kp1, matches);
+
+  timer.Stop();
+  std::cout << "F matrix outlier test time used: " << timer.GetInMs() << std::endl;
 
   if (matches.size() < 3) {
     std::cerr << "Error: Not enough matches after outlier removal.\n";

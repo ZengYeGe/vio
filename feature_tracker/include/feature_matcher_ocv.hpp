@@ -13,7 +13,8 @@ class FeatureMatcherOCV : public FeatureMatcher {
     // TODO: Decide matcher based on descriptors
     // Hamming-distance works only for binary feature-types like ORB, FREAK
     // matcher_ = cv::DescriptorMatcher::create("BruteForce-Hamming");
-    matcher_ = cv::DescriptorMatcher::create("BruteForce");
+    // matcher_ = cv::DescriptorMatcher::create("BruteForce");
+    matcher_ = cv::DescriptorMatcher::create("FlannBased");
   }
   ~FeatureMatcherOCV(){};
 

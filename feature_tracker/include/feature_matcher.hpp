@@ -6,6 +6,10 @@
 
 namespace vio {
 
+enum FeatureMatchMethod {
+  BRUTE_FORCE
+};
+
 class FeatureMatcher {
  public:
   FeatureMatcher(){};
