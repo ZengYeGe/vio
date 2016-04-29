@@ -31,7 +31,8 @@ class GraphOptimizerCeres : public GraphOptimizer {
   void MatRotToAngleAxis(const cv::Mat &R, double *axis_angle);
   void AngleAxisToMatRot(const double *axis_angle, cv::Mat &R);
 
-  std::vector<std::vector<double> > cameras_;
+  std::vector<double> camera_intrinsics_;
+  std::vector<std::vector<double> > camera_R_t_;
   std::vector<double> points_;
 };
 
