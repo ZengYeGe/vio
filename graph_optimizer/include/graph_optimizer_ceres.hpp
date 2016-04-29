@@ -26,6 +26,7 @@ class GraphOptimizerCeres : public GraphOptimizer {
 
   bool AssignOptimizedResult(std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts,
                              std::vector<cv::Point3f> &points);
+  void CheckPointsValid();
 
   void MatRotToAngleAxis(const cv::Mat &R, double *axis_angle);
   void AngleAxisToMatRot(const double *axis_angle, cv::Mat &R);

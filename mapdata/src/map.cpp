@@ -225,6 +225,10 @@ bool Map::PrepareOptimization(std::vector<cv::Mat> &Rs,
     keyframes_[i]->pose().t.copyTo(ts[i]);
   }
 
+  for (int i = 0; i < num_points; ++i) {
+    points[i] = landmarks_[i].position;
+  }
+
   obs_camera_idx.clear();
   obs_point_idx.clear();
   obs_feature.clear();

@@ -1,6 +1,7 @@
 #include "ceres/ceres.h"
 #include "ceres/rotation.h"
 
+namespace vio {
 // Templated pinhole camera model for used with Ceres.  The camera is
 // parameterized using 9 parameters: 3 for rotation, 3 for translation, 1 for
 // focal length and 2 for radial distortion. The principal point is not modeled
@@ -24,8 +25,8 @@ struct SnavelyReprojectionError {
     // Compute the center of distortion. The sign change comes from
     // the camera model that Noah Snavely's Bundler assumes, whereby
     // the camera coordinate system has a negative z axis.
-    T xp = -p[0] / p[2];
-    T yp = -p[1] / p[2];
+    T xp = p[0] / p[2];
+    T yp = p[1] / p[2];
 
     // Apply second and fourth order radial distortion.
     const T &l1 = camera[7];
@@ -56,3 +57,5 @@ struct SnavelyReprojectionError {
   double observed_x;
   double observed_y;
 };
+
+} // vio

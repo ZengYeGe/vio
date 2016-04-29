@@ -177,8 +177,12 @@ int TestFramesInFolder(Options option) {
 
   vio::GraphOptimizer *optimizer = vio::GraphOptimizer::CreateGraphOptimizer(vio::CERES);
 
-  optimizer->Optimize(cv::Mat(K_initial), Rs, ts, points, obs_camera_idx, obs_point_idx, obs_feature);
+  optimizer->Optimize(cv::Mat(K_initial), Rs, ts, points,
+                      obs_camera_idx, obs_point_idx, obs_feature);
 
   vio_map.ApplyOptimization(Rs, ts, points);
+
+  VisualizeCamerasAndPoints(K_initial, Rs, ts, points);
+
   return 0;
 }
