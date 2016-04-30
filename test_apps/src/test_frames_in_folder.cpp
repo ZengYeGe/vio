@@ -38,12 +38,16 @@ int TestFramesInFolder(Options option) {
   std::cout << "Found " << last_frame->keypoints().size() << " features.\n";
 
   KeyframeSelector keyframe_selector;
+  
+  // Three view
+//  cv::Matx33d K_initial = cv::Matx33d(350, 0, 240, 0, 350, 360, 0, 0, 1);
+//  cv::Matx33d K_initial = cv::Matx33d(517.3, 0, 318.6, 0, 516.5, 255.3, 0, 0, 1);
 
-  // cv::Matx33d K_initial = cv::Matx33d(350, 0, 240, 0, 350, 360, 0, 0, 1);
-  // cv::Matx33d K_initial = cv::Matx33d(517.3, 0, 318.6, 0, 516.5, 255.3, 0, 0,
-  // 1);
-  cv::Matx33d K_initial =
-      cv::Matx33d(688.28, 0, 317.04, 0, 688.28, 216.87, 0, 0, 1);
+  // Temple
+//  cv::Matx33d K_initial = cv::Matx33d(688.28, 0, 317.04, 0, 688.28, 216.87, 0, 0, 1);
+
+  // Desk sub
+  cv::Matx33d K_initial = cv::Matx33d(567.27, 0, 309.77, 0, 571.159, 246.05, 0, 0, 1);
 
   vio::Map vio_map;
   vio::PnPEstimator *pnp_estimator =

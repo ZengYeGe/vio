@@ -22,6 +22,20 @@ bool GraphOptimizerCeres::Optimize(const cv::Mat &K,
   ceres::Problem problem;
   const int num_obs = obs_feature.size();
 
+/*
+  // ------- set translation constant
+  std::vector<int> constant_pose;
+  // First three elements are rotation, last three are translation.
+  constant_pose.push_back(0);
+  constant_pose.push_back(1);
+  constant_pose.push_back(2);
+  constant_pose.push_back(3);
+  constant_pose.push_back(4);
+  constant_pose.push_back(5);
+  ceres::SubsetParameterization *constant_transform_parameterization =
+    new ceres::SubsetParameterization(6, constant_pose);
+*/ 
+
   for (int i = 0; i < num_obs; ++i) {
     // Each Residual block takes a point and a camera as input and outputs a 2
     // dimensional residual. Internally, the cost function stores the observed
@@ -41,6 +55,11 @@ bool GraphOptimizerCeres::Optimize(const cv::Mat &K,
                              camera_intrinsics_.data(),
                              camera_R_t_[obs_camera_idx[i]].data(),
                              points_.data() + obs_point_idx[i] * 3);
+    // if (i == 0) {
+    //   problem.SetParameterBlockConstant(current_camera_R_t[obs_camera_idx[i]].data());
+    // }
+    // problem.SetParameterBlockConstant(camera_R_t_[obs_camera_idx[i]].data());
+    // problem.SetParameterBlockConstant(points_.data() + obs_point_idx[i] * 3);  
   }   
   problem.SetParameterBlockConstant(camera_intrinsics_.data());
   // Make Ceres automatically detect the bundle structure. Note that the
@@ -50,6 +69,9 @@ bool GraphOptimizerCeres::Optimize(const cv::Mat &K,
   options.linear_solver_type = ceres::DENSE_SCHUR;
   options.minimizer_progress_to_stdout = true;
   options.max_num_iterations = 100;
+//  options.preconditioner_type = ceres::SCHUR_JACOBI;
+//  options.linear_solver_type = ceres::ITERATIVE_SCHUR;
+//  options.use_inner_iterations = true;
 
   ceres::Solver::Summary summary;
   ceres::Solve(options, &problem, &summary);

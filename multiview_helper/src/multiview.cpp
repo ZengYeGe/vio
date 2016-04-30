@@ -31,15 +31,15 @@ void TriangulatePoints(const std::vector<cv::Vec2d> &kp0,
 
     cv::Mat p3dC1 = R0 * p_global + t0;
     cv::Mat p3dC2 = R1 * p_global + t1;
-    float depth1 = p3dC1.at<float>(1);
+    float depth1 = p3dC1.at<float>(2);
     float depth2 = p3dC2.at<float>(2);
 
     // TODO:
-    // if (depth1 <= 0 || depth2 <= 0) {
-    //  points3d_mask[i] = false;
-    // } else {
-    points3d_mask[i] = true;
-    // }
+    if (depth1 <= 0 || depth2 <= 0) {
+      points3d_mask[i] = false;
+    } else {
+      points3d_mask[i] = true;
+    }
   }
 }
 
