@@ -68,7 +68,7 @@ class Map {
   bool AddInitedPoints(const std::vector<cv::Point3f> &points3d,
                        const std::vector<bool> &points3d_mask);
 
-  /* ---------------Bundle adjustment-------------------------------------*/
+ /* ---------------Bundle adjustment-------------------------------------*/
   bool PrepareOptimization(std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts,
                            std::vector<cv::Point3f> &points,
                            std::vector<int> &obs_camera_idx,
@@ -87,6 +87,8 @@ class Map {
  private:
   bool AddCoordToUninitedPoints(const std::vector<cv::Point3f> &points3d,
                                 const std::vector<bool> &points3d_mask);
+  bool PruneShortTrackLandmarks();
+
   MapState map_state_;
 
   std::unordered_map<int, int> keyframe_id_to_index_;

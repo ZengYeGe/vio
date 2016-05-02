@@ -4,17 +4,33 @@
 
 namespace vio {
 
-FeatureTracker *FeatureTracker::CreateFeatureTracker(
-    cv::Ptr<cv::FeatureDetector> detector) {
-  FeatureTracker *tracker = new FeatureTrackerOCV(detector);
-  return tracker;
-}
+FeatureTracker *FeatureTracker::CreateFeatureTrackerOCV(FeatureTrackerOptions option) {
+  cv::Ptr<cv::FeatureDetector> detector;
+  cv::Ptr<cv::DescriptorExtractor> descriptor;
 
-FeatureTracker *FeatureTracker::CreateFeatureTracker(
-    cv::Ptr<cv::FeatureDetector> detector,
-    cv::Ptr<cv::DescriptorExtractor> extractor) {
-  FeatureTracker *tracker = new FeatureTrackerOCV(detector, extractor);
-  return tracker;
+  if (option.detector_type == "ORB") {
+    detector = cv::ORB::create(option.max_num_feature);
+  } else {
+    return nullptr;
+  }
+
+  // If use descriptor
+  if (option.method == OCV_BASIC_DETECTOR_EXTRACTOR) {
+    if (option.descriptor_type == "DAISY") {
+      descriptor = cv::xfeatures2d::DAISY::create();
+    } else {
+      return nullptr;
+    }
+  }
+
+  switch (option.method) {
+    case OCV_BASIC_DETECTOR:
+      return new FeatureTrackerOCV(detector);
+    case OCV_BASIC_DETECTOR_EXTRACTOR:
+      return new FeatureTrackerOCV(detector, descriptor);
+    default:
+      return nullptr;
+  }
 }
 
 FeatureTrackerOCV::FeatureTrackerOCV(cv::Ptr<cv::FeatureDetector> detector) {

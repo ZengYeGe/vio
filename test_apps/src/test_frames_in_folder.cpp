@@ -25,12 +25,21 @@ int TestFramesInFolder(Options option) {
   }
 
   // TODO: Add option for selecting feature detector.
-  cv::Ptr<cv::Feature2D> detector = cv::ORB::create(10000);
-  cv::Ptr<cv::Feature2D> descriptor = cv::xfeatures2d::DAISY::create();
+  // cv::Ptr<cv::Feature2D> detector = cv::ORB::create(10000);
+  // cv::Ptr<cv::Feature2D> descriptor = cv::xfeatures2d::DAISY::create();
   // vio::FeatureTracker *feature_tracker =
   // vio::FeatureTracker::CreateFeatureTracker(detector);
+  // vio::FeatureTracker *feature_tracker =
+  //    vio::FeatureTracker::CreateFeatureTracker(detector, descriptor);
+
+  vio::FeatureTrackerOptions feature_tracker_option;
   vio::FeatureTracker *feature_tracker =
-      vio::FeatureTracker::CreateFeatureTracker(detector, descriptor);
+      vio::FeatureTracker::CreateFeatureTracker(feature_tracker_option);
+
+  if (!feature_tracker) {
+    cerr << "Error: Failed to create feature tracker.\n";
+    return -1;
+  }
 
   std::unique_ptr<vio::ImageFrame> last_frame(new vio::ImageFrame(image0));
 

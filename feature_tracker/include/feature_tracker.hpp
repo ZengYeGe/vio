@@ -4,6 +4,7 @@
 #include <opencv2/features2d.hpp>
 #include <opencv2/opencv.hpp>
 
+#include <string>
 #include <vector>
 
 #include "../../mapdata/include/image_frame.hpp"
@@ -12,16 +13,40 @@
 
 namespace vio {
 
+enum FeatureTrackerMethod {
+  OCV_BASIC_DETECTOR = 0,
+  OCV_BASIC_DETECTOR_EXTRACTOR,
+  SEARCH_BY_PROJECTION
+};
+
+struct FeatureTrackerOptions {
+  FeatureTrackerOptions ()
+      : method(OCV_BASIC_DETECTOR_EXTRACTOR),
+        detector_type("ORB"),
+        max_num_feature(10000),
+        descriptor_type("DAISY") {}
+
+  FeatureTrackerMethod method;
+
+  // Detector
+  std::string detector_type;
+  int max_num_feature;
+
+  // Descriptor
+  std::string descriptor_type;
+  
+};
+
+
 class FeatureTracker {
  public:
   FeatureTracker() {}
   ~FeatureTracker() {}
 
   static FeatureTracker *CreateFeatureTracker(
-      cv::Ptr<cv::FeatureDetector> detector);
-  static FeatureTracker *CreateFeatureTracker(
-      cv::Ptr<cv::FeatureDetector> detector,
-      cv::Ptr<cv::DescriptorExtractor> extractor);
+    FeatureTrackerOptions option);
+
+  static FeatureTracker *CreateFeatureTrackerOCV(FeatureTrackerOptions option);
 
   virtual bool TrackFirstFrame(ImageFrame &output_frame) = 0;
   // TODO: Might need to use customized Match class.

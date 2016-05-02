@@ -311,4 +311,9 @@ bool Map::AddCoordToUninitedPoints(const std::vector<cv::Point3f> &points3d,
   return true;
 }
 
+bool Map::PruneShortTrackLandmarks() {
+  // If previous landmarks only seen by two views then delete.
+  return true;
+}
+
 }  // vio
