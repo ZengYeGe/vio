@@ -23,8 +23,6 @@ int main(int argc, char **argv) {
     cerr << "Error: Please provide configuration file use argument --config.\n";
     return -1;
   }
-  cv::FileStorage config_file;
-  config_file.open(option.config_filename, FileStorage::READ);
 
   if (option.match_file_name.size())
     return TestTwoFrameWithAccurateMatchFile(option);
@@ -32,8 +30,7 @@ int main(int argc, char **argv) {
   if (option.format.size() && option.path.size())
     return TestFramesInFolder(option);
 
-  if (option.video_filename.size())
-    return TestVideo(option);
+  if (option.video_filename.size()) return TestVideo(option);
 
   cout << "Error. Unknown arguments.\n";
   cout << "Usage: \n";

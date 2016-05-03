@@ -24,7 +24,7 @@ void TriangulatePoints(const std::vector<cv::Vec2d> &kp0,
   for (int i = 0; i < kp0.size(); ++i) {
     TriangulateDLT(kp0[i], kp1[i], P0, P1, points3d[i]);
 
-    cv::Mat p_global(3, 1, CV_64F);
+    cv::Mat p_global(3, 1, CV_32F);
     p_global.at<float>(0) = points3d[i].x;
     p_global.at<float>(1) = points3d[i].y;
     p_global.at<float>(2) = points3d[i].z;

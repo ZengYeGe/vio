@@ -19,7 +19,8 @@ enum FeatureTrackerMethod {
   SEARCH_BY_PROJECTION
 };
 
-struct FeatureTrackerOptions {
+class FeatureTrackerOptions {
+ public:
   FeatureTrackerOptions ()
       : method(OCV_BASIC_DETECTOR_EXTRACTOR),
         detector_type("ORB"),
@@ -35,9 +36,24 @@ struct FeatureTrackerOptions {
   // Descriptor
   std::string descriptor_type;
   
-  // Matcher
+  void read(const cv::FileNode& node) {
+    method = static_cast<FeatureTrackerMethod>((int)node["Method"]);
+    detector_type = (std::string)node["DetectorType"];
+    max_num_feature = (int)node["max_num_feature"];
+
+    descriptor_type = (std::string)node["DescriptorType"];
+  }
   
 };
+
+// Following must be defined for the serialization in FileStorage to work
+static void read(const cv::FileNode& node, FeatureTrackerOptions& x,
+                 const FeatureTrackerOptions& default_value = FeatureTrackerOptions()){
+    if(node.empty())
+        x = default_value;
+    else
+        x.read(node);
+}
 
 
 class FeatureTracker {

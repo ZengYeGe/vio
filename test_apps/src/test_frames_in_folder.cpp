@@ -2,9 +2,24 @@
 
 int TestFramesInFolder(Options option) {
 #ifndef __linux__
-  cout << "Error: Test folder Not supported. Currently only support "
+  cerr << "Error: Test folder Not supported. Currently only support "
           "Linux.\n" return -1;
 #endif
+  cv::FileStorage dataset_config;
+  dataset_config.open(option.path + "/dataset_config.yaml", FileStorage::READ);
+  if (!dataset_config.isOpened()) {
+    cerr << "Error: Couldn't find dataset config file in the folder.\n";
+    return -1;
+  }
+
+  cv::FileStorage pipeline_config;
+  pipeline_config.open(option.config_filename, FileStorage::READ);
+  if (!pipeline_config.isOpened()) {
+    cerr << "Error: Couldn't find pipeline config file.\n";
+    return -1;
+  }
+
+  // -------------- Load images
   vector<string> images;
   if (!GetImageNamesInFolder(option.path, option.format, images)) return -1;
 
@@ -24,18 +39,34 @@ int TestFramesInFolder(Options option) {
     return -1;
   }
 
-  // TODO: Add option for selecting feature detector.
-  // cv::Ptr<cv::Feature2D> detector = cv::ORB::create(10000);
-  // cv::Ptr<cv::Feature2D> descriptor = cv::xfeatures2d::DAISY::create();
-  // vio::FeatureTracker *feature_tracker =
-  // vio::FeatureTracker::CreateFeatureTracker(detector);
-  // vio::FeatureTracker *feature_tracker =
-  //    vio::FeatureTracker::CreateFeatureTracker(detector, descriptor);
+  // --------------- Load parameters
+  cv::Mat K_initial;
+  dataset_config["K"] >> K_initial;
+  cout << "Camera intrinsics: \n" << K_initial << std::endl;
+
 
   vio::FeatureTrackerOptions feature_tracker_option;
+  pipeline_config["FeatureTracker"] >> feature_tracker_option;
+
+  vio::MapInitializerOptions map_initializer_option;
+
+
+  // ------------- Create modules 
   vio::FeatureTracker *feature_tracker =
       vio::FeatureTracker::CreateFeatureTracker(feature_tracker_option);
 
+  KeyframeSelector keyframe_selector;
+
+  vio::MapInitializer *map_initializer =
+      vio::MapInitializer::CreateMapInitializer(map_initializer_option);
+
+  vio::Map vio_map;
+
+  vio::PnPEstimator *pnp_estimator =
+      vio::PnPEstimator::CreatePnPEstimator(vio::ITERATIVE);
+ 
+
+  // ------------ Start process
   if (!feature_tracker) {
     cerr << "Error: Failed to create feature tracker.\n";
     return -1;
@@ -46,22 +77,7 @@ int TestFramesInFolder(Options option) {
   feature_tracker->TrackFirstFrame(*last_frame);
   std::cout << "Found " << last_frame->keypoints().size() << " features.\n";
 
-  KeyframeSelector keyframe_selector;
-  
-  // Three view
-//  cv::Matx33d K_initial = cv::Matx33d(350, 0, 240, 0, 350, 360, 0, 0, 1);
-//  cv::Matx33d K_initial = cv::Matx33d(517.3, 0, 318.6, 0, 516.5, 255.3, 0, 0, 1);
-
-  // Temple
-//  cv::Matx33d K_initial = cv::Matx33d(688.28, 0, 317.04, 0, 688.28, 216.87, 0, 0, 1);
-
-  // Desk sub
-  cv::Matx33d K_initial = cv::Matx33d(567.27, 0, 309.77, 0, 571.159, 246.05, 0, 0, 1);
-
-  vio::Map vio_map;
-  vio::PnPEstimator *pnp_estimator =
-      vio::PnPEstimator::CreatePnPEstimator(vio::ITERATIVE);
-  // TODO: Doesn't make sense to do move a lot
+ // TODO: Doesn't make sense to do move a lot
   std::unique_ptr<vio::Keyframe> first_keyframe(
       new vio::Keyframe(std::move(last_frame)));
   vio_map.AddFirstKeyframe(std::move(first_keyframe));
@@ -80,8 +96,8 @@ int TestFramesInFolder(Options option) {
       return -1;
     }
     std::unique_ptr<vio::ImageFrame> new_frame(new vio::ImageFrame(image1));
-    // ------------------------------------------------------------------
 
+    // ----------------------Find match ------------------------------------
     std::vector<cv::DMatch> matches;
     if (!feature_tracker->TrackFrame(vio_map.GetLastKeyframe().image_frame(),
                                      *new_frame, matches))
@@ -99,8 +115,8 @@ int TestFramesInFolder(Options option) {
                .pt,
            cv::Scalar(255, 0, 0), thickness);
     }
-    // cv::imshow("tracking_result", output_img);
-    // cv::waitKey(0);
+    cv::imshow("tracking_result", output_img);
+    cv::waitKey(50);
     // ---------------------------------------------------------------
 
     if (option.use_keyframe) {
@@ -125,11 +141,7 @@ int TestFramesInFolder(Options option) {
       // TODO: Add option to select initializer.
       //  vio::MapInitializer *map_initializer =
       //      vio::MapInitializer::CreateMapInitializer(vio::LIVMV);
-      vio::MapInitializerOptions option;
-
-      vio::MapInitializer *map_initializer =
-          vio::MapInitializer::CreateMapInitializer(option);
-      map_initializer->Initialize(feature_vectors, cv::Mat(K_initial), points3d,
+      map_initializer->Initialize(feature_vectors, K_initial, points3d,
                                   points3d_mask, Rs_est, ts_est);
 
       vio_map.AddInitialization(points3d, points3d_mask, Rs_est, ts_est);
@@ -145,6 +157,8 @@ int TestFramesInFolder(Options option) {
 
       continue;
     }
+
+    // -------------- Add landmarks
     std::vector<cv::Point3f> points3d;
     std::vector<cv::Point2f> points2d;
     std::vector<int> points_index;
@@ -154,7 +168,7 @@ int TestFramesInFolder(Options option) {
     std::vector<bool> inliers;
     cv::Mat R;
     cv::Mat t;
-    pnp_estimator->EstimatePose(points2d, points3d, cv::Mat(K_initial), inliers,
+    pnp_estimator->EstimatePose(points2d, points3d, K_initial, inliers,
                                 R, t);
     vio_map.SetLastFramePose(R, t);
 
@@ -165,7 +179,7 @@ int TestFramesInFolder(Options option) {
 
     std::vector<cv::Point3f> new_points3d;
     std::vector<bool> new_points3d_mask;
-    vio::TriangulatePoints(kp0, kp1, cv::Mat(K_initial), pose0.R, pose0.t,
+    vio::TriangulatePoints(kp0, kp1, K_initial, pose0.R, pose0.t,
                            pose1.R, pose1.t, new_points3d, new_points3d_mask);
 
     // TODO: points not added
@@ -187,12 +201,14 @@ int TestFramesInFolder(Options option) {
   std::vector<int> obs_camera_idx;
   std::vector<int> obs_point_idx;
   std::vector<cv::Vec2d> obs_feature;
-  vio_map.PrepareOptimization(Rs, ts, points, obs_camera_idx, obs_point_idx, obs_feature);
+  vio_map.PrepareOptimization(Rs, ts, points, obs_camera_idx, obs_point_idx,
+                              obs_feature);
 
-  vio::GraphOptimizer *optimizer = vio::GraphOptimizer::CreateGraphOptimizer(vio::CERES);
+  vio::GraphOptimizer *optimizer =
+      vio::GraphOptimizer::CreateGraphOptimizer(vio::CERES);
 
-  optimizer->Optimize(cv::Mat(K_initial), Rs, ts, points,
-                      obs_camera_idx, obs_point_idx, obs_feature);
+  optimizer->Optimize(K_initial, Rs, ts, points, obs_camera_idx,
+                      obs_point_idx, obs_feature);
 
   vio_map.ApplyOptimization(Rs, ts, points);
 

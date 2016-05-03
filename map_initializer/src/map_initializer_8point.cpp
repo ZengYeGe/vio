@@ -296,13 +296,13 @@ int MapInitializer8Point::EvaluateSolutionRT(
     // std::cout << "Point " << i << " lmv : " << p3dC1.at<float>(0) << " "
     //     << p3dC1.at<float>(1) << " " << p3dC1.at<float>(2) << std::endl;
 
-    p3dC1.at<float>(0) = point3d.x;
-    p3dC1.at<float>(1) = point3d.y;
-    p3dC1.at<float>(2) = point3d.z;
+    p3dC1.at<double>(0) = point3d.x;
+    p3dC1.at<double>(1) = point3d.y;
+    p3dC1.at<double>(2) = point3d.z;
 
     cv::Mat p3dC2 = R * p3dC1 + t;
     float depth1 = point3d.z;
-    float depth2 = p3dC2.at<float>(2);
+    float depth2 = p3dC2.at<double>(2);
 
     if (depth1 <= 0 || depth2 <= 0) {
       points3d_mask.push_back(false);
