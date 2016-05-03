@@ -1,5 +1,6 @@
 #include "feature_tracker_ocv.hpp"
 
+#include "../../util/include/timer.hpp"
 #include "feature_matcher_ocv.hpp"
 
 namespace vio {
@@ -65,6 +66,9 @@ bool FeatureTrackerOCV::TrackFrame(const ImageFrame &prev_frame,
 void FeatureTrackerOCV::InitTracker() { matcher_ = new FeatureMatcherOCV(); }
 
 void FeatureTrackerOCV::ComputeFeatures(ImageFrame &frame) {
+  Timer timer;
+  timer.Start();
+
   if (detector_type_ == DETECTORONLY) {
     std::vector<cv::KeyPoint> kp;
     cv::Mat desc;
@@ -81,6 +85,9 @@ void FeatureTrackerOCV::ComputeFeatures(ImageFrame &frame) {
     frame.set_keypoints(kp);
     frame.set_descriptors(desc);
   }
+
+  timer.Stop();
+  std::cout << "Detect and compute used " << timer.GetInMs() << "ms.\n";
 }
 
 }  // vio

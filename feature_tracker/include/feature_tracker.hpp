@@ -35,6 +35,8 @@ struct FeatureTrackerOptions {
   // Descriptor
   std::string descriptor_type;
   
+  // Matcher
+  
 };
 
 
@@ -53,9 +55,6 @@ class FeatureTracker {
   virtual bool TrackFrame(const ImageFrame &prev_frame,
                           ImageFrame &output_frame,
                           std::vector<cv::DMatch> &matches) = 0;
-
- protected:
-  FeatureMatcher *matcher_;
 };
 }  // vio
 

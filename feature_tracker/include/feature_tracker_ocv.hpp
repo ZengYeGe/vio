@@ -27,5 +27,7 @@ class FeatureTrackerOCV : public FeatureTracker {
   DetectorType detector_type_;
   cv::Ptr<cv::Feature2D> detector_;
   cv::Ptr<cv::DescriptorExtractor> extractor_;
+
+  FeatureMatcher *matcher_;
 };
 }  // vio

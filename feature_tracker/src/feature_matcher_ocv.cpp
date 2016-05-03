@@ -22,7 +22,7 @@ bool FeatureMatcherOCV::Match(const std::vector<cv::KeyPoint> &kp0,
 
 
   timer.Stop();
-  std::cout << "Knn match time used: " << timer.GetInMs() << std::endl;
+  std::cout << "Knn match time used: " << timer.GetInMs() << "ms.\n";
   timer.Start();
 
   // Pick matches where the first one is much better than the second match.
@@ -31,7 +31,7 @@ bool FeatureMatcherOCV::Match(const std::vector<cv::KeyPoint> &kp0,
   RatioTestFilter(matches_1to0_k, matches_1to0);
 
   timer.Stop();
-  std::cout << "Ratio test time used: " << timer.GetInMs() << std::endl;
+  std::cout << "Ratio test time used: " << timer.GetInMs() << "ms.\n";
   timer.Start();
 
   if (matches_0to1.size() < 10 || matches_1to0.size() < 10) {
@@ -50,13 +50,13 @@ bool FeatureMatcherOCV::Match(const std::vector<cv::KeyPoint> &kp0,
   }
 
   timer.Stop();
-  std::cout << "Symmetry test time used: " << timer.GetInMs() << std::endl;
+  std::cout << "Symmetry test time used: " << timer.GetInMs() << "ms.\n";
   timer.Start();
 
   RemoveOutlierMatch(kp0, kp1, matches);
 
   timer.Stop();
-  std::cout << "F matrix outlier test time used: " << timer.GetInMs() << std::endl;
+  std::cout << "F matrix outlier test time used: " << timer.GetInMs() << "ms.\n";
 
   if (matches.size() < 3) {
     std::cerr << "Error: Not enough matches after outlier removal.\n";
@@ -112,13 +112,13 @@ bool FeatureMatcherOCV::RemoveOutlierMatch(
   // TODO: Need to tune the parameters, e.g. 3
   // TODO: Normalize
   cv::Mat fundamental_matrix = cv::findFundamentalMat(
-      pre_matched_kp, cur_matched_kp, CV_FM_RANSAC, 0.5, 0.99, mask);
+      pre_matched_kp, cur_matched_kp, CV_FM_RANSAC, 0.5, 0.999, mask);
   int num_outlier = 0;
   std::vector<cv::DMatch> new_matches;
   for (int i = 0; i < matches.size(); ++i) {
     if ((unsigned int)mask.at<uchar>(i)) new_matches.push_back(matches[i]);
   }
-  std::cout << "outlier matches: " << matches.size() - new_matches.size()
+  std::cout << "Outlier matches: " << matches.size() - new_matches.size()
             << std::endl;
 
   matches = std::move(new_matches);

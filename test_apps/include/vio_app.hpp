@@ -23,6 +23,7 @@ struct Options {
   string format;
   string match_file_name;
   bool use_keyframe;
+  string config_filename;
 };
 
 int TestTwoFrameWithAccurateMatchFile(Options option);

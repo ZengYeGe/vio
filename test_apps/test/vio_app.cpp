@@ -12,8 +12,17 @@ int main(int argc, char **argv) {
       cout << "Using keyframe.\n";
     } else if (!strcmp(argv[i], "--accuratetwo")) {
       option.match_file_name = argv[++i];
+    } else if (!strcmp(argv[i], "--config")) {
+      option.config_filename = argv[++i];
     }
   }
+
+  if (option.config_filename.empty()) {
+    cerr << "Error: Please provide configuration file use argument --config.\n";
+    return -1;
+  }
+  cv::FileStorage config_file;
+  config_file.open(option.config_filename, FileStorage::READ);
 
   if (option.match_file_name.size())
     return TestTwoFrameWithAccurateMatchFile(option);
