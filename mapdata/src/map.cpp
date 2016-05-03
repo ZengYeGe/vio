@@ -201,7 +201,11 @@ bool Map::PrepareUninitedPointsFromLastTwoFrames(std::vector<cv::Vec2d> &kp0,
 
 bool Map::AddInitedPoints(const std::vector<cv::Point3f> &points3d,
                           const std::vector<bool> &points3d_mask) {
-  return AddCoordToUninitedPoints(points3d, points3d_mask);
+  if (!AddCoordToUninitedPoints(points3d, points3d_mask))
+    return false;
+
+  // PruneShortTrackLandmarks();
+  return true;
 }
 
 bool Map::SetLastFramePose(const cv::Mat &R, const cv::Mat &t) {
@@ -307,12 +311,32 @@ bool Map::AddCoordToUninitedPoints(const std::vector<cv::Point3f> &points3d,
   std::cout << "Added landmarks: " << new_ld_count << " / "
             << uninited_landmark_to_feature_.size() << std::endl;
   uninited_landmark_to_feature_.clear();
-
   return true;
 }
 
 bool Map::PruneShortTrackLandmarks() {
   // If previous landmarks only seen by two views then delete.
+  std::vector<Landmark> pruned_landmarks;
+  std::vector<std::unordered_map<int, int> > pruned_landmark_to_feature;
+
+  const int last_frame_id = keyframes_.size() - 1;
+
+  for (int i = 0; i < landmarks_.size(); ++i) {
+    if (landmark_to_feature_[i].size() == 2) {
+      auto ld_to_last_ptr = landmark_to_feature_[i].find(last_frame_id);
+      if (ld_to_last_ptr == landmark_to_feature_[i].end())
+        continue;
+    }
+    pruned_landmarks.push_back(landmarks_[i]);
+    pruned_landmark_to_feature.push_back(std::move(landmark_to_feature_[i]));
+  }
+
+  std::cout << "Pruned landmarks from " << landmarks_.size() << " to "
+            << pruned_landmarks.size() << std::endl;
+
+  landmarks_ = std::move(pruned_landmarks);
+  landmark_to_feature_ = std::move(pruned_landmark_to_feature);
+
   return true;
 }
 
