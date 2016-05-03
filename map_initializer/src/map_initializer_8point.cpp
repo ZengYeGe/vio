@@ -4,8 +4,8 @@
 
 namespace vio {
 
-MapInitializer *MapInitializer::CreateMapInitializer8Point() {
-  MapInitializer *initializer = new MapInitializer8Point();
+MapInitializer *MapInitializer::CreateMapInitializer8Point(MapInitializerOptions option) {
+  MapInitializer *initializer = new MapInitializer8Point(option);
   return initializer;
 }
 
@@ -32,30 +32,9 @@ bool MapInitializer8Point::InitializeTwoFrames(
     std::cerr << "Error: keypoints number of two frames not match. Quit.\n";
     return false;
   }
-  std::vector<cv::Vec2d> norm_kp0, norm_kp1;
-  cv::Mat norm_T0, norm_T1;
-  Normalize(kp0, norm_kp0, norm_T0);
-  Normalize(kp1, norm_kp1, norm_T1);
 
   cv::Mat F;
-  if (!ComputeFundamentalDLT(norm_kp0, norm_kp1, F)) return false;
-  F = norm_T1.t() * F * norm_T0;
-
-  // Make last element 1
-  MakeMatrixInhomogeneous(F);
-  if (verbose_) std::cout << "F :\n" << F << std::endl;
-
-  /* ------------------------- Obsolete code -------------------------------
-    cv::Mat F_ocv = ComputeFOpenCV(kp0, kp1);
-    std::cout << "F from OpenCV: \n" << F_ocv << std::endl;
-
-    // TODO: If K is unknown, find P
-    // P1 should be [I | 0]
-    cv::Mat P1, P2;
-    SolveProjectionFromF(F, P1, P2);
-    TriangulatePoints(kp0, kp1, P1, P2, points3d);
-    std::cout << "Triangulated " << points3d.size() << " points.\n";
-     ---------------------------------------------------------------------- */
+  ComputeFundamental(kp0, kp1, F);
 
   // TODO: Make tinyxml work
   // TODO: Hand pick matches for two images of calibration board?
@@ -141,6 +120,40 @@ bool MapInitializer8Point::SelectSolutionRT(
   return true;
 }
 
+bool MapInitializer8Point::ComputeFundamental(const std::vector<cv::Vec2d> &kp0,
+                                              const std::vector<cv::Vec2d> &kp1, cv::Mat &F) {
+  if (option_.use_f_ransac) {
+    F = ComputeFundamentalOCV(kp0, kp1);
+    if (option_.verbose) std::cout << "F from OpenCV: \n" << F << std::endl;
+
+    /* ------------------------- Obsolete code -------------------------------
+
+    // TODO: If K is unknown, find P
+    // P1 should be [I | 0]
+    cv::Mat P1, P2;
+    SolveProjectionFromF(F, P1, P2);
+    TriangulatePoints(kp0, kp1, P1, P2, points3d);
+    std::cout << "Triangulated " << points3d.size() << " points.\n";
+
+    ---------------------------------------------------------------------- */
+
+  } else {
+    std::vector<cv::Vec2d> norm_kp0, norm_kp1;
+    cv::Mat norm_T0, norm_T1;
+    Normalize(kp0, norm_kp0, norm_T0);
+    Normalize(kp1, norm_kp1, norm_T1);
+
+    if (!ComputeFundamentalDLT(norm_kp0, norm_kp1, F)) return false;
+    F = norm_T1.t() * F * norm_T0;
+
+    // Make last element 1
+    MakeMatrixInhomogeneous(F);
+    if (option_.verbose) std::cout << "F :\n" << F << std::endl;
+  }
+
+  return true; 
+}
+ 
 bool MapInitializer8Point::ComputeFundamentalDLT(
     const std::vector<cv::Vec2d> &kp0, const std::vector<cv::Vec2d> &kp1,
     cv::Mat &F) {
@@ -177,7 +190,7 @@ bool MapInitializer8Point::ComputeFundamentalDLT(
   return true;
 }
 
-cv::Mat MapInitializer8Point::ComputeFOpenCV(
+cv::Mat MapInitializer8Point::ComputeFundamentalOCV(
     const std::vector<cv::Vec2d> &kp0, const std::vector<cv::Vec2d> &kp1) {
   std::vector<cv::Point2f> points0(kp0.size()), points1(kp1.size());
   for (int i = 0; i < kp0.size(); ++i) {
@@ -187,41 +200,14 @@ cv::Mat MapInitializer8Point::ComputeFOpenCV(
     points1[i].y = kp1[i][1];
   }
   cv::Mat mask;
-  cv::Mat F = cv::findFundamentalMat(points0, points1, CV_FM_8POINT, 3, 0.99,
-                                     mask);  // CV_FM_RANSAC
-  return F;
-}
-
-bool MapInitializer8Point::SolveProjectionFromF(const cv::Mat &F, cv::Mat &P1,
-                                                cv::Mat &P2) {
-  P1 = cv::Mat::eye(3, 4, CV_64F);
-  P2 = cv::Mat::zeros(3, 4, CV_64F);
-  cv::Mat e2 = cv::Mat::zeros(3, 1, CV_64F);
-  cv::SVD::solveZ(F.t(), e2);
-  // TODO: Verify e2 is valid.
-  cv::Mat P33 = P2(cv::Rect(0, 0, 3, 3));
-  P33 = SkewSymmetricMatrix(e2) * F;
-
-  e2.copyTo(P2(cv::Rect(3, 0, 1, 3)));
-
-  if (verbose_)
-    std::cout << "Compute P from F...\nP1:\n"
-              << P1 << "\nP2:\n"
-              << P2 << std::endl;
-
-  return true;
-}
-
-cv::Mat MapInitializer8Point::SkewSymmetricMatrix(const cv::Mat &a) {
-  cv::Mat sm(3, 3, CV_64F, cv::Scalar(0));
-  sm.at<double>(0, 1) = -a.at<double>(2);
-  sm.at<double>(0, 2) = a.at<double>(1);
-  sm.at<double>(1, 0) = a.at<double>(2);
-  sm.at<double>(1, 2) = -a.at<double>(0);
-  sm.at<double>(2, 0) = -a.at<double>(1);
-  sm.at<double>(2, 1) = a.at<double>(0);
-
-  return sm;
+  // Default use ransac
+//  cv::Mat F = cv::findFundamentalMat(points0, points1, CV_FM_8POINT, 3, 0.99,
+//                                     mask);
+  cv::Mat F = cv::findFundamentalMat(points0, points1, CV_FM_RANSAC,
+                                     option_.f_ransac_max_dist_to_epipolar,
+                                     option_.f_ransac_confidence,
+                                     mask);
+   return F;
 }
 
 void MapInitializer8Point::DecomposeE(const cv::Mat &E, cv::Mat &R1,
@@ -254,34 +240,12 @@ void MapInitializer8Point::TriangulatePoints(
   }
 }
 
-template <typename Point3Type>
-void MapInitializer8Point::TriangulateDLT(const cv::Vec2d &kp1,
-                                          const cv::Vec2d &kp2,
-                                          const cv::Mat &P1, const cv::Mat &P2,
-                                          Point3Type &point3d) {
-  cv::Mat A(4, 4, CV_64F);
-
-  A.row(0) = kp1[0] * P1.row(2) - P1.row(0);
-  A.row(1) = kp1[1] * P1.row(2) - P1.row(1);
-  A.row(2) = kp2[0] * P2.row(2) - P2.row(0);
-  A.row(3) = kp2[1] * P2.row(2) - P2.row(1);
-
-  cv::Mat u, w, vt;
-  cv::SVD::compute(A, w, u, vt, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
-
-  // It's homogeneous
-  cv::Mat p3d_mat = vt.row(3).t();
-  point3d.x = p3d_mat.at<double>(0) / p3d_mat.at<double>(3);
-  point3d.y = p3d_mat.at<double>(1) / p3d_mat.at<double>(3);
-  point3d.z = p3d_mat.at<double>(2) / p3d_mat.at<double>(3);
-}
-
 int MapInitializer8Point::EvaluateSolutionRT(
     const cv::Mat &R, const cv::Mat &t, const cv::Mat &K,
     const std::vector<cv::Vec2d> &kp0, const std::vector<cv::Vec2d> &kp1,
     const std::vector<bool> &match_inliers, std::vector<cv::Point3f> &points_3d,
     std::vector<bool> &points3d_mask) {
-  if (verbose_)
+  if (option_.verbose)
     std::cout << "Evaluating solution:\n"
               << "R:\n"
               << R << "\nt:\n"
@@ -310,7 +274,7 @@ int MapInitializer8Point::EvaluateSolutionRT(
   t.copyTo(P2.rowRange(0, 3).col(3));
   P2 = K * P2;
 
-  if (verbose_)
+  if (option_.verbose)
     std::cout << "P1: \n" << P1 << std::endl << "P2:\n" << P2 << std::endl;
 
   cv::Mat O2 = -R.t() * t;

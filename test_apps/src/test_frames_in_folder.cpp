@@ -125,9 +125,10 @@ int TestFramesInFolder(Options option) {
       // TODO: Add option to select initializer.
       //  vio::MapInitializer *map_initializer =
       //      vio::MapInitializer::CreateMapInitializer(vio::LIVMV);
+      vio::MapInitializerOptions option;
+
       vio::MapInitializer *map_initializer =
-          vio::MapInitializer::CreateMapInitializer(
-              vio::NORMALIZED8POINTFUNDAMENTAL);
+          vio::MapInitializer::CreateMapInitializer(option);
       map_initializer->Initialize(feature_vectors, cv::Mat(K_initial), points3d,
                                   points3d_mask, Rs_est, ts_est);
 

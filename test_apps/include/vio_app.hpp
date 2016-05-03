@@ -24,10 +24,13 @@ struct Options {
   string match_file_name;
   bool use_keyframe;
   string config_filename;
+  string video_filename;
 };
 
 int TestTwoFrameWithAccurateMatchFile(Options option);
 
 int TestFramesInFolder(Options option);
+
+int TestVideo(Options option);
 
 void RunInitializer(vector<vector<cv::Vec2d> > &feature_vector);

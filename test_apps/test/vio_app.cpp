@@ -14,6 +14,8 @@ int main(int argc, char **argv) {
       option.match_file_name = argv[++i];
     } else if (!strcmp(argv[i], "--config")) {
       option.config_filename = argv[++i];
+    } else if (!strcmp(argv[i], "--video")) {
+      option.video_filename = argv[++i];
     }
   }
 
@@ -29,6 +31,9 @@ int main(int argc, char **argv) {
 
   if (option.format.size() && option.path.size())
     return TestFramesInFolder(option);
+
+  if (option.video_filename.size())
+    return TestVideo(option);
 
   cout << "Error. Unknown arguments.\n";
   cout << "Usage: \n";

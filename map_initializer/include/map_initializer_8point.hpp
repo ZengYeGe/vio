@@ -6,7 +6,8 @@ namespace vio {
 
 class MapInitializer8Point : public MapInitializer {
  public:
-  MapInitializer8Point() {}
+  MapInitializer8Point(MapInitializerOptions option)
+      : MapInitializer(option) {}
   ~MapInitializer8Point() {}
 
   virtual bool Initialize(
@@ -37,13 +38,18 @@ class MapInitializer8Point : public MapInitializer {
                          const std::vector<bool> &match_inliers,
                          std::vector<cv::Point3f> &points_3d,
                          std::vector<bool> &points3d_mask);
+
+  // Fundamental Matrix
+  bool ComputeFundamental(const std::vector<cv::Vec2d> &kp0,
+                             const std::vector<cv::Vec2d> &kp1, cv::Mat &F);
   // Handle n points, at least 8.
   bool ComputeFundamentalDLT(const std::vector<cv::Vec2d> &kp0,
                              const std::vector<cv::Vec2d> &kp1, cv::Mat &F);
-  cv::Mat ComputeFOpenCV(const std::vector<cv::Vec2d> &kp0,
+  cv::Mat ComputeFundamentalOCV(const std::vector<cv::Vec2d> &kp0,
                          const std::vector<cv::Vec2d> &kp1);
 
-  bool SolveProjectionFromF(const cv::Mat &F, cv::Mat &P1, cv::Mat &P2);
+
+  // Homograph Matrix 
 
   template <typename Point3Type>
   void TriangulatePoints(const std::vector<cv::Vec2d> &kp0,
@@ -53,12 +59,6 @@ class MapInitializer8Point : public MapInitializer {
   // cv::Mat ComputeEfromF(const cv::Mat &F, const cv::Mat &K);
   void DecomposeE(const cv::Mat &E, cv::Mat &R1, cv::Mat &R2, cv::Mat &t);
 
-  template <typename Point3Type>
-  void TriangulateDLT(const cv::Vec2d &kp1, const cv::Vec2d &kp2,
-                      const cv::Mat &P1, const cv::Mat &P2,
-                      Point3Type &point3d);
-
-  cv::Mat SkewSymmetricMatrix(const cv::Mat &a);
 };
 
 }  // vio

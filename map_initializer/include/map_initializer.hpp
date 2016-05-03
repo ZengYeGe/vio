@@ -2,28 +2,48 @@
 
 #include <opencv2/opencv.hpp>
 
+#include "../../multiview_helper/include/multiview.hpp"
+
 namespace vio {
 
 // TODO: Implement each of them.
 enum MapInitializerMethod {
   LIVMV,
-  ORBSLAM,
   PTAM,
-  NORMALIZED8POINTHOMOGRAPHY,
   NORMALIZED8POINTFUNDAMENTAL,
-  NORMALIZED8POINTFUNDAMENTALRANSAC,
+  ORBSLAM_F_OR_H,
   FIVEPOINT,
   FIVEPOINTEASY
 };
 
+struct MapInitializerOptions {
+  MapInitializerOptions ()
+    : method(NORMALIZED8POINTFUNDAMENTAL),
+      use_f_ransac(false),
+      f_ransac_confidence(0.99),
+      f_ransac_max_dist_to_epipolar(2),
+      verbose(false) {}
+
+  MapInitializerMethod method;
+  // Compute Fundamental
+  bool use_f_ransac;
+  double f_ransac_confidence;
+  double f_ransac_max_dist_to_epipolar;
+
+  bool verbose;
+};
+
 class MapInitializer {
  public:
-  MapInitializer() : verbose_(false) {}
+  MapInitializer() {}
+  MapInitializer(MapInitializerOptions option) : option_(option) {}
   ~MapInitializer() {}
 
-  static MapInitializer *CreateMapInitializer(MapInitializerMethod method);
+  static MapInitializer *CreateMapInitializer(MapInitializerOptions option);
+
   static MapInitializer *CreateMapInitializerLIBMV();
-  static MapInitializer *CreateMapInitializer8Point();
+  static MapInitializer *CreateMapInitializer8Point(MapInitializerOptions option);
+  static MapInitializer *CreateMapInitializerORBSLAM(MapInitializerOptions option);
 
   virtual bool Initialize(
       const std::vector<std::vector<cv::Vec2d> > &feature_vectors,
@@ -32,11 +52,7 @@ class MapInitializer {
       std::vector<cv::Mat> &ts) = 0;
 
  protected:
-  void Normalize(const std::vector<cv::Vec2d> &points,
-                 std::vector<cv::Vec2d> &norm_points, cv::Mat &p2norm_p);
-  bool MakeMatrixInhomogeneous(cv::Mat &M);
-
-  bool verbose_;
+  MapInitializerOptions option_;
 };
 
 }  // vio

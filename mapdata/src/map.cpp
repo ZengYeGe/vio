@@ -285,7 +285,7 @@ bool Map::AddCoordToUninitedPoints(const std::vector<cv::Point3f> &points3d,
                                    const std::vector<bool> &points3d_mask) {
   if (points3d.size() != uninited_landmark_to_feature_.size() ||
       points3d_mask.size() != uninited_landmark_to_feature_.size()) {
-    std::cerr << "Error: Initialization data doesn't match Map data.\n";
+    std::cerr << "Error: New points size doesn't match uninited landmarks.\n";
     return false;
   }
 
@@ -308,14 +308,15 @@ bool Map::AddCoordToUninitedPoints(const std::vector<cv::Point3f> &points3d,
     }
   }
 
-  std::cout << "Added landmarks: " << new_ld_count << " / "
-            << uninited_landmark_to_feature_.size() << std::endl;
+  std::cout << "Added inlier landmarks: " << new_ld_count << " / "
+            << points3d.size() << std::endl;
   uninited_landmark_to_feature_.clear();
   return true;
 }
 
 bool Map::PruneShortTrackLandmarks() {
   // If previous landmarks only seen by two views then delete.
+  // TODO: Could be only used when frame rate is high enough.
   std::vector<Landmark> pruned_landmarks;
   std::vector<std::unordered_map<int, int> > pruned_landmark_to_feature;
 
