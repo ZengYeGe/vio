@@ -24,15 +24,15 @@ void TriangulatePoints(const std::vector<cv::Vec2d> &kp0,
   for (int i = 0; i < kp0.size(); ++i) {
     TriangulateDLT(kp0[i], kp1[i], P0, P1, points3d[i]);
 
-    cv::Mat p_global(3, 1, CV_32F);
-    p_global.at<float>(0) = points3d[i].x;
-    p_global.at<float>(1) = points3d[i].y;
-    p_global.at<float>(2) = points3d[i].z;
+    cv::Mat p_global(3, 1, CV_64F);
+    p_global.at<double>(0) = points3d[i].x;
+    p_global.at<double>(1) = points3d[i].y;
+    p_global.at<double>(2) = points3d[i].z;
 
     cv::Mat p3dC1 = R0 * p_global + t0;
     cv::Mat p3dC2 = R1 * p_global + t1;
-    float depth1 = p3dC1.at<float>(2);
-    float depth2 = p3dC2.at<float>(2);
+    double depth1 = p3dC1.at<double>(2);
+    double depth2 = p3dC2.at<double>(2);
 
     // TODO:
     if (depth1 <= 0 || depth2 <= 0) {
