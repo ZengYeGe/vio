@@ -201,8 +201,6 @@ cv::Mat MapInitializer8Point::ComputeFundamentalOCV(
   }
   cv::Mat mask;
   // Default use ransac
-//  cv::Mat F = cv::findFundamentalMat(points0, points1, CV_FM_8POINT, 3, 0.99,
-//                                     mask);
   cv::Mat F = cv::findFundamentalMat(points0, points1, CV_FM_RANSAC,
                                      option_.f_ransac_max_dist_to_epipolar,
                                      option_.f_ransac_confidence,
@@ -263,38 +261,32 @@ int MapInitializer8Point::EvaluateSolutionRT(
   vCosParallax.reserve(kp0.size());
 
   // Camera 1 Projection Matrix K[I|0]
-  cv::Mat P1(3, 4, CV_64F, cv::Scalar(0));
-  K.copyTo(P1.rowRange(0, 3).colRange(0, 3));
+  cv::Mat P0(3, 4, CV_64F, cv::Scalar(0));
+  K.copyTo(P0.rowRange(0, 3).colRange(0, 3));
 
   cv::Mat O1 = cv::Mat::zeros(3, 1, CV_64F);
 
   // Camera 2 Projection Matrix K[R|t]
-  cv::Mat P2(3, 4, CV_64F);
-  R.copyTo(P2.rowRange(0, 3).colRange(0, 3));
-  t.copyTo(P2.rowRange(0, 3).col(3));
-  P2 = K * P2;
+  cv::Mat P1(3, 4, CV_64F);
+  R.copyTo(P1.rowRange(0, 3).colRange(0, 3));
+  t.copyTo(P1.rowRange(0, 3).col(3));
+  P1 = K * P1;
 
   if (option_.verbose)
-    std::cout << "P1: \n" << P1 << std::endl << "P2:\n" << P2 << std::endl;
+    std::cout << "P0: \n" << P0 << std::endl << "P1:\n" << P1 << std::endl;
 
   cv::Mat O2 = -R.t() * t;
 
   int nGood = 0;
+  int nInfinite = 0;
+  int nParallal = 0;
+  int nLargeError = 0;
   for (int i = 0; i < match_inliers.size(); ++i) {
     if (!match_inliers[i]) continue;
 
     cv::Mat p3dC1(3, 1, CV_64F);
     cv::Point3f point3d;
-    TriangulateDLT(kp0[i], kp1[i], P1, P2, point3d);
-
-    // TODO: Find out what's the problem
-    //    Triangulate(kp0[i], kp1[i], P1, P2, p3dC1);
-
-    // std::cout << "Point " << i << " dlt : " << point3d.x << " " << point3d.y
-    // << " "
-    //     << point3d.z << std::endl;
-    // std::cout << "Point " << i << " lmv : " << p3dC1.at<float>(0) << " "
-    //     << p3dC1.at<float>(1) << " " << p3dC1.at<float>(2) << std::endl;
+    TriangulateDLT(kp0[i], kp1[i], P0, P1, point3d);
 
     p3dC1.at<double>(0) = point3d.x;
     p3dC1.at<double>(1) = point3d.y;
@@ -310,32 +302,44 @@ int MapInitializer8Point::EvaluateSolutionRT(
       continue;
     }
 
+    // TODO: Make sure isfinite is in std
+    if (!std::isfinite(p3dC1.at<double>(0)) ||
+        !std::isfinite(p3dC1.at<double>(1)) ||
+        !std::isfinite(p3dC1.at<double>(2))) {
+      nInfinite++;
+      points3d_mask.push_back(false);
+      points_3d.push_back(cv::Point3f(0, 0, 0));
+      continue;
+    }
+
+    // Check parallax
+    cv::Mat normal1 = p3dC1 - O1;
+    double dist1 = cv::norm(normal1);
+    cv::Mat normal2 = p3dC1 - O2;
+    double dist2 = cv::norm(normal2);
+    double cosParallax = normal1.dot(normal2) / (dist1 * dist2);
+
+    if (cosParallax > 0.99998) {
+      nParallal++;
+      points3d_mask.push_back(false);
+      points_3d.push_back(cv::Point3f(0, 0, 0));
+      continue;
+    }
+
+    double error0 = ComputeReprojectionError(point3d, kp0[i], P0);
+    double error1 = ComputeReprojectionError(point3d, kp1[i], P1);
+/*
+    if (error0 > option_.reprojection_error_thres || error1 > option_.reprojection_error_thres) {
+      nLargeError++;
+      points3d_mask.push_back(false);
+      points_3d.push_back(cv::Point3f(0, 0, 0));
+      continue;
+    }
+*/  
     nGood++;
     points3d_mask.push_back(true);
     points_3d.push_back(point3d);
-
-    /*
-        // TODO: Make sure isfinite is in std
-        if (!std::isfinite(p3dC1.at<double>(0)) ||
-            !std::isfinite(p3dC1.at<double>(1)) ||
-            !std::isfinite(p3dC1.at<double>(2))) {
-          vbGood[i] = false;
-          continue;
-        }
-    */
-    /*
-        // Check parallax
-        cv::Mat normal1 = p3dC1 - O1;
-        double dist1 = cv::norm(normal1);
-
-        cv::Mat normal2 = p3dC1 - O2;
-        double dist2 = cv::norm(normal2);
-
-        // std::cout << "Dist 1 " << dist1 << ", Dist 2 " << dist2 << std::endl;
-        // std::cout << "3D point: " << p3dC1 << std::endl;
-
-        double cosParallax = normal1.dot(normal2) / (dist1 * dist2);
-
+ /*
         // std::cout << "Parallax: " << cosParallax << std::endl;
         // Check depth in front of first camera (only if enough parallax, as
         // "infinite" points can easily go to negative depth)
@@ -386,6 +390,13 @@ int MapInitializer8Point::EvaluateSolutionRT(
     } else
       parallax = 0;
   */
+  std::cout << "Found " << nInfinite << " / " << kp0.size()
+            << " infinite points during triangulation.\n";
+  std::cout << "Found " << nParallal << " / " << kp0.size()
+            << " parallal points during triangulation.\n";
+  std::cout << "Found " << nLargeError << " / " << kp0.size()
+            << " large error points during triangulation.\n";
+
   return nGood;
 }
 

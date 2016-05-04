@@ -13,11 +13,20 @@ void TriangulatePoints(const std::vector<cv::Vec2d> &kp0,
                        const cv::Mat &R0, const cv::Mat &t0, const cv::Mat &R1,
                        const cv::Mat &t1, std::vector<cv::Point3f> &points3d,
                        std::vector<bool> &points3d_mask) {
+  double reprojection_error_thres = 50.0;
+
   cv::Mat P0, P1;
   RtToP(R0, t0, P0);
   RtToP(R1, t1, P1);
   P0 = K * P0;
   P1 = K * P1;
+
+  // TODO: Why
+  cv::Mat center0 = -R0.t() * t0;
+  cv::Mat center1 = -R1.t() * t1;
+
+  int nParallal = 0;
+  int nLargeError = 0;
 
   points3d.resize(kp0.size());
   points3d_mask.resize(kp0.size(), true);
@@ -29,16 +38,40 @@ void TriangulatePoints(const std::vector<cv::Vec2d> &kp0,
     p_global.at<double>(1) = points3d[i].y;
     p_global.at<double>(2) = points3d[i].z;
 
-    cv::Mat p3dC1 = R0 * p_global + t0;
-    cv::Mat p3dC2 = R1 * p_global + t1;
+    cv::Mat p3dC0 = R0 * p_global + t0;
+    cv::Mat p3dC1 = R1 * p_global + t1;
+    double depth0 = p3dC0.at<double>(2);
     double depth1 = p3dC1.at<double>(2);
-    double depth2 = p3dC2.at<double>(2);
 
-    if (depth1 <= 0 || depth2 <= 0) {
+    if (depth0 <= 0 || depth1 <= 0) {
       points3d_mask[i] = false;
     }
-    
+
+    // Check parallax
+    cv::Mat p0_vec = p3dC0 - center0;
+    cv::Mat p1_vec = p3dC1 - center1;
+    double dist0 = cv::norm(p0_vec);
+    double dist1 = cv::norm(p1_vec);
+
+    double cosParallax = p0_vec.dot(p1_vec) / (dist0 * dist1);
+    if (cosParallax > 0.99998) {
+      nParallal++;
+      points3d_mask[i] = false;
+    }
+/*
+    double error0 = ComputeReprojectionError(points3d[i], kp0[i], P0);
+    double error1 = ComputeReprojectionError(points3d[i], kp1[i], P1);
+
+    if (error0 > reprojection_error_thres || error1 > reprojection_error_thres) {
+      nLargeError++;
+      points3d_mask[i] = false;
+    }
+*/
   }
+  std::cout << "Found " << nParallal << " / " << kp0.size()
+            << " parallal points during triangulation.\n";
+  std::cout << "Found " << nLargeError << " / " << kp0.size()
+            << " large error points during triangulation.\n";
 }
 
 template <typename Point3Type>
@@ -61,6 +94,25 @@ void TriangulateDLT(const cv::Vec2d &kp1, const cv::Vec2d &kp2,
   point3d.y = p3d_mat.at<double>(1) / p3d_mat.at<double>(3);
   point3d.z = p3d_mat.at<double>(2) / p3d_mat.at<double>(3);
 }
+
+double ComputeReprojectionError(const cv::Point3f &point3d,
+                                const cv::Vec2d &kp,
+                                const cv::Mat &P) {
+  cv::Mat point_mat(4, 1, CV_64F);
+  point_mat.at<double>(0) = point3d.x;
+  point_mat.at<double>(1) = point3d.y;
+  point_mat.at<double>(2) = point3d.z;
+  point_mat.at<double>(3) = 1.0;
+
+  cv::Mat projected_point = P * point_mat;
+
+  double p_x = projected_point.at<double>(0) / projected_point.at<double>(2);
+  double p_y = projected_point.at<double>(1) / projected_point.at<double>(2);
+
+  double error = (p_x - kp[0]) * (p_x - kp[0]) + (p_y - kp[1]) * (p_y - kp[1]);
+  return error;
+}
+
 
 void Normalize(const std::vector<cv::Vec2d> &points,
                                std::vector<cv::Vec2d> &normalized_points,

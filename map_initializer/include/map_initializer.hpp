@@ -22,6 +22,7 @@ struct MapInitializerOptions {
       use_f_ransac(false),
       f_ransac_confidence(0.99),
       f_ransac_max_dist_to_epipolar(2),
+      reprojection_error_thres(5),
       verbose(false) {}
 
   MapInitializerMethod method;
@@ -30,8 +31,29 @@ struct MapInitializerOptions {
   double f_ransac_confidence;
   double f_ransac_max_dist_to_epipolar;
 
+  // triangulation 
+  double reprojection_error_thres;
+
   bool verbose;
+
+  void read(const cv::FileNode& node) {
+    method = static_cast<MapInitializerMethod>((int)node["Method"]);
+    use_f_ransac = (int)node["F_USE_RANSAC"];
+    f_ransac_confidence = (double)node["F_RANSAC_CONFIDENCE"];
+    f_ransac_max_dist_to_epipolar = (double)node["F_RANSAC_MAX_DIST"];
+    reprojection_error_thres = (double)node["REPROJECTION_ERROR_THRESHOLD"];
+    verbose = (int)node["VERBOSE"];
+  }
 };
+
+// Following must be defined for the serialization in FileStorage to work
+static void read(const cv::FileNode& node, MapInitializerOptions& x,
+                 const MapInitializerOptions& default_value = MapInitializerOptions()){
+    if(node.empty())
+        x = default_value;
+    else
+        x.read(node);
+}
 
 class MapInitializer {
  public:

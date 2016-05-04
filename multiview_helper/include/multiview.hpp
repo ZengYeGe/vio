@@ -14,6 +14,14 @@ template <typename Point3Type>
 void TriangulateDLT(const cv::Vec2d &kp1, const cv::Vec2d &kp2,
                     const cv::Mat &P1, const cv::Mat &P2, Point3Type &point3d);
 
+double ComputeReprojectionError(const cv::Point3f &point3d,
+                                const cv::Vec2d &kp,
+                                const cv::Mat &P);
+
+double ComputeReprojectionError(const cv::Point3f &point3d,
+                                const cv::Vec2d &kp,
+                                const cv::Mat &R, const cv::Mat &t);
+
 void Normalize(const std::vector<cv::Vec2d> &points,
                std::vector<cv::Vec2d> &norm_points, cv::Mat &p2norm_p);
 

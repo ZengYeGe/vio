@@ -3,8 +3,14 @@ FeatureTracker:
 #  OCV_BASIC_DETECTOR = 0,
 #  OCV_BASIC_DETECTOR_EXTRACTOR = 1
 #  SEARCH_BY_PROJECTION = 2
-   Method: 1
-   DetectorType: "ORB"
-   max_num_feature: 10000
-   DescriptorType: "DAISY"
-
+  Method: 1
+  DetectorType: "ORB"
+  max_num_feature: 5000
+  DescriptorType: "DAISY"
+MapInitializer:
+  Method: 2
+  F_USE_RANSAC: 1
+  F_RANSAC_CONFIDENCE: 0.99
+  F_RANSAC_MAX_DIST: 2.0
+  REPROJECTION_ERROR_THRESHOLD: 50
+  VERBOSE: 0 

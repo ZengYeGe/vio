@@ -16,8 +16,8 @@ bool PnPEstimatorOCV::EstimatePose(const std::vector<cv::Point2f> &image_points,
                                    const cv::Mat &K, std::vector<bool> &inliers,
                                    cv::Mat &R_est, cv::Mat &t_est) {
   int iter_count = 500;
-  float reprojection_error = 2.0;
-  double confidence = 0.95;
+  float reprojection_error = 1.0;
+  double confidence = 0.999;
 
   cv::Mat distCoeffs =
       cv::Mat::zeros(4, 1, CV_64FC1);  // vector of distortion coefficients

@@ -49,7 +49,7 @@ int TestFramesInFolder(Options option) {
   pipeline_config["FeatureTracker"] >> feature_tracker_option;
 
   vio::MapInitializerOptions map_initializer_option;
-
+  pipeline_config["MapInitializer"] >> map_initializer_option;
 
   // ------------- Create modules 
   vio::FeatureTracker *feature_tracker =
@@ -191,9 +191,10 @@ int TestFramesInFolder(Options option) {
     points3d_all.insert(points3d_all.end(), new_points3d.begin(),
                         new_points3d.end());
     vio_map.PrintStats();
+    VisualizeCamerasAndPoints(K_initial, R_all, t_all, points3d_all);
   }
 
-  VisualizeCamerasAndPoints(K_initial, R_all, t_all, points3d_all);
+  // VisualizeCamerasAndPoints(K_initial, R_all, t_all, points3d_all);
 
   // Optimization
   std::vector<cv::Mat> Rs;
