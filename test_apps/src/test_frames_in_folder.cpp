@@ -191,10 +191,10 @@ int TestFramesInFolder(Options option) {
     points3d_all.insert(points3d_all.end(), new_points3d.begin(),
                         new_points3d.end());
     vio_map.PrintStats();
-    VisualizeCamerasAndPoints(K_initial, R_all, t_all, points3d_all);
+  //  VisualizeCamerasAndPoints(K_initial, R_all, t_all, points3d_all);
   }
 
-  // VisualizeCamerasAndPoints(K_initial, R_all, t_all, points3d_all);
+  VisualizeCamerasAndPoints(K_initial, R_all, t_all, points3d_all);
 
   // Optimization
   std::vector<cv::Mat> Rs;

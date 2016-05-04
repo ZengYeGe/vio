@@ -328,14 +328,14 @@ int MapInitializer8Point::EvaluateSolutionRT(
 
     double error0 = ComputeReprojectionError(point3d, kp0[i], P0);
     double error1 = ComputeReprojectionError(point3d, kp1[i], P1);
-/*
+
     if (error0 > option_.reprojection_error_thres || error1 > option_.reprojection_error_thres) {
       nLargeError++;
       points3d_mask.push_back(false);
       points_3d.push_back(cv::Point3f(0, 0, 0));
       continue;
     }
-*/  
+  
     nGood++;
     points3d_mask.push_back(true);
     points_3d.push_back(point3d);

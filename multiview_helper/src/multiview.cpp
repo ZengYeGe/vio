@@ -58,7 +58,7 @@ void TriangulatePoints(const std::vector<cv::Vec2d> &kp0,
       nParallal++;
       points3d_mask[i] = false;
     }
-/*
+
     double error0 = ComputeReprojectionError(points3d[i], kp0[i], P0);
     double error1 = ComputeReprojectionError(points3d[i], kp1[i], P1);
 
@@ -66,7 +66,7 @@ void TriangulatePoints(const std::vector<cv::Vec2d> &kp0,
       nLargeError++;
       points3d_mask[i] = false;
     }
-*/
+
   }
   std::cout << "Found " << nParallal << " / " << kp0.size()
             << " parallal points during triangulation.\n";
