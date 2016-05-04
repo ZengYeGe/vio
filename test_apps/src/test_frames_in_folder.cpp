@@ -75,7 +75,8 @@ int TestFramesInFolder(Options option) {
   std::unique_ptr<vio::ImageFrame> last_frame(new vio::ImageFrame(image0));
 
   feature_tracker->TrackFirstFrame(*last_frame);
-  std::cout << "Found " << last_frame->keypoints().size() << " features.\n";
+  std::cout << "Found " << last_frame->keypoints().size()
+            << " features in first frame.\n";
 
  // TODO: Doesn't make sense to do move a lot
   std::unique_ptr<vio::Keyframe> first_keyframe(
@@ -102,7 +103,7 @@ int TestFramesInFolder(Options option) {
     if (!feature_tracker->TrackFrame(vio_map.GetLastKeyframe().image_frame(),
                                      *new_frame, matches))
       return -1;
-    std::cout << "Found " << matches.size() << " matches.\n";
+    std::cout << "Found " << matches.size() << " matches for new frame.\n";
 
     // -------------------- Show tracking -------------------------------
     cv::Mat output_img = new_frame->GetImage().clone();

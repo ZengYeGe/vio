@@ -204,7 +204,8 @@ bool Map::AddInitedPoints(const std::vector<cv::Point3f> &points3d,
   if (!AddCoordToUninitedPoints(points3d, points3d_mask))
     return false;
 
-  // PruneShortTrackLandmarks();
+  if (keyframes_.size() > 2)
+    PruneShortTrackLandmarks();
   return true;
 }
 
@@ -276,9 +277,7 @@ bool Map::ApplyOptimization(const std::vector<cv::Mat> &Rs,
 bool Map::PrintStats() {
   std::cout << "\nMap stats:\n"
             << "Keyframes: " << keyframes_.size() << std::endl
-            << "Landmarks: " << landmarks_.size() << std::endl
-            << "Uninited landmarks: " << uninited_landmark_to_feature_.size()
-            << std::endl;
+            << "Landmarks: " << landmarks_.size() << "\n\n";
 }
 
 bool Map::AddCoordToUninitedPoints(const std::vector<cv::Point3f> &points3d,
@@ -308,8 +307,9 @@ bool Map::AddCoordToUninitedPoints(const std::vector<cv::Point3f> &points3d,
     }
   }
 
-  std::cout << "Added inlier landmarks: " << new_ld_count << " / "
+  std::cout << "Added inlier triangulated landmarks: " << new_ld_count << " / "
             << points3d.size() << std::endl;
+  std::cout << "Number of landmarks: " << landmarks_.size() << std::endl;
   uninited_landmark_to_feature_.clear();
   return true;
 }
@@ -325,9 +325,19 @@ bool Map::PruneShortTrackLandmarks() {
   for (int i = 0; i < landmarks_.size(); ++i) {
     if (landmark_to_feature_[i].size() == 2) {
       auto ld_to_last_ptr = landmark_to_feature_[i].find(last_frame_id);
-      if (ld_to_last_ptr == landmark_to_feature_[i].end())
+      if (ld_to_last_ptr == landmark_to_feature_[i].end()) {
+        // Remove feature to landmark mapping
+        for (auto &ft_ptr : landmark_to_feature_[i]) {
+          feature_to_landmark_[ft_ptr.first].erase(ft_ptr.second);
+        }
         continue;
+      }
     }
+    // Need to remap feature to landmark since their index is changed
+    for (auto &ft_ptr : landmark_to_feature_[i]) {
+      feature_to_landmark_[ft_ptr.first][ft_ptr.second] = pruned_landmarks.size();
+    }
+
     pruned_landmarks.push_back(landmarks_[i]);
     pruned_landmark_to_feature.push_back(std::move(landmark_to_feature_[i]));
   }

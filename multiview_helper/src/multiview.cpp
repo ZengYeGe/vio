@@ -20,7 +20,7 @@ void TriangulatePoints(const std::vector<cv::Vec2d> &kp0,
   P1 = K * P1;
 
   points3d.resize(kp0.size());
-  points3d_mask.resize(kp0.size());
+  points3d_mask.resize(kp0.size(), true);
   for (int i = 0; i < kp0.size(); ++i) {
     TriangulateDLT(kp0[i], kp1[i], P0, P1, points3d[i]);
 
@@ -34,12 +34,10 @@ void TriangulatePoints(const std::vector<cv::Vec2d> &kp0,
     double depth1 = p3dC1.at<double>(2);
     double depth2 = p3dC2.at<double>(2);
 
-    // TODO:
     if (depth1 <= 0 || depth2 <= 0) {
       points3d_mask[i] = false;
-    } else {
-      points3d_mask[i] = true;
     }
+    
   }
 }
 

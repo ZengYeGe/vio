@@ -5,6 +5,6 @@ FeatureTracker:
 #  SEARCH_BY_PROJECTION = 2
    Method: 1
    DetectorType: "ORB"
-   max_num_feature: 5000
+   max_num_feature: 10000
    DescriptorType: "DAISY"
 
