@@ -15,7 +15,8 @@ enum FeatureMatchMethod {
 class FeatureMatcher {
  public:
   FeatureMatcher()
-      : nn_match_ratio_(0.9f) {}
+      : max_match_per_desc_(2),
+        nn_match_ratio_(0.9f) {}
 
   virtual bool Match(const ImageFrame &frame0, const ImageFrame &frame1,
                      std::vector<cv::DMatch> &matches) = 0;
@@ -24,6 +25,7 @@ class FeatureMatcher {
                        std::vector<cv::DMatch> &matches);
 
   double nn_match_ratio_;
+  int max_match_per_desc_;
 };
 
 }  // vio

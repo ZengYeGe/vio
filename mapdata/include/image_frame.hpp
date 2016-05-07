@@ -7,8 +7,7 @@ namespace vio {
 
 class ImageFrame {
  public:
-  ImageFrame(const cv::Mat &image)
-      : has_grid_keypoints_(false) { image.copyTo(image_); }
+  ImageFrame(const cv::Mat &image);
   ImageFrame() = delete;
 
   const cv::Mat &GetImage() const { return image_; }
@@ -29,24 +28,33 @@ class ImageFrame {
     descriptors.copyTo(descriptors_);
   }
 
+  void SetGridSize(int width, int height);
+  bool GetNeighborKeypointsInRadius(cv::KeyPoint query,
+                                    double dist_thresh,
+                                    std::vector<cv::KeyPoint> &candidates);
+
  private:
-  void CreateGridKeypointIndex();
+  bool CreateGridKeypointIndex();
 
   cv::Mat image_;
 
   std::vector<cv::KeyPoint> keypoints_;
   cv::Mat descriptors_;
 
+  // ------------ Put keypoints in bins ------------
   bool has_grid_keypoints_;
   // Number of pixel of the width of a grid
   int grid_width_size_;
   // Number of pixel of the height of a grid
   int grid_height_size_;
   // image_width / grid_width_size_
-  int grid_width_max_index_;
+  int grid_width_index_range_;
   // image_height / grid_height_size_
-  int grid_height_max_index_;
+  int grid_height_index_range_;
+  // How many neighbor grids should be searched
+  int grid_search_index_range_;
 
+  
   typedef std::vector<int> KeypointIndexArry;
   std::vector<std::vector<KeypointIndexArry> > grid_keypoints_index_;
 };

@@ -9,7 +9,7 @@ namespace vio {
 
 class FeatureMatcherOCV : public FeatureMatcher {
  public:
-  FeatureMatcherOCV() : max_match_per_desc_(2), nn_match_ratio_(0.9f) {
+  FeatureMatcherOCV() {
     // TODO: Decide matcher based on descriptors
     // Hamming-distance works only for binary feature-types like ORB, FREAK
     // matcher_ = cv::DescriptorMatcher::create("BruteForce-Hamming");
@@ -30,7 +30,6 @@ class FeatureMatcherOCV : public FeatureMatcher {
                           std::vector<cv::DMatch> &matches);
 
   cv::Ptr<cv::DescriptorMatcher> matcher_;
-  int max_match_per_desc_;
 };
 
 }  // vio
