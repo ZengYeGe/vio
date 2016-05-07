@@ -21,3 +21,6 @@ message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
 
 add_executable( DisplayImage DisplayImage.cpp )
 target_link_libraries( DisplayImage ${OpenCV_LIBS} )
+
+add_executable( VideoRecorder starter_video.cpp )
+target_link_libraries( VideoRecorder ${OpenCV_LIBS} )

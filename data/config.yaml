@@ -4,8 +4,8 @@ FeatureTracker:
 #  OCV_BASIC_DETECTOR_EXTRACTOR = 1
 #  SEARCH_BY_PROJECTION = 2
   Method: 1
-  DetectorType: "ORB"
-  max_num_feature: 10000
+  DetectorType: "FAST"
+  max_num_feature: 5000
   DescriptorType: "DAISY"
 MapInitializer:
   Method: 2

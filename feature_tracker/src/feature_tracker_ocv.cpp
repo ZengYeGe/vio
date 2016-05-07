@@ -11,6 +11,8 @@ FeatureTracker *FeatureTracker::CreateFeatureTrackerOCV(FeatureTrackerOptions op
 
   if (option.detector_type == "ORB") {
     detector = cv::ORB::create(option.max_num_feature);
+  } else if (option.detector_type == "FAST") {
+    detector = cv::FastFeatureDetector::create();
   } else {
     return nullptr;
   }
@@ -19,6 +21,8 @@ FeatureTracker *FeatureTracker::CreateFeatureTrackerOCV(FeatureTrackerOptions op
   if (option.method == OCV_BASIC_DETECTOR_EXTRACTOR) {
     if (option.descriptor_type == "DAISY") {
       descriptor = cv::xfeatures2d::DAISY::create();
+    } else if (option.descriptor_type == "ORB") {
+      descriptor = cv::ORB::create();
     } else {
       return nullptr;
     }
@@ -57,8 +61,7 @@ bool FeatureTrackerOCV::TrackFrame(const ImageFrame &prev_frame,
                                    ImageFrame &new_frame,
                                    std::vector<cv::DMatch> &matches) {
   ComputeFeatures(new_frame);
-  if (!matcher_->Match(prev_frame.keypoints(), new_frame.keypoints(),
-                  prev_frame.descriptors(), new_frame.descriptors(), matches))
+  if (!matcher_->Match(prev_frame, new_frame, matches))
     return false;
   return true;
 }

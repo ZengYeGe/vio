@@ -18,14 +18,9 @@ class FeatureMatcherOCV : public FeatureMatcher {
   }
   ~FeatureMatcherOCV(){};
 
-  virtual bool Match(const std::vector<cv::KeyPoint> &kp0,
-                     const std::vector<cv::KeyPoint> &kp1, const cv::Mat &desc0,
-                     const cv::Mat &desc1,
-                     std::vector<cv::DMatch> &matches) override;
-
+  virtual bool Match(const ImageFrame &frame0, const ImageFrame &frame1,
+                     std::vector<cv::DMatch> &matches);
  private:
-  bool RatioTestFilter(std::vector<std::vector<cv::DMatch> > best_k,
-                       std::vector<cv::DMatch> &matches);
   // TODO: Right now, it's O(n^2) search time.
   bool SymmetryTestFilter(const std::vector<cv::DMatch> &matches1,
                           const std::vector<cv::DMatch> &matches2,
@@ -36,7 +31,6 @@ class FeatureMatcherOCV : public FeatureMatcher {
 
   cv::Ptr<cv::DescriptorMatcher> matcher_;
   int max_match_per_desc_;
-  double nn_match_ratio_;
 };
 
 }  // vio

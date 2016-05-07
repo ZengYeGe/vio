@@ -4,6 +4,8 @@
 #include <opencv2/features2d.hpp>
 #include <opencv2/opencv.hpp>
 
+#include "../../mapdata/include/image_frame.hpp"
+
 namespace vio {
 
 enum FeatureMatchMethod {
@@ -12,13 +14,16 @@ enum FeatureMatchMethod {
 
 class FeatureMatcher {
  public:
-  FeatureMatcher(){};
-  ~FeatureMatcher(){};
+  FeatureMatcher()
+      : nn_match_ratio_(0.9f) {}
 
-  virtual bool Match(const std::vector<cv::KeyPoint> &kp0,
-                     const std::vector<cv::KeyPoint> &kp1, const cv::Mat &desc0,
-                     const cv::Mat &desc1,
+  virtual bool Match(const ImageFrame &frame0, const ImageFrame &frame1,
                      std::vector<cv::DMatch> &matches) = 0;
+ protected:
+  bool RatioTestFilter(std::vector<std::vector<cv::DMatch> > best_k,
+                       std::vector<cv::DMatch> &matches);
+
+  double nn_match_ratio_;
 };
 
 }  // vio

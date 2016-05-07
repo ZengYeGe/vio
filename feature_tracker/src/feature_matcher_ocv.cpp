@@ -6,10 +6,13 @@
 
 namespace vio {
 
-bool FeatureMatcherOCV::Match(const std::vector<cv::KeyPoint> &kp0,
-                              const std::vector<cv::KeyPoint> &kp1,
-                              const cv::Mat &desc0, const cv::Mat &desc1,
-                              std::vector<cv::DMatch> &matches) {
+bool FeatureMatcherOCV::Match(const ImageFrame &frame0, const ImageFrame &frame1,
+                     std::vector<cv::DMatch> &matches) {
+  const std::vector<cv::KeyPoint> &kp0 = frame0.keypoints();
+  const std::vector<cv::KeyPoint> &kp1 = frame1.keypoints();
+  const cv::Mat &desc0 = frame0.descriptors();
+  const cv::Mat &desc1 = frame1.descriptors();
+
   Timer timer;
   timer.Start();
 
@@ -63,17 +66,6 @@ bool FeatureMatcherOCV::Match(const std::vector<cv::KeyPoint> &kp0,
     return false;
   }
 
-  return true;
-}
-
-bool FeatureMatcherOCV::RatioTestFilter(
-    std::vector<std::vector<cv::DMatch> > best_k,
-    std::vector<cv::DMatch> &matches) {
-  for (int i = 0; i < best_k.size(); ++i) {
-    if (best_k[i][0].distance < nn_match_ratio_ * best_k[i][1].distance) {
-      matches.push_back(best_k[i][0]);
-    }
-  }
   return true;
 }
 

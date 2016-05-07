@@ -7,8 +7,6 @@
 #include <string>
 #include <vector>
 
-#include "../../mapdata/include/image_frame.hpp"
-
 #include "feature_matcher.hpp"
 
 namespace vio {
