@@ -22,6 +22,10 @@ target_link_libraries( ${TARGET}
                        mapdata
                        )
 
+target_include_directories(${TARGET} PUBLIC 
+    ${CMAKE_CURRENT_SOURCE_DIR}/include 
+)
+
 file(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp")
 
 install(FILES ${headers} 

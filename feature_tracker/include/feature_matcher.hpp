@@ -4,7 +4,7 @@
 #include <opencv2/features2d.hpp>
 #include <opencv2/opencv.hpp>
 
-#include "../../mapdata/include/image_frame.hpp"
+#include "image_frame.hpp"
 
 namespace vio {
 

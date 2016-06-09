@@ -7,8 +7,11 @@ namespace vio {
 
 class ImageFrame {
  public:
+  ImageFrame() {};
   ImageFrame(const cv::Mat &image);
-  ImageFrame() = delete;
+
+  // Disabled for Uint test.
+  // ImageFrame() = delete;
 
   const cv::Mat &GetImage() const { return image_; }
 

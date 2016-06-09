@@ -20,7 +20,12 @@ set(TARGET "map_initializer")
 
 add_library(${TARGET} SHARED ${SOURCE_FILE})
 target_link_libraries( ${TARGET} 
+                       multiview_helper
                        ${OpenCV_LIBS} )
+
+target_include_directories(${TARGET} PUBLIC 
+    ${CMAKE_CURRENT_SOURCE_DIR}/include 
+)
 
 file(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp")
 

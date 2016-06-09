@@ -15,7 +15,11 @@ add_library(${TARGET} SHARED ${SOURCE_FILE})
 target_link_libraries( ${TARGET} 
                        ${OpenCV_LIBS} )
 
-file(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp")
+
+target_include_directories(${TARGET} PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
 
 install(FILES ${headers} 
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME}/)
