@@ -2,6 +2,7 @@
 
 #include "../../util/include/timer.hpp"
 #include "feature_matcher_ocv.hpp"
+#include "feature_matcher_grid_search.hpp"
 
 namespace vio {
 
@@ -66,7 +67,10 @@ bool FeatureTrackerOCV::TrackFrame(const ImageFrame &prev_frame,
   return true;
 }
 
-void FeatureTrackerOCV::InitTracker() { matcher_ = new FeatureMatcherOCV(); }
+void FeatureTrackerOCV::InitTracker() {
+  // matcher_ = new FeatureMatcherOCV(); 
+  matcher_ = new FeatureMatcherGridSearch();
+}
 
 void FeatureTrackerOCV::ComputeFeatures(ImageFrame &frame) {
   Timer timer;

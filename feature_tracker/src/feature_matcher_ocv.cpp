@@ -69,28 +69,6 @@ bool FeatureMatcherOCV::Match(const ImageFrame &frame0, const ImageFrame &frame1
   return true;
 }
 
-bool FeatureMatcherOCV::SymmetryTestFilter(
-    const std::vector<cv::DMatch> &matches1,
-    const std::vector<cv::DMatch> &matches2,
-    std::vector<cv::DMatch> &final_matches) {
-  final_matches.clear();
-  for (std::vector<cv::DMatch>::const_iterator matchIterator1 =
-           matches1.begin();
-       matchIterator1 != matches1.end(); ++matchIterator1) {
-    for (std::vector<cv::DMatch>::const_iterator matchIterator2 =
-             matches2.begin();
-         matchIterator2 != matches2.end(); ++matchIterator2) {
-      if ((*matchIterator1).queryIdx == (*matchIterator2).trainIdx &&
-          (*matchIterator2).queryIdx == (*matchIterator1).trainIdx) {
-        final_matches.push_back(cv::DMatch((*matchIterator1).queryIdx,
-                                           (*matchIterator1).trainIdx,
-                                           (*matchIterator1).distance));
-        break;
-      }
-    }
-  }
-}
-
 bool FeatureMatcherOCV::RemoveOutlierMatch(
     const std::vector<cv::KeyPoint> &pre_kp,
     const std::vector<cv::KeyPoint> &cur_kp, std::vector<cv::DMatch> &matches) {

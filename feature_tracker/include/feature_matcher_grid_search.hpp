@@ -14,8 +14,12 @@ class FeatureMatcherGridSearch : public FeatureMatcher {
   virtual bool Match(const ImageFrame &frame0, const ImageFrame &frame1,
                      std::vector<cv::DMatch> &matches);
  private:
-  // cv::Ptr<cv::DescriptorMatcher> matcher_;
+  bool FindMatchNearFeatures(const ImageFrame &query_frame,
+                                                     const ImageFrame &ref_frame,
+                                                     std::vector<std::vector<cv::DMatch> > &matches);
+  double ComputeDistance(const cv::Mat &mat0, const cv::Mat &mat1);
 };
+
 
 }  // vio
 

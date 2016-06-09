@@ -18,7 +18,9 @@ set(TARGET "feature_tracker")
 
 add_library(${TARGET} SHARED ${SOURCE_FILE})
 target_link_libraries( ${TARGET} 
-                       ${OpenCV_LIBS} )
+                       ${OpenCV_LIBS} 
+                       mapdata
+                       )
 
 file(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp")
 

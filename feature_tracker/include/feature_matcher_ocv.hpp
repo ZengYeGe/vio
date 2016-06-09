@@ -21,10 +21,6 @@ class FeatureMatcherOCV : public FeatureMatcher {
   virtual bool Match(const ImageFrame &frame0, const ImageFrame &frame1,
                      std::vector<cv::DMatch> &matches);
  private:
-  // TODO: Right now, it's O(n^2) search time.
-  bool SymmetryTestFilter(const std::vector<cv::DMatch> &matches1,
-                          const std::vector<cv::DMatch> &matches2,
-                          std::vector<cv::DMatch> &final_matches);
   bool RemoveOutlierMatch(const std::vector<cv::KeyPoint> &pre_kp,
                           const std::vector<cv::KeyPoint> &cur_kp,
                           std::vector<cv::DMatch> &matches);

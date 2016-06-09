@@ -21,6 +21,10 @@ class FeatureMatcher {
   virtual bool Match(const ImageFrame &frame0, const ImageFrame &frame1,
                      std::vector<cv::DMatch> &matches) = 0;
  protected:
+  // TODO: Right now, it's O(n^2) search time.
+  bool SymmetryTestFilter(const std::vector<cv::DMatch> &matches1,
+                          const std::vector<cv::DMatch> &matches2,
+                          std::vector<cv::DMatch> &final_matches);
   bool RatioTestFilter(std::vector<std::vector<cv::DMatch> > best_k,
                        std::vector<cv::DMatch> &matches);
 

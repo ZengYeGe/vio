@@ -29,9 +29,9 @@ class ImageFrame {
   }
 
   void SetGridSize(int width, int height);
-  bool GetNeighborKeypointsInRadius(cv::KeyPoint query,
+  bool GetNeighborKeypointsInRadius(const cv::KeyPoint &query,
                                     double dist_thresh,
-                                    std::vector<cv::KeyPoint> &candidates);
+                                    std::vector<int> &candidates_id) const;
 
  private:
   bool CreateGridKeypointIndex();
@@ -57,6 +57,12 @@ class ImageFrame {
   
   typedef std::vector<int> KeypointIndexArry;
   std::vector<std::vector<KeypointIndexArry> > grid_keypoints_index_;
+
+  struct BinCoord {
+    int x, y;
+  };
+  std::vector<BinCoord> keypoint_bin_coords_;
+
 };
 
 }  // namespace vio
