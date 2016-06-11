@@ -14,10 +14,12 @@ int main(int argc, char **argv) {
       option.config_filename = argv[++i];
     }
   }
-  // Must have configuration for pipeline.
-  if (option.config_filename.empty())
-    return PrintCommandUsage();
 
+  PipelineConfig pipeline_config;
+  // Must have configuration for pipeline.
+  if (option.config_filename.empty() ||
+      !pipeline_config.SetUpFromFile(option.config_filename))
+    return PrintCommandUsage();
 
   // Determine test type.
   if (argc < 2 || strcmp(argv[1], "--type"))
@@ -37,7 +39,7 @@ int main(int argc, char **argv) {
       return PrintCommandUsage();
 
     // Start to test
-    TestFramesInFolder(option);
+    TestFramesInFolder(option, pipeline_config);
 
   // ----------------------------Test video file ------------------------
   } else if (!strcmp(argv[2], "video")) {
@@ -54,7 +56,7 @@ int main(int argc, char **argv) {
       return PrintCommandUsage();
 
     // Start to test
-    TestVideo(option);
+    TestVideo(option, pipeline_config);
 
   } else {
     return PrintCommandUsage();

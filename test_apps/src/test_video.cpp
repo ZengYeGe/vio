@@ -3,7 +3,7 @@
 #include <opencv2/videoio/videoio.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-int TestVideo(Options option) {
+int TestVideo(const Options &option, const PipelineConfig &pipeline_config) {
 
   cv::VideoCapture capture(option.path); 
   if (!capture.isOpened()) {

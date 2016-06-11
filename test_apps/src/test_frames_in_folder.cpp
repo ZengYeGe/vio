@@ -1,6 +1,6 @@
 #include "vio_app.hpp"
 
-int TestFramesInFolder(Options option) {
+int TestFramesInFolder(const Options &option, const PipelineConfig &pipeline_config) {
 #ifndef __linux__
   cerr << "Error: Test folder Not supported. Currently only support "
           "Linux.\n" return -1;
@@ -9,13 +9,6 @@ int TestFramesInFolder(Options option) {
   dataset_config.open(option.path + "/dataset_config.yaml", FileStorage::READ);
   if (!dataset_config.isOpened()) {
     cerr << "Error: Couldn't find dataset config file in the folder.\n";
-    return -1;
-  }
-
-  cv::FileStorage pipeline_config;
-  pipeline_config.open(option.config_filename, FileStorage::READ);
-  if (!pipeline_config.isOpened()) {
-    cerr << "Error: Couldn't find pipeline config file.\n";
     return -1;
   }
 
@@ -44,21 +37,14 @@ int TestFramesInFolder(Options option) {
   dataset_config["K"] >> K_initial;
   cout << "Camera intrinsics: \n" << K_initial << std::endl;
 
-
-  vio::FeatureTrackerOptions feature_tracker_option;
-  pipeline_config["FeatureTracker"] >> feature_tracker_option;
-
-  vio::MapInitializerOptions map_initializer_option;
-  pipeline_config["MapInitializer"] >> map_initializer_option;
-
   // ------------- Create modules 
   vio::FeatureTracker *feature_tracker =
-      vio::FeatureTracker::CreateFeatureTracker(feature_tracker_option);
+      vio::FeatureTracker::CreateFeatureTracker(pipeline_config.feature_tracker_option);
 
   KeyframeSelector keyframe_selector;
 
   vio::MapInitializer *map_initializer =
-      vio::MapInitializer::CreateMapInitializer(map_initializer_option);
+      vio::MapInitializer::CreateMapInitializer(pipeline_config.map_initializer_option);
 
   vio::Map vio_map;
 

@@ -48,8 +48,8 @@ class PipelineConfig {
 
 int TestTwoFrameWithAccurateMatchFile(Options option);
 
-int TestFramesInFolder(Options option);
+int TestFramesInFolder(const Options &option, const PipelineConfig &config);
 
-int TestVideo(Options option);
+int TestVideo(const Options &option, const PipelineConfig &config);
 
 void RunInitializer(vector<vector<cv::Vec2d> > &feature_vector);
