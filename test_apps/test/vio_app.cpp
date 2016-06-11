@@ -1,46 +1,84 @@
 #include "vio_app.hpp"
 
+int PrintCommandUsage();
+
 int main(int argc, char **argv) {
+
   Options option;
+  // Required and optional arguments.
   for (int i = 0; i < argc; ++i) {
-    if (!strcmp(argv[i], "-p") || !strcmp(argv[i], "--path")) {
-      option.path = argv[++i];
-    } else if (!strcmp(argv[i], "-f") || !strcmp(argv[i], "--format")) {
-      option.format = argv[++i];
-    } else if (!strcmp(argv[i], "--keyframe")) {
+    if (!strcmp(argv[i], "--keyframe")) {
       option.use_keyframe = true;
       cout << "Using keyframe.\n";
-    } else if (!strcmp(argv[i], "--accuratetwo")) {
-      option.match_file_name = argv[++i];
     } else if (!strcmp(argv[i], "--config")) {
       option.config_filename = argv[++i];
-    } else if (!strcmp(argv[i], "--video")) {
-      option.video_filename = argv[++i];
     }
   }
+  // Must have configuration for pipeline.
+  if (option.config_filename.empty())
+    return PrintCommandUsage();
 
-  if (option.config_filename.empty()) {
-    cerr << "Error: Please provide configuration file use argument --config.\n";
-    return -1;
+
+  // Determine test type.
+  if (argc < 2 || strcmp(argv[1], "--type"))
+    return PrintCommandUsage();
+
+  // ----------------------------Test images from dataset ---------------
+  if (!strcmp(argv[2], "dataset")) {
+    for (int i = 3; i < argc; ++i) {
+      if (!strcmp(argv[i], "-p") || !strcmp(argv[i], "--path")) {
+        option.path = argv[++i];
+      } else if (!strcmp(argv[i], "-f") || !strcmp(argv[i], "--format")) {
+        option.format = argv[++i];
+      }
+    }
+
+    if (option.path.empty() || option.format.empty())
+      return PrintCommandUsage();
+
+    // Start to test
+    TestFramesInFolder(option);
+
+  // ----------------------------Test video file ------------------------
+  } else if (!strcmp(argv[2], "video")) {
+    for (int i = 3; i < argc; ++i) {
+      if (!strcmp(argv[i], "-p") || !strcmp(argv[i], "--path")) {
+        option.path = argv[++i];
+      } else if (!strcmp(argv[i], "-c") ||
+                 !strcmp(argv[i], "--calibration_file")) {
+        option.calibration_filename = argv[++i];
+      }
+    }
+
+    if (option.path.empty() || option.calibration_filename.empty())
+      return PrintCommandUsage();
+
+    // Start to test
+    TestVideo(option);
+
+  } else {
+    return PrintCommandUsage();
   }
 
-  if (option.match_file_name.size())
-    return TestTwoFrameWithAccurateMatchFile(option);
+//  if (option.match_file_name.size())
+//    return TestTwoFrameWithAccurateMatchFile(option);
+  return 0;
+}
 
-  if (option.format.size() && option.path.size())
-    return TestFramesInFolder(option);
-
-  if (option.video_filename.size()) return TestVideo(option);
-
+int PrintCommandUsage() {
   cout << "Error. Unknown arguments.\n";
-  cout << "Usage: \n";
-  cout << "       test\n";
-  cout << "            -p, --path full_path \n";
-  cout << "            -f, --format image format, e.g png, jpg\n";
+  cout << "Usage: ./vio_app_test --type [dataset] | [video] | [camera]\n";
+  cout << "\n    For [dataset]:\n";
+  cout << "            -p, --path : path to dataset \n";
+  cout << "            -f, --format : image format of the dataset, e.g png, jpg\n";
+  cout << "\n    For [video] :\n";
+  cout << "            -p, --path : path to video file.\n";
+  cout << "            -c, --calibration_file : path to camera config file.\n";
+  cout << "\n    Other Required options:\n";
+  cout << "            --config : path and name of configuration file.\n"; 
+  cout << "\n    Other Optional options:\n";
   cout << "            --keyframe, select key frame\n";
-  // TODO: Add test two frames with good baseline and bad baseline.
-  cout << "            --accuratetwo  path_to_match_file, test using accurate "
-          "matches.\n";
-
   return -1;
 }
+
+

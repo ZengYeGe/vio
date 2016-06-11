@@ -14,17 +14,6 @@
 #include "multiview.hpp"
 #include "map.hpp"
 
-/*
-#include "../../feature_tracker/include/feature_tracker.hpp"
-#include "../../feature_tracker/include/keyframe_selector.hpp"
-#include "../../map_initializer/include/map_initializer.hpp"
-#include "../../pnp_estimator/include/pnp_estimator.hpp"
-#include "../../graph_optimizer/include/graph_optimizer.hpp"
-#include "../../util/include/util.hpp"
-#include "../../multiview_helper/include/multiview.hpp"
-#include "../../mapdata/include/map.hpp"
-*/
-
 using namespace std;
 using namespace cv;
 
@@ -35,7 +24,26 @@ struct Options {
   string match_file_name;
   bool use_keyframe;
   string config_filename;
-  string video_filename;
+  string calibration_filename;
+};
+
+class PipelineConfig {
+ public:
+  bool SetUpFromFile(std::string config_file) {
+    cv::FileStorage pipeline_config;
+    pipeline_config.open(config_file, FileStorage::READ);
+    if (!pipeline_config.isOpened()) {
+      cerr << "Error: Couldn't find pipeline config file.\n";
+      return false;
+    }
+    pipeline_config["FeatureTracker"] >> feature_tracker_option;
+    pipeline_config["MapInitializer"] >> map_initializer_option;
+    return true;
+  }
+
+  vio::FeatureTrackerOptions feature_tracker_option;
+  vio::MapInitializerOptions map_initializer_option;
+
 };
 
 int TestTwoFrameWithAccurateMatchFile(Options option);

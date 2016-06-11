@@ -5,7 +5,7 @@
 
 int TestVideo(Options option) {
 
-  cv::VideoCapture capture(option.video_filename); 
+  cv::VideoCapture capture(option.path); 
   if (!capture.isOpened()) {
       std::cerr << "Failed to open the video device, video file or image sequence!\n" << std::endl;
       return 1;
