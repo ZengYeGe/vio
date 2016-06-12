@@ -13,9 +13,9 @@ TEST_F(FooTest, ByDefaultBazTrueIsTrue) {
 }
 
 TEST_F(FooTest, ByDefaultBazFalseIsFalse) {
-    EXPECT_EQ(false, false);
+    EXPECT_FALSE(false);
 }
 
 TEST_F(FooTest, SometimesBazFalseIsTrue) {
-    EXPECT_EQ(false, true);
+    EXPECT_FALSE(true);
 }

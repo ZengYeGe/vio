@@ -100,5 +100,20 @@ int main(int ac, char** av) {
         help(av);
         return 1;
     }
+
+    cout << "\nwidth=" << capture.get(CAP_PROP_FRAME_WIDTH)
+         << ", height=" << capture.get(CAP_PROP_FRAME_HEIGHT)
+         << ", nframes=" << capture.get(CAP_PROP_FPS) << endl;
+
+    //capture.set(CAP_PROP_FRAME_WIDTH, 1280);
+    //capture.set(CAP_PROP_FRAME_HEIGHT, 720);
+
+    capture.set(CAP_PROP_FRAME_WIDTH, 1920);
+    capture.set(CAP_PROP_FRAME_HEIGHT, 1080);
+
+    cout << "\nwidth=" << capture.get(CAP_PROP_FRAME_WIDTH)
+         << ", height=" << capture.get(CAP_PROP_FRAME_HEIGHT)
+         << ", nframes=" << capture.get(CAP_PROP_FPS) << endl;
+
     return process(capture);
 }
