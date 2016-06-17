@@ -7,7 +7,7 @@
 #include "feature_tracker.hpp"
 #include "graph_optimizer.hpp"
 #include "keyframe_selector.hpp"
-#include "map.hpp"
+#include "mapdata.hpp"
 #include "map_initializer.hpp"
 #include "multiview.hpp"
 #include "pnp_estimator.hpp"
@@ -50,7 +50,12 @@ struct VisualOdometryConfig {
 enum VO_Status {
   UNINITED = 0,
   INITED,
-  TRACKING
+};
+
+enum TrackingStatus {
+  ERROR = 0,
+  TRACKING_AVAILABLE = 1, 
+  TRACKING_NOT_AVAILABLE = 2
 };
 
 class VisualOdometry {
@@ -61,12 +66,15 @@ class VisualOdometry {
   bool IsInited();
 
   // TODO: Avoid copy
-  bool AddNewRawImage(const cv::Mat &img);
+  TrackingStatus TrackNewRawImage(const cv::Mat &img, FramePose &pose);
 
  // Methods
  private:
-  
+  bool AddFirstFrame(std::unique_ptr<ImageFrame> frame);
+  bool AddNewFrame(std::unique_ptr<ImageFrame> frame);
 
+  bool InitializeLandmarks();
+  bool EstimateLastFrame();
  // Variables
  private:
 
@@ -74,16 +82,17 @@ class VisualOdometry {
 
   const CameraModel *camera_model_;
 
-  const FeatureTracker *feature_tracker_;
+  FeatureTracker *feature_tracker_;
 
-  const MapInitializer *map_initializer_;
+  MapInitializer *map_initializer_;
 
-  const PnPEstimator *pnp_estimator_;
+  PnPEstimator *pnp_estimator_;
 
   KeyframeSelector keyframe_selector_;
 
-  Map map_;
+  Mapdata map_;
 
+  Keyframe *current_frame_;
 };
 
 } // vio

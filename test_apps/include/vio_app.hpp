@@ -12,7 +12,7 @@
 #include "graph_optimizer.hpp"
 #include "util.hpp"
 #include "multiview.hpp"
-#include "map.hpp"
+#include "mapdata.hpp"
 
 using namespace std;
 using namespace cv;

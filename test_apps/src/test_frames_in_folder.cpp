@@ -46,7 +46,7 @@ int TestFramesInFolder(const Options &option, const PipelineConfig &pipeline_con
   vio::MapInitializer *map_initializer =
       vio::MapInitializer::CreateMapInitializer(pipeline_config.map_initializer_option);
 
-  vio::Map vio_map;
+  vio::Mapdata vio_map;
 
   vio::PnPEstimator *pnp_estimator =
       vio::PnPEstimator::CreatePnPEstimator(vio::ITERATIVE);

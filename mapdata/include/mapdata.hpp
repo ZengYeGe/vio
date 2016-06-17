@@ -27,16 +27,17 @@ struct FeatureMatchEdge {
   int second_frame_index;
 };
 
-class Map {
+class Mapdata {
  public:
   enum MapState {
     WAIT_FOR_FIRSTFRAME = 0,
+    // TODO: Might not be only 2 frames.
     WAIT_FOR_SECONDFRAME,
     WAIT_FOR_INIT,
     INITIALIZED,
   };
 
-  Map();
+  Mapdata();
 
   // TODO: Now assume new keyframe only match to last keyframe
   bool AddFirstKeyframe(std::unique_ptr<Keyframe> frame);
@@ -44,6 +45,8 @@ class Map {
                                          std::vector<cv::DMatch> &matches);
 
   /* ---------------- Initialization ----------------------------------------*/
+
+  // TODO: Add format descriptor of |feature_vector|
   bool PrepareInitializationData(
       std::vector<std::vector<cv::Vec2d> > &feature_vectors);
   // This should be called after using PrepareInitializationData and initialized
@@ -80,6 +83,9 @@ class Map {
                          const std::vector<cv::Point3f> &points);
 
   bool PrintStats();
+
+  MapState state() { return map_state_; }
+  void set_state(MapState state) { map_state_ = state; }
 
   const Keyframe &GetLastKeyframe() const { return *(keyframes_.back()); }
   int num_frame() const { return keyframes_.size(); }

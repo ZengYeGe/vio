@@ -1,12 +1,12 @@
-#include "map.hpp"
+#include "mapdata.hpp"
 
 #include <iostream>
 
 namespace vio {
 
-Map::Map() : map_state_(WAIT_FOR_FIRSTFRAME) {}
+Mapdata::Mapdata() : map_state_(WAIT_FOR_FIRSTFRAME) {}
 
-bool Map::AddFirstKeyframe(std::unique_ptr<Keyframe> frame) {
+bool Mapdata::AddFirstKeyframe(std::unique_ptr<Keyframe> frame) {
   if (map_state_ != WAIT_FOR_FIRSTFRAME) {
     std::cerr << "Error: First Keyframe already exists. Try reset map.\n";
     return false;
@@ -21,7 +21,7 @@ bool Map::AddFirstKeyframe(std::unique_ptr<Keyframe> frame) {
   map_state_ = WAIT_FOR_SECONDFRAME;
 }
 
-bool Map::AddNewKeyframeMatchToLastKeyframe(std::unique_ptr<Keyframe> frame,
+bool Mapdata::AddNewKeyframeMatchToLastKeyframe(std::unique_ptr<Keyframe> frame,
                                             std::vector<cv::DMatch> &matches) {
   if (map_state_ == WAIT_FOR_FIRSTFRAME) {
     std::cerr << "Error: Missing first frame.\n";
@@ -65,7 +65,7 @@ bool Map::AddNewKeyframeMatchToLastKeyframe(std::unique_ptr<Keyframe> frame,
   return true;
 }
 
-bool Map::PrepareInitializationData(
+bool Mapdata::PrepareInitializationData(
     std::vector<std::vector<cv::Vec2d> > &feature_vectors) {
   if (map_state_ != WAIT_FOR_INIT) {
     std::cerr << "Error: Could not initialize.\n";
@@ -95,7 +95,7 @@ bool Map::PrepareInitializationData(
   return true;
 }
 
-bool Map::AddInitialization(const std::vector<cv::Point3f> &points3d,
+bool Mapdata::AddInitialization(const std::vector<cv::Point3f> &points3d,
                             const std::vector<bool> &points3d_mask,
                             const std::vector<cv::Mat> &Rs,
                             const std::vector<cv::Mat> &ts) {
@@ -116,7 +116,7 @@ bool Map::AddInitialization(const std::vector<cv::Point3f> &points3d,
   return true;
 }
 
-bool Map::PrepareEstimateLastFramePoseData(std::vector<cv::Point3f> &points3d,
+bool Mapdata::PrepareEstimateLastFramePoseData(std::vector<cv::Point3f> &points3d,
                                            std::vector<cv::Point2f> &points2d,
                                            std::vector<int> &points_index) {
   if (map_state_ != INITIALIZED) {
@@ -145,6 +145,7 @@ bool Map::PrepareEstimateLastFramePoseData(std::vector<cv::Point3f> &points3d,
       const int ld_id = ld_id_ptr->second;
       points_index.push_back(ft_id);
       points3d.push_back(landmarks_[ld_id].position);
+
       points2d.push_back(
           keyframes_.back()->image_frame().keypoints()[ft_id].pt);
     }
@@ -154,7 +155,7 @@ bool Map::PrepareEstimateLastFramePoseData(std::vector<cv::Point3f> &points3d,
   return true;
 }
 
-bool Map::PrepareUninitedPointsFromLastTwoFrames(std::vector<cv::Vec2d> &kp0,
+bool Mapdata::PrepareUninitedPointsFromLastTwoFrames(std::vector<cv::Vec2d> &kp0,
                                                  std::vector<cv::Vec2d> &kp1,
                                                  FramePose &pose0,
                                                  FramePose &pose1) {
@@ -199,7 +200,7 @@ bool Map::PrepareUninitedPointsFromLastTwoFrames(std::vector<cv::Vec2d> &kp0,
   return true;
 }
 
-bool Map::AddInitedPoints(const std::vector<cv::Point3f> &points3d,
+bool Mapdata::AddInitedPoints(const std::vector<cv::Point3f> &points3d,
                           const std::vector<bool> &points3d_mask) {
   if (!AddCoordToUninitedPoints(points3d, points3d_mask))
     return false;
@@ -209,12 +210,12 @@ bool Map::AddInitedPoints(const std::vector<cv::Point3f> &points3d,
   return true;
 }
 
-bool Map::SetLastFramePose(const cv::Mat &R, const cv::Mat &t) {
+bool Mapdata::SetLastFramePose(const cv::Mat &R, const cv::Mat &t) {
   keyframes_.back()->set_pose_inited(true);
   keyframes_.back()->set_pose(R, t);
 };
 
-bool Map::PrepareOptimization(std::vector<cv::Mat> &Rs,
+bool Mapdata::PrepareOptimization(std::vector<cv::Mat> &Rs,
                            std::vector<cv::Mat> &ts,
                            std::vector<cv::Point3f> &points,
                            std::vector<int> &obs_camera_idx,
@@ -258,7 +259,7 @@ bool Map::PrepareOptimization(std::vector<cv::Mat> &Rs,
   return true;
 }
 
-bool Map::ApplyOptimization(const std::vector<cv::Mat> &Rs,
+bool Mapdata::ApplyOptimization(const std::vector<cv::Mat> &Rs,
                             const std::vector<cv::Mat> &ts,
                             const std::vector<cv::Point3f> &points) {
   const int num_camera = Rs.size();
@@ -274,13 +275,13 @@ bool Map::ApplyOptimization(const std::vector<cv::Mat> &Rs,
   return true;
 }
 
-bool Map::PrintStats() {
+bool Mapdata::PrintStats() {
   std::cout << "\nMap stats:\n"
             << "Keyframes: " << keyframes_.size() << std::endl
             << "Landmarks: " << landmarks_.size() << "\n\n";
 }
 
-bool Map::AddCoordToUninitedPoints(const std::vector<cv::Point3f> &points3d,
+bool Mapdata::AddCoordToUninitedPoints(const std::vector<cv::Point3f> &points3d,
                                    const std::vector<bool> &points3d_mask) {
   if (points3d.size() != uninited_landmark_to_feature_.size() ||
       points3d_mask.size() != uninited_landmark_to_feature_.size()) {
@@ -314,7 +315,7 @@ bool Map::AddCoordToUninitedPoints(const std::vector<cv::Point3f> &points3d,
   return true;
 }
 
-bool Map::PruneShortTrackLandmarks() {
+bool Mapdata::PruneShortTrackLandmarks() {
   // If previous landmarks only seen by two views then delete.
   // TODO: Could be only used when frame rate is high enough.
   std::vector<Landmark> pruned_landmarks;

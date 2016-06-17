@@ -43,7 +43,7 @@ class CameraModel {
 
   void UndistortImage(const cv::Mat &input, cv::Mat &undistort_img);
 
-  const cv::Mat &K() { return K_; }
+  const cv::Mat &K() const { return K_; }
 
  private:
   CameraType type_;
