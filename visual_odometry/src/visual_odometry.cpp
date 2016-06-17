@@ -5,7 +5,7 @@
 namespace vio {
 
 VisualOdometry::VisualOdometry(const VisualOdometryConfig &config) 
-    : status_(UNINITED) {
+    : status_(UNINITED), plot_tracking_(false) {
 
   camera_model_ = new CameraModel(config.camera_model_params);
 
@@ -79,6 +79,9 @@ bool VisualOdometry::AddNewFrame(std::unique_ptr<ImageFrame> frame) {
     std::cerr << "Error: Track new frame failed.\n";
     return false;
   }
+
+  if (plot_tracking_)
+    PlotTracking(*frame, map_.GetLastKeyframe().image_frame(), matches);
 /*
   // TODO: Refine Keyframe Selector.
   // TODO: Add select keyframe for initialization
@@ -197,6 +200,19 @@ void VisualOdometry::VisualizeMap() {
   }
 
   VisualizeCamerasAndPoints(camera_model_->K(), Rs, ts, pts_3d);
+}
+
+void VisualOdometry::PlotTracking(const ImageFrame &frame0, const ImageFrame &frame1,
+                                  const std::vector<cv::DMatch> &matches) {
+  cv::Mat output_img = frame0.GetImage().clone();
+    int thickness = 2;
+    for (int i = 0; i < matches.size(); ++i) {
+      line(output_img, frame0.keypoints()[matches[i].trainIdx].pt,
+           frame1.keypoints()[matches[i].queryIdx].pt,
+           cv::Scalar(255, 0, 0), thickness);
+    }
+    cv::imshow("tracking_result", output_img);
+    cv::waitKey(50);
 }
 
 } // vio

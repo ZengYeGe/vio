@@ -78,6 +78,8 @@ class VisualOdometry {
 
   bool OptimizeMap();
 
+  void PlotTracking(const ImageFrame &frame0, const ImageFrame &frame1,
+                    const std::vector<cv::DMatch> &matches);
   void VisualizeMap();
 
  // Variables
@@ -100,6 +102,8 @@ class VisualOdometry {
   Mapdata map_;
 
   Keyframe *current_frame_;
+
+  bool plot_tracking_;
 };
 
 } // vio
