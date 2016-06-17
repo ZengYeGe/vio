@@ -43,10 +43,11 @@ bool FeatureMatcherGridSearch::Match(const ImageFrame &frame0, const ImageFrame 
 
   timer.Stop();
   std::cout << "Symmetry test time used: " << timer.GetInMs() << "ms.\n";
-/*
+
   timer.Start();
 
-  RemoveOutlierMatch(kp0, kp1, matches);
+  RemoveOutlierMatch(frame0.keypoints(), frame1.keypoints(), matches);
+  //RemoveOutlierMatch(kp0, kp1, matches);
 
   timer.Stop();
   std::cout << "F matrix outlier test time used: " << timer.GetInMs() << "ms.\n";
@@ -55,7 +56,7 @@ bool FeatureMatcherGridSearch::Match(const ImageFrame &frame0, const ImageFrame 
     std::cerr << "Error: Not enough matches after outlier removal.\n";
     return false;
   }
-*/
+
   return true;
 }
 
