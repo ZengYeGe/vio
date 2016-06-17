@@ -79,7 +79,7 @@ bool GraphOptimizerCeres::Optimize(const cv::Mat &K,
 
   AssignOptimizedResult(Rs, ts, points);
 
-  return false;
+  return true;
 }
 
 bool GraphOptimizerCeres::ConstructProblem(const cv::Mat &K,

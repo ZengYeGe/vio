@@ -1,6 +1,8 @@
 #ifndef CAMERA_MODEL_
 #define CAMERA_MODEL_
 
+#include <iostream>
+
 #include <opencv2/opencv.hpp>
 
 namespace vio {
@@ -15,6 +17,7 @@ class CameraModelParams {
   void read(const cv::FileNode& node) {
     type = static_cast<CameraType>((int)node["Type"]);
     node["K"] >> K;    
+    std::cout << "Loaded camera matrix:\n" << K << std::endl;
   }
 
   CameraType type;

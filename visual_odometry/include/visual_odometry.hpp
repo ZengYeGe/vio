@@ -17,7 +17,7 @@ namespace vio {
 
 struct VisualOdometryConfig {
  public:
-  bool SetUpFromFile(std::string config_file) {
+  bool SetUpFromFile(const std::string &config_file) {
     cv::FileStorage pipeline_config;
     pipeline_config.open(config_file, cv::FileStorage::READ);
     if (!pipeline_config.isOpened()) {
@@ -29,7 +29,7 @@ struct VisualOdometryConfig {
     return true;
   }
 
-  bool SetUpCamera(std::string camera_config_file) {
+  bool SetUpCameraFromFile(const std::string &camera_config_file) {
     cv::FileStorage camera_config;
     camera_config.open(camera_config_file, cv::FileStorage::READ);
     if (!camera_config.isOpened()) {
@@ -75,6 +75,11 @@ class VisualOdometry {
 
   bool InitializeLandmarks();
   bool EstimateLastFrame();
+
+  bool OptimizeMap();
+
+  void VisualizeMap();
+
  // Variables
  private:
 
@@ -87,6 +92,8 @@ class VisualOdometry {
   MapInitializer *map_initializer_;
 
   PnPEstimator *pnp_estimator_;
+
+  GraphOptimizer *optimizer_;
 
   KeyframeSelector keyframe_selector_;
 

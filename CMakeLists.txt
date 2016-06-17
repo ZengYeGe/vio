@@ -87,7 +87,8 @@ add_subdirectory(visual_odometry)
 
 add_subdirectory(kalman_filter)
 
-add_subdirectory(test_apps)
+#add_subdirectory(test_apps)
+add_subdirectory(vio_app)
 
 ###########################################################################
 

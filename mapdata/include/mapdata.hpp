@@ -89,6 +89,11 @@ class Mapdata {
 
   const Keyframe &GetLastKeyframe() const { return *(keyframes_.back()); }
   int num_frame() const { return keyframes_.size(); }
+  const Keyframe &keyframe(int i) const { return *(keyframes_[i]); }
+
+  int num_landmark() const { return landmarks_.size(); }
+  const std::vector<Landmark> &landmarks() { return landmarks_; }
+  const Landmark &landmark(int i) { return landmarks_[i]; }
 
  private:
   bool AddCoordToUninitedPoints(const std::vector<cv::Point3f> &points3d,

@@ -13,6 +13,7 @@ VisualOdometry::VisualOdometry(const VisualOdometryConfig &config)
   map_initializer_ = MapInitializer::CreateMapInitializer(config.map_initializer_option);
 
   pnp_estimator_ = PnPEstimator::CreatePnPEstimator(ITERATIVE);
+  optimizer_ = GraphOptimizer::CreateGraphOptimizer(vio::CERES);
 
   if (IsInited())
     status_ = INITED;
@@ -78,13 +79,14 @@ bool VisualOdometry::AddNewFrame(std::unique_ptr<ImageFrame> frame) {
     std::cerr << "Error: Track new frame failed.\n";
     return false;
   }
+/*
   // TODO: Refine Keyframe Selector.
   // TODO: Add select keyframe for initialization
   if (!keyframe_selector_.isKeyframe(matches)) {
     std::cout << "Skipped a frame. Not selected as keyframe.\n";
     return true; 
   }
-
+*/
   std::unique_ptr<Keyframe> new_keyframe(new Keyframe(std::move(frame)));
   if (!map_.AddNewKeyframeMatchToLastKeyframe(std::move(new_keyframe), matches))
     return false;
@@ -95,6 +97,9 @@ bool VisualOdometry::AddNewFrame(std::unique_ptr<ImageFrame> frame) {
   // Estimate last frame
   EstimateLastFrame();
   map_.PrintStats();
+
+  if (map_.num_frame() % 5 == 0)
+    OptimizeMap();
 
   return true;
 }
@@ -113,9 +118,15 @@ bool VisualOdometry::InitializeLandmarks() {
   vector<cv::Mat> R_seq_est, t_seq_est;
 
   // TODO: Undistort using camera model then pass to do initialization.
-  map_initializer_->Initialize(feature_vectors, camera_model_->K(), points_3d_est,
-                              points_3d_mask, R_seq_est, t_seq_est);
-  map_.AddInitialization(points_3d_est, points_3d_mask, R_seq_est, t_seq_est);
+  if (!map_initializer_->Initialize(feature_vectors, camera_model_->K(), points_3d_est,
+                              points_3d_mask, R_seq_est, t_seq_est))
+    return false;
+  if (!map_.AddInitialization(points_3d_est, points_3d_mask, R_seq_est, t_seq_est))
+    return false;
+
+  VisualizeMap();
+
+  return true;
 }
 
 bool VisualOdometry::EstimateLastFrame() {
@@ -144,10 +155,48 @@ bool VisualOdometry::EstimateLastFrame() {
                     pose1.R, pose1.t, new_points3d, new_points3d_mask);
 
     // TODO: points not added
-  map_.AddInitedPoints(new_points3d, new_points3d_mask);
-
+  if (!map_.AddInitedPoints(new_points3d, new_points3d_mask))
+    return false;
 
   return true;
+}
+
+bool VisualOdometry::OptimizeMap() {
+   // Optimization
+  std::vector<cv::Mat> Rs;
+  std::vector<cv::Mat> ts;
+  std::vector<cv::Point3f> points;
+  std::vector<int> obs_camera_idx;
+  std::vector<int> obs_point_idx;
+  std::vector<cv::Vec2d> obs_feature;
+  map_.PrepareOptimization(Rs, ts, points, obs_camera_idx, obs_point_idx,
+                              obs_feature);
+
+  if (!optimizer_->Optimize(camera_model_->K(), Rs, ts, points, obs_camera_idx,
+                      obs_point_idx, obs_feature))
+    return false;
+
+  if (!map_.ApplyOptimization(Rs, ts, points))
+    return false;
+
+  VisualizeMap();
+
+  return true;
+}
+
+void VisualOdometry::VisualizeMap() {
+  std::vector<cv::Mat> Rs, ts;
+  std::vector<cv::Point3f> pts_3d;
+  for (int i = 0; i < map_.num_frame(); ++i) {
+    const Keyframe &frame = map_.keyframe(i);
+    Rs.push_back(frame.GetRot());
+    ts.push_back(frame.GetT());
+  }
+  for (int i = 0; i < map_.num_landmark(); ++i) {
+    pts_3d.push_back(map_.landmark(i).position);
+  }
+
+  VisualizeCamerasAndPoints(camera_model_->K(), Rs, ts, pts_3d);
 }
 
 } // vio
