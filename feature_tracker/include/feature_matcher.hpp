@@ -28,7 +28,11 @@ class FeatureMatcher {
   bool RatioTestFilter(std::vector<std::vector<cv::DMatch> > best_k,
                        std::vector<cv::DMatch> &matches);
 
-  double nn_match_ratio_;
+  bool RemoveOutlierMatch(
+    const std::vector<cv::KeyPoint> &pre_kp,
+    const std::vector<cv::KeyPoint> &cur_kp, std::vector<cv::DMatch> &matches);
+
+   double nn_match_ratio_;
   int max_match_per_desc_;
 };
 

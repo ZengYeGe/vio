@@ -35,5 +35,30 @@ bool FeatureMatcher::RatioTestFilter(
   return true;
 }
 
+bool FeatureMatcher::RemoveOutlierMatch(
+    const std::vector<cv::KeyPoint> &pre_kp,
+    const std::vector<cv::KeyPoint> &cur_kp, std::vector<cv::DMatch> &matches) {
+  // TODO: Check the speed.
+  std::vector<cv::Point2f> pre_matched_kp, cur_matched_kp;
+  for (int i = 0; i < matches.size(); ++i) {
+    pre_matched_kp.push_back(pre_kp[matches[i].queryIdx].pt);
+    cur_matched_kp.push_back(cur_kp[matches[i].trainIdx].pt);
+  }
+  cv::Mat mask;
+  // TODO: Need to tune the parameters, e.g. 3
+  // TODO: Normalize
+  cv::Mat fundamental_matrix = cv::findFundamentalMat(
+      pre_matched_kp, cur_matched_kp, CV_FM_RANSAC, 0.5, 0.999, mask);
+  int num_outlier = 0;
+  std::vector<cv::DMatch> new_matches;
+  for (int i = 0; i < matches.size(); ++i) {
+    if ((unsigned int)mask.at<uchar>(i)) new_matches.push_back(matches[i]);
+  }
+  std::cout << "Outlier matches: " << matches.size() - new_matches.size()
+            << std::endl;
+
+  matches = std::move(new_matches);
+  return true;
+}
 
 } // vio
