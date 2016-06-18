@@ -68,6 +68,8 @@ class VisualOdometry {
   // TODO: Avoid copy
   TrackingStatus TrackNewRawImage(const cv::Mat &img, FramePose &pose);
 
+  void VisualizeMap();
+
  // Methods
  private:
   bool AddFirstFrame(std::unique_ptr<ImageFrame> frame);
@@ -80,8 +82,6 @@ class VisualOdometry {
 
   void PlotTracking(const ImageFrame &frame0, const ImageFrame &frame1,
                     const std::vector<cv::DMatch> &matches);
-  void VisualizeMap();
-
  // Variables
  private:
 

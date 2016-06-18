@@ -68,7 +68,7 @@ bool FeatureTrackerOCV::TrackFrame(const ImageFrame &prev_frame,
 }
 
 void FeatureTrackerOCV::InitTracker() {
-  // matcher_ = new FeatureMatcherOCV(); 
+ // matcher_ = new FeatureMatcherOCV(); 
   matcher_ = new FeatureMatcherGridSearch();
 }
 

@@ -5,7 +5,7 @@
 namespace vio {
 
 VisualOdometry::VisualOdometry(const VisualOdometryConfig &config) 
-    : status_(UNINITED), plot_tracking_(false) {
+    : status_(UNINITED), plot_tracking_(true) {
 
   camera_model_ = new CameraModel(config.camera_model_params);
 
@@ -80,9 +80,9 @@ bool VisualOdometry::AddNewFrame(std::unique_ptr<ImageFrame> frame) {
     return false;
   }
 
+/*
   if (plot_tracking_)
     PlotTracking(*frame, map_.GetLastKeyframe().image_frame(), matches);
-/*
   // TODO: Refine Keyframe Selector.
   // TODO: Add select keyframe for initialization
   if (!keyframe_selector_.isKeyframe(matches)) {

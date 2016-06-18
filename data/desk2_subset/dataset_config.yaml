@@ -7,11 +7,12 @@ strings:
 Mapping:
    One: 1
    Two: 2
-K: !!opencv-matrix
-   rows: 3
-   cols: 3
-   dt: d
-   data: [ 567.27, 0, 309.77, 0, 571.159, 246.05, 0, 0, 1 ]
+CameraModel:
+   K: !!opencv-matrix
+     rows: 3
+     cols: 3
+     dt: d
+     data: [ 567.27, 0, 309.77, 0, 571.159, 246.05, 0, 0, 1 ]
 T: !!opencv-matrix
    rows: 3
    cols: 1
