@@ -1,5 +1,7 @@
 #include "feature_matcher.hpp"
 
+#include <unordered_map>
+
 namespace vio {
 
 bool FeatureMatcher::SymmetryTestFilter(
@@ -7,19 +9,20 @@ bool FeatureMatcher::SymmetryTestFilter(
     const std::vector<cv::DMatch> &matches2,
     std::vector<cv::DMatch> &final_matches) {
   final_matches.clear();
-  for (std::vector<cv::DMatch>::const_iterator matchIterator1 =
-           matches1.begin();
-       matchIterator1 != matches1.end(); ++matchIterator1) {
-    for (std::vector<cv::DMatch>::const_iterator matchIterator2 =
-             matches2.begin();
-         matchIterator2 != matches2.end(); ++matchIterator2) {
-      if ((*matchIterator1).queryIdx == (*matchIterator2).trainIdx &&
-          (*matchIterator2).queryIdx == (*matchIterator1).trainIdx) {
-        final_matches.push_back(cv::DMatch((*matchIterator1).queryIdx,
-                                           (*matchIterator1).trainIdx,
-                                           (*matchIterator1).distance));
-        break;
-      }
+
+  std::unordered_map<int, int> match_map;
+  for (std::vector<cv::DMatch>::const_iterator matchIterator = matches1.begin();
+       matchIterator != matches1.end(); ++matchIterator) {
+    match_map[(*matchIterator).trainIdx] = (*matchIterator).queryIdx;
+  }
+
+  for (std::vector<cv::DMatch>::const_iterator matchIterator = matches2.begin();
+       matchIterator != matches2.end(); ++matchIterator) {
+    auto match_ptr = match_map.find((*matchIterator).queryIdx);
+    if (match_ptr != match_map.end() && match_ptr->second == (*matchIterator).trainIdx) {
+      final_matches.push_back(cv::DMatch((*matchIterator).trainIdx,
+                                         (*matchIterator).queryIdx,
+                                         (*matchIterator).distance));
     }
   }
 }

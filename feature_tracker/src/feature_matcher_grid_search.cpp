@@ -116,7 +116,7 @@ bool FeatureMatcherGridSearch::FindMatchNearFeatures(const ImageFrame &query_fra
   }
 }
                                                
-double FeatureMatcherGridSearch::ComputeDistance(const cv::Mat &mat0, const cv::Mat &mat1) {
+inline double FeatureMatcherGridSearch::ComputeDistance(const cv::Mat &mat0, const cv::Mat &mat1) {
   return cv::norm(mat0, mat1, cv::NORM_L2);
 }
 

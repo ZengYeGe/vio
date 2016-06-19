@@ -122,6 +122,8 @@ class Mapdata {
   // keyframe[j]
   // The size should be [size of keyframe][number of features in keyframe i]
   std::vector<std::unordered_map<int, int> > feature_to_landmark_;
+
+  int min_pnp_matches_;
 };
 
 }  // vio

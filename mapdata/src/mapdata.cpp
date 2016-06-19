@@ -4,7 +4,8 @@
 
 namespace vio {
 
-Mapdata::Mapdata() : map_state_(WAIT_FOR_FIRSTFRAME) {}
+Mapdata::Mapdata() : map_state_(WAIT_FOR_FIRSTFRAME),
+                     min_pnp_matches_(10) {}
 
 bool Mapdata::AddFirstKeyframe(std::unique_ptr<Keyframe> frame) {
   if (map_state_ != WAIT_FOR_FIRSTFRAME) {
