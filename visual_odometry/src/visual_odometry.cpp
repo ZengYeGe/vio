@@ -127,8 +127,11 @@ bool VisualOdometry::InitializeLandmarks() {
 
   // TODO: Undistort using camera model then pass to do initialization.
   if (!map_initializer_->Initialize(feature_vectors, camera_model_->K(), points_3d_est,
-                              points_3d_mask, R_seq_est, t_seq_est))
-    return false;
+                              points_3d_mask, R_seq_est, t_seq_est)) {
+    map_.DropLastKeyframe();
+    std::cout << "Initialization failed. Dropped last frame.\n";
+    return true;
+  }
 
   if (!map_.AddInitialization(points_3d_est, points_3d_mask, R_seq_est, t_seq_est))
     return false;

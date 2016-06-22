@@ -43,7 +43,7 @@ class Mapdata {
   bool AddFirstKeyframe(std::unique_ptr<Keyframe> frame);
   bool AddNewKeyframeMatchToLastKeyframe(std::unique_ptr<Keyframe> frame,
                                          std::vector<cv::DMatch> &matches);
-
+  bool DropLastKeyframe();
   /* ---------------- Initialization ----------------------------------------*/
 
   // TODO: Add format descriptor of |feature_vector|
@@ -71,7 +71,8 @@ class Mapdata {
   bool AddInitedPoints(const std::vector<cv::Point3f> &points3d,
                        const std::vector<bool> &points3d_mask);
 
- /* ---------------Bundle adjustment-------------------------------------*/
+  /* ---------------Bundle adjustment-------------------------------------*/
+  // TODO: Only apply optimization on last several frames.
   bool PrepareOptimization(std::vector<cv::Mat> &Rs, std::vector<cv::Mat> &ts,
                            std::vector<cv::Point3f> &points,
                            std::vector<int> &obs_camera_idx,
@@ -106,7 +107,6 @@ class Mapdata {
   std::vector<std::unique_ptr<Keyframe> > keyframes_;
 
   // match_edges[i] is the match between keyframes_[i] and keyframes_[i + 1]
-  // TODO: Not sure it's needed.
   std::vector<FeatureMatchEdge> match_edges_;
 
   std::vector<Landmark> landmarks_;

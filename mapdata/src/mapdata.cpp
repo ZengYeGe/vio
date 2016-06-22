@@ -66,6 +66,40 @@ bool Mapdata::AddNewKeyframeMatchToLastKeyframe(std::unique_ptr<Keyframe> frame,
   return true;
 }
 
+bool Mapdata::DropLastKeyframe() {
+  if (keyframes_.size() < 2) {
+    std::cout << "Warning: Trying to drop first frame.\n";
+    return false;
+  }
+   
+  const FeatureMatchEdge &match_edge = match_edges_.back();
+  const int ll_index =
+      match_edges_.back().first_frame_index;  // last frame index
+  const int l_index =
+      match_edges_.back().second_frame_index;  // new frame index
+  for (int i = 0; i < match_edge.matches.size(); ++i) {
+    auto ld_id_ptr = feature_to_landmark_[l_index].find(match_edge.matches[i].trainIdx);    
+    if (ld_id_ptr != feature_to_landmark_[l_index].end()) {
+      int landmark_id = ld_id_ptr->second;
+      landmark_to_feature_[landmark_id].erase(l_index);
+      // If the landmark only point to this feature and another feature
+      if (landmark_to_feature_[landmark_id].size() < 2) {
+
+      }
+    }
+  }
+
+  // TODO: This pretty redundant. Change to not add?
+  PruneShortTrackLandmarks();
+
+  feature_to_landmark_.pop_back();
+  match_edges_.pop_back();
+  keyframes_.pop_back();
+  uninited_landmark_to_feature_.clear();
+
+  return true;
+}
+
 bool Mapdata::PrepareInitializationData(
     std::vector<std::vector<cv::Vec2d> > &feature_vectors) {
   if (map_state_ != WAIT_FOR_INIT) {
@@ -312,6 +346,7 @@ bool Mapdata::AddCoordToUninitedPoints(const std::vector<cv::Point3f> &points3d,
   std::cout << "Added inlier triangulated landmarks: " << new_ld_count << " / "
             << points3d.size() << std::endl;
   std::cout << "Number of landmarks: " << landmarks_.size() << std::endl;
+  // All uninited points will be delete.
   uninited_landmark_to_feature_.clear();
   return true;
 }
@@ -324,7 +359,10 @@ bool Mapdata::PruneShortTrackLandmarks() {
 
   const int last_frame_id = keyframes_.size() - 1;
 
+  // TODO: Options for selecting visibility frame number.
   for (int i = 0; i < landmarks_.size(); ++i) {
+    if (landmark_to_feature_[i].size() < 2)
+      continue;
     if (landmark_to_feature_[i].size() == 2) {
       auto ld_to_last_ptr = landmark_to_feature_[i].find(last_frame_id);
       if (ld_to_last_ptr == landmark_to_feature_[i].end()) {

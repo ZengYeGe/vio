@@ -108,7 +108,7 @@ bool MapInitializer8Point::SelectSolutionRT(
     }
   }
 
-  int min_triangulated = 50;
+  int min_triangulated = 30;
   if (max_num_point_inlier < min_triangulated) {
     std::cerr << "Not enough inlier 3D points.\n";
     return false;
@@ -320,7 +320,7 @@ int MapInitializer8Point::EvaluateSolutionRT(
     double dist2 = cv::norm(normal2);
     double cosParallax = normal1.dot(normal2) / (dist1 * dist2);
 
-    if (cosParallax > 0.99998) {
+    if (cosParallax > 0.9998) {
       nParallal++;
       points3d_mask.push_back(false);
       points_3d.push_back(cv::Point3f(0, 0, 0));
