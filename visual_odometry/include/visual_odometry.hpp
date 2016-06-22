@@ -31,7 +31,10 @@ struct VisualOdometryConfig {
     // Setup pipeline
     const cv::FileNode &node = pipeline_config["VisualOdometry"];
     viz_tracking = (int)node["VisualizeTracking"] == 1;
-    time_per_frame = (int)node["TimePerFrame"];
+    viz_time_per_frame = (int)node["TimePerFrame"];
+    viz_landmarks = (int)node["VisualizeLandmarks"] == 1;
+    viz_landmarks_every_frame = (int)node["VisualizeLandmarksEveryNumFrame"];
+    optimize_every_frame = (int)node["OptimizeEveryNumFrame"];
     return true;
   }
 
@@ -52,8 +55,12 @@ struct VisualOdometryConfig {
   FeatureMatcherOptions feature_matcher_option;
   MapInitializerOptions map_initializer_option;
 
+  int optimize_every_frame;
+
   bool viz_tracking;
-  int time_per_frame; 
+  int viz_time_per_frame; 
+  bool viz_landmarks;
+  int viz_landmarks_every_frame;
 };
 
 enum VO_Status {
@@ -112,8 +119,13 @@ class VisualOdometry {
 
   Keyframe *current_frame_;
 
+  int optimize_every_frame_;
+
   bool plot_tracking_;
   int tracking_wait_time_;
+
+  bool plot_3d_landmarks_;
+  int plot_3d_landmarks_every_frame_;
 };
 
 } // vio

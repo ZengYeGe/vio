@@ -5,7 +5,9 @@
 namespace vio {
 
 VisualOdometry::VisualOdometry(const VisualOdometryConfig &config) 
-    : status_(UNINITED), plot_tracking_(true) {
+    : status_(UNINITED), plot_tracking_(true),
+      tracking_wait_time_(10), plot_3d_landmarks_(true),
+      plot_3d_landmarks_every_frame_(1) {
 
   camera_model_ = new CameraModel(config.camera_model_params);
 
@@ -20,8 +22,13 @@ VisualOdometry::VisualOdometry(const VisualOdometryConfig &config)
   if (IsInited())
     status_ = INITED;
 
+  optimize_every_frame_ =  config.optimize_every_frame;
+
   plot_tracking_ = config.viz_tracking;
-  tracking_wait_time_ = config.time_per_frame; 
+  tracking_wait_time_ = config.viz_time_per_frame; 
+
+  plot_3d_landmarks_ = config.viz_landmarks;
+  plot_3d_landmarks_every_frame_ = config.viz_landmarks_every_frame;
 }
 
 bool VisualOdometry::IsInited() {
@@ -106,8 +113,10 @@ bool VisualOdometry::AddNewFrame(std::unique_ptr<ImageFrame> frame) {
   EstimateLastFrame();
   map_.PrintStats();
 
-  if (map_.num_frame() % 5 == 0)
+  if (map_.num_frame() % optimize_every_frame_ == 0)
     OptimizeMap();
+  else if (plot_3d_landmarks_ && map_.num_frame() % plot_3d_landmarks_every_frame_ == 0)
+    VisualizeMap();
 
   return true;
 }
@@ -166,7 +175,6 @@ bool VisualOdometry::EstimateLastFrame() {
   TriangulatePoints(kp0, kp1, camera_model_->K(), pose0.R, pose0.t,
                     pose1.R, pose1.t, new_points3d, new_points3d_mask);
 
-    // TODO: points not added
   if (!map_.AddInitedPoints(new_points3d, new_points3d_mask))
     return false;
 

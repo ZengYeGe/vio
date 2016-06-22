@@ -3,7 +3,11 @@ VisualOdometry:
   VisualizeTracking: 1
   # 0 is press key to continue
   TimePerFrame: 10
-  OptimizePerFrame: 5
+
+  VisualizeLandmarks: 1
+  VisualizeLandmarksEveryNumFrame: 1
+
+  OptimizeEveryNumFrame: 5
 
 FeatureTracker:
   #  OCV_BASIC_DETECTOR = 0,
