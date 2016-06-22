@@ -25,6 +25,7 @@ struct VisualOdometryConfig {
       return false;
     }
     pipeline_config["FeatureTracker"] >> feature_tracker_option;
+    pipeline_config["FeatureMatcher"] >> feature_matcher_option;
     pipeline_config["MapInitializer"] >> map_initializer_option;
     return true;
   }
@@ -43,6 +44,7 @@ struct VisualOdometryConfig {
   CameraModelParams camera_model_params;
 
   FeatureTrackerOptions feature_tracker_option;
+  FeatureMatcherOptions feature_matcher_option;
   MapInitializerOptions map_initializer_option;
 
 };

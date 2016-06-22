@@ -1,12 +1,31 @@
 %YAML:1.0
 FeatureTracker:
-#  OCV_BASIC_DETECTOR = 0,
-#  OCV_BASIC_DETECTOR_EXTRACTOR = 1
-#  SEARCH_BY_PROJECTION = 2
+  #  OCV_BASIC_DETECTOR = 0,
+  #  OCV_BASIC_DETECTOR_EXTRACTOR = 1
   Method: 1
   DetectorType: "FAST"
   max_num_feature: 5000
   DescriptorType: "DAISY"
+FeatureMatcher:
+  UseRatioTest: 1
+  RatioTestThresh: 0.9
+
+  UseSymmetryTest: 1
+
+  MaxDistToEpipolarLine: 0.5
+  LevelOfConfidence: 0.999 
+  MaxMatchPerFeature: 2
+
+  # BRUTE_FORCE = 0
+  # GRID_SEARCH = 1
+  Method: 1
+  # FeatureMatcherOCV:
+  OCVMatcherType: "BruteForce"
+  # FeatureMatcherGridSearch:
+  # Hamming = 0
+  # Norm_L2 = 1
+  DistType: 1
+  PixelSearchRange: 20
 MapInitializer:
   Method: 2
   F_USE_RANSAC: 1

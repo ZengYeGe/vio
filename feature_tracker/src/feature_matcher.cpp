@@ -4,6 +4,17 @@
 
 namespace vio {
 
+FeatureMatcher *FeatureMatcher::CreateFeatureMatcher(FeatureMatcherOptions option) {
+  switch (option.method) {
+    case OCV:
+      return CreateFeatureMatcherOCV(option);
+    case GRID_SEARCH:
+      return CreateFeatureMatcherGridSearch(option);
+    default:
+      return nullptr;
+  }
+}
+
 bool FeatureMatcher::SymmetryTestFilter(
     const std::vector<cv::DMatch> &matches1,
     const std::vector<cv::DMatch> &matches2,

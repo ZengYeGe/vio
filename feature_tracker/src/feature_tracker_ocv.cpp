@@ -1,57 +1,50 @@
 #include "feature_tracker_ocv.hpp"
 
+#include <iostream>
+
 #include "../../util/include/timer.hpp"
 #include "feature_matcher_ocv.hpp"
 #include "feature_matcher_grid_search.hpp"
 
 namespace vio {
 
-FeatureTracker *FeatureTracker::CreateFeatureTrackerOCV(FeatureTrackerOptions option) {
-  cv::Ptr<cv::FeatureDetector> detector;
-  cv::Ptr<cv::DescriptorExtractor> descriptor;
-
-  if (option.detector_type == "ORB") {
-    detector = cv::ORB::create(option.max_num_feature);
-  } else if (option.detector_type == "FAST") {
-    detector = cv::FastFeatureDetector::create();
-  } else {
-    return nullptr;
-  }
-
-  // If use descriptor
-  if (option.method == OCV_BASIC_DETECTOR_EXTRACTOR) {
-    if (option.descriptor_type == "DAISY") {
-      descriptor = cv::xfeatures2d::DAISY::create();
-    } else if (option.descriptor_type == "ORB") {
-      descriptor = cv::ORB::create();
-    } else {
-      return nullptr;
-    }
-  }
-
+FeatureTracker *FeatureTracker::CreateFeatureTrackerOCV(FeatureTrackerOptions option,
+                                                        FeatureMatcher *matcher) {
   switch (option.method) {
     case OCV_BASIC_DETECTOR:
-      return new FeatureTrackerOCV(detector);
     case OCV_BASIC_DETECTOR_EXTRACTOR:
-      return new FeatureTrackerOCV(detector, descriptor);
+      return new FeatureTrackerOCV(option, matcher);
     default:
       return nullptr;
   }
 }
 
-FeatureTrackerOCV::FeatureTrackerOCV(cv::Ptr<cv::FeatureDetector> detector) {
-  detector_ = detector;
-  detector_type_ = DETECTORONLY;
-  InitTracker();
-}
+FeatureTrackerOCV::FeatureTrackerOCV(FeatureTrackerOptions option,
+                                     FeatureMatcher *matcher)
+    : detector_type_(DETECTORONLY) {
+  if (option.detector_type == "ORB") {
+    detector_ = cv::ORB::create(option.max_num_feature);
+    std::cout << "Created ORB Detector.\n";
+  } else if (option.detector_type == "FAST") {
+    detector_ = cv::FastFeatureDetector::create();
+    std::cout << "Created FAST Detector.\n";
+  } else {
+    return;
+  }
 
-FeatureTrackerOCV::FeatureTrackerOCV(
-    cv::Ptr<cv::FeatureDetector> detector,
-    cv::Ptr<cv::DescriptorExtractor> extractor) {
-  detector_ = detector;
-  extractor_ = extractor;
-  detector_type_ = DETECTORDESCRIPTOR;
-  InitTracker();
+  if (option.detector_type != option.descriptor_type) {
+    detector_type_ = DETECTORDESCRIPTOR;
+    if (option.descriptor_type == "DAISY") {
+      descriptor_ = cv::xfeatures2d::DAISY::create();
+      std::cout << "Created DAISY Descriptor.\n";
+    } else if (option.descriptor_type == "ORB") {
+      descriptor_ = cv::ORB::create();
+      std::cout << "Created ORB Descriptor.\n";
+    } else {
+      return;
+    }
+  }
+  matcher_ = matcher;
 }
 
 bool FeatureTrackerOCV::TrackFirstFrame(ImageFrame &output_frame) {
@@ -61,15 +54,14 @@ bool FeatureTrackerOCV::TrackFirstFrame(ImageFrame &output_frame) {
 bool FeatureTrackerOCV::TrackFrame(const ImageFrame &prev_frame,
                                    ImageFrame &new_frame,
                                    std::vector<cv::DMatch> &matches) {
+  if (!matcher_) {
+    std::cerr << "Error: FeatureMatcher not set up.\n";
+    return false;
+  }
   ComputeFeatures(new_frame);
   if (!matcher_->Match(prev_frame, new_frame, matches))
     return false;
   return true;
-}
-
-void FeatureTrackerOCV::InitTracker() {
- // matcher_ = new FeatureMatcherOCV(); 
-  matcher_ = new FeatureMatcherGridSearch();
 }
 
 void FeatureTrackerOCV::ComputeFeatures(ImageFrame &frame) {
@@ -87,7 +79,7 @@ void FeatureTrackerOCV::ComputeFeatures(ImageFrame &frame) {
     std::vector<cv::KeyPoint> kp;
     cv::Mat desc;
     detector_->detect(frame.GetImage(), kp);
-    extractor_->compute(frame.GetImage(), kp, desc);
+    descriptor_->compute(frame.GetImage(), kp, desc);
 
     frame.set_keypoints(kp);
     frame.set_descriptors(desc);

@@ -4,6 +4,14 @@
 
 namespace vio {
 
+FeatureMatcher *FeatureMatcher::CreateFeatureMatcherGridSearch(FeatureMatcherOptions option) {
+  return new FeatureMatcherGridSearch(option);
+}
+
+FeatureMatcherGridSearch::FeatureMatcherGridSearch(FeatureMatcherOptions option) {
+
+}
+
 bool FeatureMatcherGridSearch::Match(const ImageFrame &frame0, const ImageFrame &frame1,
                      std::vector<cv::DMatch> &matches) {
   std::vector<std::vector<cv::DMatch> > matches_0to1_k, matches_1to0_k;    

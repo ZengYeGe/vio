@@ -6,6 +6,20 @@
 
 namespace vio {
 
+FeatureMatcher *FeatureMatcher::CreateFeatureMatcherOCV(FeatureMatcherOptions option) {
+  return new FeatureMatcherOCV(option);
+}
+
+FeatureMatcherOCV::FeatureMatcherOCV(FeatureMatcherOptions option) {
+    // TODO: Decide matcher based on descriptors
+    // Hamming-distance works only for binary feature-types like ORB, FREAK
+    // matcher_ = cv::DescriptorMatcher::create("BruteForce-Hamming");
+    matcher_ = cv::DescriptorMatcher::create(option.ocv_matcher_type);
+
+    std::cout << "Created OCV Matcher " << option.ocv_matcher_type << std::endl;
+    // matcher_ = cv::DescriptorMatcher::create("FlannBased");
+}
+
 bool FeatureMatcherOCV::Match(const ImageFrame &frame0, const ImageFrame &frame1,
                      std::vector<cv::DMatch> &matches) {
   const std::vector<cv::KeyPoint> &kp0 = frame0.keypoints();

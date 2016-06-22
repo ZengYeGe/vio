@@ -7,52 +7,11 @@
 #include <string>
 #include <vector>
 
+#include "feature_tracker_options.hpp"
 #include "feature_matcher.hpp"
+#include "image_frame.hpp"
 
 namespace vio {
-
-enum FeatureTrackerMethod {
-  OCV_BASIC_DETECTOR = 0,
-  OCV_BASIC_DETECTOR_EXTRACTOR,
-  SEARCH_BY_PROJECTION
-};
-
-class FeatureTrackerOptions {
- public:
-  FeatureTrackerOptions ()
-      : method(OCV_BASIC_DETECTOR_EXTRACTOR),
-        detector_type("ORB"),
-        max_num_feature(10000),
-        descriptor_type("DAISY") {}
-
-  FeatureTrackerMethod method;
-
-  // Detector
-  std::string detector_type;
-  int max_num_feature;
-
-  // Descriptor
-  std::string descriptor_type;
-  
-  void read(const cv::FileNode& node) {
-    method = static_cast<FeatureTrackerMethod>((int)node["Method"]);
-    detector_type = (std::string)node["DetectorType"];
-    max_num_feature = (int)node["max_num_feature"];
-
-    descriptor_type = (std::string)node["DescriptorType"];
-  }
-  
-};
-
-// Following must be defined for the serialization in FileStorage to work
-static void read(const cv::FileNode& node, FeatureTrackerOptions& x,
-                 const FeatureTrackerOptions& default_value = FeatureTrackerOptions()){
-    if(node.empty())
-        x = default_value;
-    else
-        x.read(node);
-}
-
 
 class FeatureTracker {
  public:
@@ -60,9 +19,10 @@ class FeatureTracker {
   ~FeatureTracker() {}
 
   static FeatureTracker *CreateFeatureTracker(
-    FeatureTrackerOptions option);
+    FeatureTrackerOptions option, FeatureMatcher *matcher);
 
-  static FeatureTracker *CreateFeatureTrackerOCV(FeatureTrackerOptions option);
+  static FeatureTracker *CreateFeatureTrackerOCV(FeatureTrackerOptions option,
+                                                 FeatureMatcher *matcher);
 
   // TODO: Could change to const.
   virtual bool TrackFirstFrame(ImageFrame &output_frame) = 0;
@@ -70,7 +30,10 @@ class FeatureTracker {
   virtual bool TrackFrame(const ImageFrame &prev_frame,
                           ImageFrame &output_frame,
                           std::vector<cv::DMatch> &matches) = 0;
+ protected:
+  FeatureMatcher *matcher_;
 };
+
 }  // vio
 
 #endif

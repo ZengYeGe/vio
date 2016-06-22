@@ -9,7 +9,9 @@ VisualOdometry::VisualOdometry(const VisualOdometryConfig &config)
 
   camera_model_ = new CameraModel(config.camera_model_params);
 
-  feature_tracker_ = FeatureTracker::CreateFeatureTracker(config.feature_tracker_option);
+  FeatureMatcher *matcher = FeatureMatcher::CreateFeatureMatcher(config.feature_matcher_option);
+
+  feature_tracker_ = FeatureTracker::CreateFeatureTracker(config.feature_tracker_option, matcher);
   map_initializer_ = MapInitializer::CreateMapInitializer(config.map_initializer_option);
 
   pnp_estimator_ = PnPEstimator::CreatePnPEstimator(ITERATIVE);
