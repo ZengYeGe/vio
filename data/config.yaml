@@ -1,10 +1,16 @@
 %YAML:1.0
+VisualOdometry:
+  VisualizeTracking: 1
+  # 0 is press key to continue
+  TimePerFrame: 10
+  OptimizePerFrame: 5
+
 FeatureTracker:
   #  OCV_BASIC_DETECTOR = 0,
   #  OCV_BASIC_DETECTOR_EXTRACTOR = 1
   Method: 1
   DetectorType: "FAST"
-  max_num_feature: 5000
+  max_num_feature: 10000
   DescriptorType: "DAISY"
 FeatureMatcher:
   UseRatioTest: 1

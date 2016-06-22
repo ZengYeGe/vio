@@ -59,6 +59,7 @@ class MapInitializer8Point : public MapInitializer {
   // cv::Mat ComputeEfromF(const cv::Mat &F, const cv::Mat &K);
   void DecomposeE(const cv::Mat &E, cv::Mat &R1, cv::Mat &R2, cv::Mat &t);
 
+  int min_triangluated_;
 };
 
 }  // vio

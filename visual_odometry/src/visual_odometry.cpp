@@ -19,6 +19,9 @@ VisualOdometry::VisualOdometry(const VisualOdometryConfig &config)
 
   if (IsInited())
     status_ = INITED;
+
+  plot_tracking_ = config.viz_tracking;
+  tracking_wait_time_ = config.time_per_frame; 
 }
 
 bool VisualOdometry::IsInited() {
@@ -82,11 +85,11 @@ bool VisualOdometry::AddNewFrame(std::unique_ptr<ImageFrame> frame) {
     return false;
   }
 
-/*
   if (plot_tracking_)
     PlotTracking(*frame, map_.GetLastKeyframe().image_frame(), matches);
   // TODO: Refine Keyframe Selector.
   // TODO: Add select keyframe for initialization
+/*
   if (!keyframe_selector_.isKeyframe(matches)) {
     std::cout << "Skipped a frame. Not selected as keyframe.\n";
     return true; 
@@ -126,6 +129,7 @@ bool VisualOdometry::InitializeLandmarks() {
   if (!map_initializer_->Initialize(feature_vectors, camera_model_->K(), points_3d_est,
                               points_3d_mask, R_seq_est, t_seq_est))
     return false;
+
   if (!map_.AddInitialization(points_3d_est, points_3d_mask, R_seq_est, t_seq_est))
     return false;
 
@@ -214,7 +218,7 @@ void VisualOdometry::PlotTracking(const ImageFrame &frame0, const ImageFrame &fr
            cv::Scalar(255, 0, 0), thickness);
     }
     cv::imshow("tracking_result", output_img);
-    cv::waitKey(50);
+    cv::waitKey(tracking_wait_time_);
 }
 
 } // vio

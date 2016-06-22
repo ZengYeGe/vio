@@ -50,8 +50,9 @@ bool MapInitializer8Point::InitializeTwoFrames(
   std::vector<bool> match_inlier_mask(kp0.size(), true);
 
   cv::Mat R_final, t_final;
-  SelectSolutionRT(Rs, ts, K, kp0, kp1, match_inlier_mask, R_final, t_final,
-                   points3d, points3d_mask);
+  if (!SelectSolutionRT(Rs, ts, K, kp0, kp1, match_inlier_mask, R_final, t_final,
+                   points3d, points3d_mask))
+    return false;
 
   R_est.resize(2);
   t_est.resize(2);

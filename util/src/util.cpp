@@ -46,7 +46,8 @@ void VisualizeCamerasAndPoints(const cv::Matx33d &K,
   std::cout << "Recovering cameras ... ";
 
   std::vector<cv::Affine3d> path;
-  for (size_t i = 0; i < Rs.size(); ++i) path.push_back(cv::Affine3d(Rs[i], ts[i]));
+  for (size_t i = 0; i < Rs.size(); ++i)
+    path.push_back(cv::Affine3d(Rs[i], ts[i]));
 
   std::cout << "[DONE]" << std::endl;
 

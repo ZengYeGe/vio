@@ -27,6 +27,11 @@ struct VisualOdometryConfig {
     pipeline_config["FeatureTracker"] >> feature_tracker_option;
     pipeline_config["FeatureMatcher"] >> feature_matcher_option;
     pipeline_config["MapInitializer"] >> map_initializer_option;
+
+    // Setup pipeline
+    const cv::FileNode &node = pipeline_config["VisualOdometry"];
+    viz_tracking = (int)node["VisualizeTracking"] == 1;
+    time_per_frame = (int)node["TimePerFrame"];
     return true;
   }
 
@@ -47,6 +52,8 @@ struct VisualOdometryConfig {
   FeatureMatcherOptions feature_matcher_option;
   MapInitializerOptions map_initializer_option;
 
+  bool viz_tracking;
+  int time_per_frame; 
 };
 
 enum VO_Status {
@@ -106,6 +113,7 @@ class VisualOdometry {
   Keyframe *current_frame_;
 
   bool plot_tracking_;
+  int tracking_wait_time_;
 };
 
 } // vio
