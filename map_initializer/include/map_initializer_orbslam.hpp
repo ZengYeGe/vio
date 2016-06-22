@@ -15,7 +15,6 @@ class MapInitializerORBSLAM : public MapInitializer8Point {
       const cv::Mat &K, std::vector<cv::Point3f> &points3d,
       std::vector<bool> &points3d_mask, std::vector<cv::Mat> &Rs,
       std::vector<cv::Mat> &ts) override;
-
 };
 
-} // vio
+}  // vio

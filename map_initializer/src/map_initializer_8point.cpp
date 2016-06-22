@@ -4,7 +4,8 @@
 
 namespace vio {
 
-MapInitializer *MapInitializer::CreateMapInitializer8Point(MapInitializerOptions option) {
+MapInitializer *MapInitializer::CreateMapInitializer8Point(
+    MapInitializerOptions option) {
   MapInitializer *initializer = new MapInitializer8Point(option);
   return initializer;
 }
@@ -50,8 +51,8 @@ bool MapInitializer8Point::InitializeTwoFrames(
   std::vector<bool> match_inlier_mask(kp0.size(), true);
 
   cv::Mat R_final, t_final;
-  if (!SelectSolutionRT(Rs, ts, K, kp0, kp1, match_inlier_mask, R_final, t_final,
-                   points3d, points3d_mask))
+  if (!SelectSolutionRT(Rs, ts, K, kp0, kp1, match_inlier_mask, R_final,
+                        t_final, points3d, points3d_mask))
     return false;
 
   R_est.resize(2);
@@ -122,7 +123,8 @@ bool MapInitializer8Point::SelectSolutionRT(
 }
 
 bool MapInitializer8Point::ComputeFundamental(const std::vector<cv::Vec2d> &kp0,
-                                              const std::vector<cv::Vec2d> &kp1, cv::Mat &F) {
+                                              const std::vector<cv::Vec2d> &kp1,
+                                              cv::Mat &F) {
   if (option_.use_f_ransac) {
     F = ComputeFundamentalOCV(kp0, kp1);
     if (option_.verbose) std::cout << "F from OpenCV: \n" << F << std::endl;
@@ -152,9 +154,9 @@ bool MapInitializer8Point::ComputeFundamental(const std::vector<cv::Vec2d> &kp0,
     if (option_.verbose) std::cout << "F :\n" << F << std::endl;
   }
 
-  return true; 
+  return true;
 }
- 
+
 bool MapInitializer8Point::ComputeFundamentalDLT(
     const std::vector<cv::Vec2d> &kp0, const std::vector<cv::Vec2d> &kp1,
     cv::Mat &F) {
@@ -204,9 +206,8 @@ cv::Mat MapInitializer8Point::ComputeFundamentalOCV(
   // Default use ransac
   cv::Mat F = cv::findFundamentalMat(points0, points1, CV_FM_RANSAC,
                                      option_.f_ransac_max_dist_to_epipolar,
-                                     option_.f_ransac_confidence,
-                                     mask);
-   return F;
+                                     option_.f_ransac_confidence, mask);
+  return F;
 }
 
 void MapInitializer8Point::DecomposeE(const cv::Mat &E, cv::Mat &R1,
@@ -330,57 +331,58 @@ int MapInitializer8Point::EvaluateSolutionRT(
     double error0 = ComputeReprojectionError(point3d, kp0[i], P0);
     double error1 = ComputeReprojectionError(point3d, kp1[i], P1);
 
-    if (error0 > option_.reprojection_error_thres || error1 > option_.reprojection_error_thres) {
+    if (error0 > option_.reprojection_error_thres ||
+        error1 > option_.reprojection_error_thres) {
       nLargeError++;
       points3d_mask.push_back(false);
       points_3d.push_back(cv::Point3f(0, 0, 0));
       continue;
     }
-  
+
     nGood++;
     points3d_mask.push_back(true);
     points_3d.push_back(point3d);
- /*
-        // std::cout << "Parallax: " << cosParallax << std::endl;
-        // Check depth in front of first camera (only if enough parallax, as
-        // "infinite" points can easily go to negative depth)
-        if (p3dC1.at<double>(2) <= 0 && cosParallax < 0.99998) continue;
+    /*
+           // std::cout << "Parallax: " << cosParallax << std::endl;
+           // Check depth in front of first camera (only if enough parallax, as
+           // "infinite" points can easily go to negative depth)
+           if (p3dC1.at<double>(2) <= 0 && cosParallax < 0.99998) continue;
 
-        // Check depth in front of second camera (only if enough parallax, as
-        // "infinite" points can easily go to negative depth)
-        cv::Mat p3dC2 = R * p3dC1 + t;
+           // Check depth in front of second camera (only if enough parallax, as
+           // "infinite" points can easily go to negative depth)
+           cv::Mat p3dC2 = R * p3dC1 + t;
 
-        if (p3dC2.at<double>(2) <= 0 && cosParallax < 0.99998) continue;
+           if (p3dC2.at<double>(2) <= 0 && cosParallax < 0.99998) continue;
 
-        // Check reprojection error in first image
-        double im1x, im1y;
-        double invZ1 = 1.0 / p3dC1.at<double>(2);
-        im1x = fx * p3dC1.at<double>(0) * invZ1 + cx;
-        im1y = fy * p3dC1.at<double>(1) * invZ1 + cy;
+           // Check reprojection error in first image
+           double im1x, im1y;
+           double invZ1 = 1.0 / p3dC1.at<double>(2);
+           im1x = fx * p3dC1.at<double>(0) * invZ1 + cx;
+           im1y = fy * p3dC1.at<double>(1) * invZ1 + cy;
 
-        double squareError1 = (im1x - kp0[i][0]) * (im1x - kp0[i][0]) +
-                              (im1y - kp0[i][1]) * (im1y - kp0[i][1]);
+           double squareError1 = (im1x - kp0[i][0]) * (im1x - kp0[i][0]) +
+                                 (im1y - kp0[i][1]) * (im1y - kp0[i][1]);
 
-        if (squareError1 > th2) continue;
+           if (squareError1 > th2) continue;
 
-        // Check reprojection error in second image
-        double im2x, im2y;
-        double invZ2 = 1.0 / p3dC2.at<double>(2);
-        im2x = fx * p3dC2.at<double>(0) * invZ2 + cx;
-        im2y = fy * p3dC2.at<double>(1) * invZ2 + cy;
+           // Check reprojection error in second image
+           double im2x, im2y;
+           double invZ2 = 1.0 / p3dC2.at<double>(2);
+           im2x = fx * p3dC2.at<double>(0) * invZ2 + cx;
+           im2y = fy * p3dC2.at<double>(1) * invZ2 + cy;
 
-        double squareError2 = (im2x - kp1[i][0]) * (im2x - kp1[i][0]) +
-                              (im2y - kp1[i][1]) * (im2y - kp1[i][1]);
+           double squareError2 = (im2x - kp1[i][0]) * (im2x - kp1[i][0]) +
+                                 (im2y - kp1[i][1]) * (im2y - kp1[i][1]);
 
-        if (squareError2 > th2) continue;
+           if (squareError2 > th2) continue;
 
-        vCosParallax.push_back(cosParallax);
-        points_3d[i] = cv::Point3f(p3dC1.at<double>(0), p3dC1.at<double>(1),
-                                   p3dC1.at<double>(2));
-        nGood++;
+           vCosParallax.push_back(cosParallax);
+           points_3d[i] = cv::Point3f(p3dC1.at<double>(0), p3dC1.at<double>(1),
+                                      p3dC1.at<double>(2));
+           nGood++;
 
-        if (cosParallax < 0.99998) vbGood[i] = true;
-    */
+           if (cosParallax < 0.99998) vbGood[i] = true;
+       */
   }
   /*
     if (nGood > 0) {

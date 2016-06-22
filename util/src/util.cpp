@@ -11,8 +11,8 @@ bool GetImageNamesInFolder(const std::string &path, const std::string &format,
     for (int i = 0; i < n; ++i) {
       std::string file_name(file_list[i]->d_name);
       if (file_name.size() > format.size() &&
-          !file_name.compare(file_name.size() - format.size(),
-                             format.size(), format)) {
+          !file_name.compare(file_name.size() - format.size(), format.size(),
+                             format)) {
         images.push_back(path + '/' + file_name);
       }
     }
@@ -68,8 +68,8 @@ void VisualizeCamerasAndPoints(const cv::Matx33d &K,
     std::cout << "Rendering Cameras  ... ";
 
     window.showWidget("cameras_frames_and_lines",
-                      cv::viz::WTrajectory(path, cv::viz::WTrajectory::BOTH, 0.1,
-                                       cv::viz::Color::green()));
+                      cv::viz::WTrajectory(path, cv::viz::WTrajectory::BOTH,
+                                           0.1, cv::viz::Color::green()));
     window.showWidget(
         "cameras_frustums",
         cv::viz::WTrajectoryFrustums(path, K, 0.1, cv::viz::Color::yellow()));
@@ -82,8 +82,7 @@ void VisualizeCamerasAndPoints(const cv::Matx33d &K,
   }
 
   /// Wait for key 'q' to close the window
-  std::cout << std::endl
-       << "Press 'q' to close each windows ... " << std::endl;
+  std::cout << std::endl << "Press 'q' to close each windows ... " << std::endl;
 
   window.spin();
 }

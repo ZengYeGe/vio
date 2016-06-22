@@ -8,10 +8,8 @@ struct BasicReprojectionError {
       : observed_x(observed_x), observed_y(observed_y) {}
 
   template <typename T>
-  bool operator()(const T *const camera_intrinsics,
-                  const T *const camera_R_t,
-                  const T *const point,
-                  T *residuals) const {
+  bool operator()(const T *const camera_intrinsics, const T *const camera_R_t,
+                  const T *const point, T *residuals) const {
     // camera[0,1,2] are the angle-axis rotation.
     T p[3];
     ceres::AngleAxisRotatePoint(camera_R_t, point, p);
@@ -53,4 +51,4 @@ struct BasicReprojectionError {
   double observed_y;
 };
 
-} // vio
+}  // vio

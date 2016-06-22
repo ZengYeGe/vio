@@ -2,7 +2,8 @@
 
 namespace vio {
 
-GraphOptimizer *GraphOptimizer::CreateGraphOptimizer(GraphOptimizerMethod method) {
+GraphOptimizer *GraphOptimizer::CreateGraphOptimizer(
+    GraphOptimizerMethod method) {
   switch (method) {
     case CERES:
       return CreateGraphOptimizerCeres();
@@ -11,4 +12,4 @@ GraphOptimizer *GraphOptimizer::CreateGraphOptimizer(GraphOptimizerMethod method
   }
 }
 
-} // vio
+}  // vio

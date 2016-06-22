@@ -11,10 +11,7 @@
 
 namespace vio {
 
-enum FeatureMatcherMethod {
-  OCV = 0,
-  GRID_SEARCH
-};
+enum FeatureMatcherMethod { OCV = 0, GRID_SEARCH };
 
 class FeatureMatcherOptions {
  public:
@@ -37,13 +34,13 @@ class FeatureMatcherOptions {
 
   FeatureMatcherMethod method;
   // FeatureMatcherOCV
-  std::string ocv_matcher_type;  
+  std::string ocv_matcher_type;
 
   // FeatureMatcherGridSearch
   int desc_dist_type;
   double pixel_search_range;
 
-  void read(const cv::FileNode& node) {
+  void read(const cv::FileNode &node) {
     method = static_cast<FeatureMatcherMethod>((int)node["Method"]);
     max_dist_to_epipolar_line = (double)node["MaxDistToEpipolarLine"];
     level_of_confidence = (double)node["LevelOfConfidence"];
@@ -63,24 +60,24 @@ class FeatureMatcherOptions {
 };
 
 // Following must be defined for the serialization in FileStorage to work
-static void read(const cv::FileNode& node, FeatureMatcherOptions& x,
-                 const FeatureMatcherOptions& default_value = FeatureMatcherOptions()){
-    if(node.empty())
-        x = default_value;
-    else
-        x.read(node);
+static void read(
+    const cv::FileNode &node, FeatureMatcherOptions &x,
+    const FeatureMatcherOptions &default_value = FeatureMatcherOptions()) {
+  if (node.empty())
+    x = default_value;
+  else
+    x.read(node);
 }
 
 class FeatureMatcher {
  public:
-  FeatureMatcher()
-      : max_match_per_desc_(2),
-        nn_match_ratio_(0.9f) {}
+  FeatureMatcher() : max_match_per_desc_(2), nn_match_ratio_(0.9f) {}
 
   static FeatureMatcher *CreateFeatureMatcher(FeatureMatcherOptions option);
 
   static FeatureMatcher *CreateFeatureMatcherOCV(FeatureMatcherOptions option);
-  static FeatureMatcher *CreateFeatureMatcherGridSearch(FeatureMatcherOptions option);
+  static FeatureMatcher *CreateFeatureMatcherGridSearch(
+      FeatureMatcherOptions option);
 
   // TODO: Consider change to const.
   virtual bool Match(const ImageFrame &frame0, const ImageFrame &frame1,
@@ -94,11 +91,11 @@ class FeatureMatcher {
   bool RatioTestFilter(std::vector<std::vector<cv::DMatch> > best_k,
                        std::vector<cv::DMatch> &matches);
 
-  bool RemoveOutlierMatch(
-    const std::vector<cv::KeyPoint> &pre_kp,
-    const std::vector<cv::KeyPoint> &cur_kp, std::vector<cv::DMatch> &matches);
+  bool RemoveOutlierMatch(const std::vector<cv::KeyPoint> &pre_kp,
+                          const std::vector<cv::KeyPoint> &cur_kp,
+                          std::vector<cv::DMatch> &matches);
 
-   double nn_match_ratio_;
+  double nn_match_ratio_;
   int max_match_per_desc_;
 };
 

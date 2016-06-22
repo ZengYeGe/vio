@@ -3,7 +3,6 @@
 int PrintCommandUsage();
 
 int main(int argc, char **argv) {
-
   Options option;
   // Required and optional arguments.
   for (int i = 0; i < argc; ++i) {
@@ -23,8 +22,7 @@ int main(int argc, char **argv) {
     return PrintCommandUsage();
 
   // Determine test type.
-  if (argc < 2 || strcmp(argv[1], "--type"))
-    return PrintCommandUsage();
+  if (argc < 2 || strcmp(argv[1], "--type")) return PrintCommandUsage();
 
   // ----------------------------Test images from dataset ---------------
   if (!strcmp(argv[2], "dataset")) {
@@ -42,7 +40,7 @@ int main(int argc, char **argv) {
     // Start to test
     TestFramesInFolder(option, vo_config);
 
-  // ----------------------------Test video file ------------------------
+    // ----------------------------Test video file ------------------------
   } else if (!strcmp(argv[2], "video")) {
     for (int i = 3; i < argc; ++i) {
       if (!strcmp(argv[i], "-p") || !strcmp(argv[i], "--path")) {
@@ -56,8 +54,7 @@ int main(int argc, char **argv) {
     if (option.path.empty() || option.calibration_filename.empty())
       return PrintCommandUsage();
 
-    if (!vo_config.SetUpCameraFromFile(option.calibration_filename))
-      return -1;
+    if (!vo_config.SetUpCameraFromFile(option.calibration_filename)) return -1;
 
     // Start to test
     TestVideo(option, vo_config);
@@ -66,8 +63,8 @@ int main(int argc, char **argv) {
     return PrintCommandUsage();
   }
 
-//  if (option.match_file_name.size())
-//    return TestTwoFrameWithAccurateMatchFile(option);
+  //  if (option.match_file_name.size())
+  //    return TestTwoFrameWithAccurateMatchFile(option);
   return 0;
 }
 
@@ -76,15 +73,14 @@ int PrintCommandUsage() {
   cout << "Usage: ./vio_app_test --type [dataset] | [video] | [camera]\n";
   cout << "\n    For [dataset]:\n";
   cout << "            -p, --path : path to dataset \n";
-  cout << "            -f, --format : image format of the dataset, e.g png, jpg\n";
+  cout << "            -f, --format : image format of the dataset, e.g png, "
+          "jpg\n";
   cout << "\n    For [video] :\n";
   cout << "            -p, --path : path to video file.\n";
   cout << "            -c, --calibration_file : path to camera config file.\n";
   cout << "\n    Other Required options:\n";
-  cout << "            --config : path and name of configuration file.\n"; 
+  cout << "            --config : path and name of configuration file.\n";
   cout << "\n    Other Optional options:\n";
   cout << "            --keyframe, select key frame\n";
   return -1;
 }
-
-

@@ -4,7 +4,8 @@
 
 namespace vio {
 
-MapInitializer *MapInitializer::CreateMapInitializerORBSLAM(MapInitializerOptions option) {
+MapInitializer *MapInitializer::CreateMapInitializerORBSLAM(
+    MapInitializerOptions option) {
   MapInitializer *initializer = new MapInitializerORBSLAM(option);
   return initializer;
 }
@@ -14,7 +15,6 @@ bool MapInitializerORBSLAM::Initialize(
     const cv::Mat &K, std::vector<cv::Point3f> &points3d,
     std::vector<bool> &points3d_mask, std::vector<cv::Mat> &Rs,
     std::vector<cv::Mat> &ts) {
-
   if (feature_vectors.size() != 2) {
     std::cerr << "Error: F_or_H initializer only support two views.\n";
     return false;
@@ -24,4 +24,4 @@ bool MapInitializerORBSLAM::Initialize(
                              points3d, points3d_mask, Rs, ts);
 }
 
-} // vio
+}  // vio

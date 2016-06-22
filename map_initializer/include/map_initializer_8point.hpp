@@ -6,8 +6,7 @@ namespace vio {
 
 class MapInitializer8Point : public MapInitializer {
  public:
-  MapInitializer8Point(MapInitializerOptions option)
-      : MapInitializer(option) {}
+  MapInitializer8Point(MapInitializerOptions option) : MapInitializer(option) {}
   ~MapInitializer8Point() {}
 
   virtual bool Initialize(
@@ -41,15 +40,14 @@ class MapInitializer8Point : public MapInitializer {
 
   // Fundamental Matrix
   bool ComputeFundamental(const std::vector<cv::Vec2d> &kp0,
-                             const std::vector<cv::Vec2d> &kp1, cv::Mat &F);
+                          const std::vector<cv::Vec2d> &kp1, cv::Mat &F);
   // Handle n points, at least 8.
   bool ComputeFundamentalDLT(const std::vector<cv::Vec2d> &kp0,
                              const std::vector<cv::Vec2d> &kp1, cv::Mat &F);
   cv::Mat ComputeFundamentalOCV(const std::vector<cv::Vec2d> &kp0,
-                         const std::vector<cv::Vec2d> &kp1);
+                                const std::vector<cv::Vec2d> &kp1);
 
-
-  // Homograph Matrix 
+  // Homograph Matrix
 
   template <typename Point3Type>
   void TriangulatePoints(const std::vector<cv::Vec2d> &kp0,

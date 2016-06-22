@@ -4,7 +4,8 @@
 
 namespace vio {
 
-FeatureMatcher *FeatureMatcher::CreateFeatureMatcher(FeatureMatcherOptions option) {
+FeatureMatcher *FeatureMatcher::CreateFeatureMatcher(
+    FeatureMatcherOptions option) {
   switch (option.method) {
     case OCV:
       return CreateFeatureMatcherOCV(option);
@@ -30,7 +31,8 @@ bool FeatureMatcher::SymmetryTestFilter(
   for (std::vector<cv::DMatch>::const_iterator matchIterator = matches2.begin();
        matchIterator != matches2.end(); ++matchIterator) {
     auto match_ptr = match_map.find((*matchIterator).queryIdx);
-    if (match_ptr != match_map.end() && match_ptr->second == (*matchIterator).trainIdx) {
+    if (match_ptr != match_map.end() &&
+        match_ptr->second == (*matchIterator).trainIdx) {
       final_matches.push_back(cv::DMatch((*matchIterator).trainIdx,
                                          (*matchIterator).queryIdx,
                                          (*matchIterator).distance));
@@ -49,9 +51,9 @@ bool FeatureMatcher::RatioTestFilter(
   return true;
 }
 
-bool FeatureMatcher::RemoveOutlierMatch(
-    const std::vector<cv::KeyPoint> &pre_kp,
-    const std::vector<cv::KeyPoint> &cur_kp, std::vector<cv::DMatch> &matches) {
+bool FeatureMatcher::RemoveOutlierMatch(const std::vector<cv::KeyPoint> &pre_kp,
+                                        const std::vector<cv::KeyPoint> &cur_kp,
+                                        std::vector<cv::DMatch> &matches) {
   // TODO: Check the speed.
   std::vector<cv::Point2f> pre_matched_kp, cur_matched_kp;
   for (int i = 0; i < matches.size(); ++i) {
@@ -75,4 +77,4 @@ bool FeatureMatcher::RemoveOutlierMatch(
   return true;
 }
 
-} // vio
+}  // vio

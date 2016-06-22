@@ -62,11 +62,11 @@ void TriangulatePoints(const std::vector<cv::Vec2d> &kp0,
     double error0 = ComputeReprojectionError(points3d[i], kp0[i], P0);
     double error1 = ComputeReprojectionError(points3d[i], kp1[i], P1);
 
-    if (error0 > reprojection_error_thres || error1 > reprojection_error_thres) {
+    if (error0 > reprojection_error_thres ||
+        error1 > reprojection_error_thres) {
       nLargeError++;
       points3d_mask[i] = false;
     }
-
   }
   std::cout << "Found " << nParallal << " / " << kp0.size()
             << " parallal points during triangulation.\n";
@@ -76,8 +76,7 @@ void TriangulatePoints(const std::vector<cv::Vec2d> &kp0,
 
 template <typename Point3Type>
 void TriangulateDLT(const cv::Vec2d &kp1, const cv::Vec2d &kp2,
-                    const cv::Mat &P1, const cv::Mat &P2,
-                    Point3Type &point3d) {
+                    const cv::Mat &P1, const cv::Mat &P2, Point3Type &point3d) {
   cv::Mat A(4, 4, CV_64F);
 
   A.row(0) = kp1[0] * P1.row(2) - P1.row(0);
@@ -95,8 +94,7 @@ void TriangulateDLT(const cv::Vec2d &kp1, const cv::Vec2d &kp2,
   point3d.z = p3d_mat.at<double>(2) / p3d_mat.at<double>(3);
 }
 
-double ComputeReprojectionError(const cv::Point3f &point3d,
-                                const cv::Vec2d &kp,
+double ComputeReprojectionError(const cv::Point3f &point3d, const cv::Vec2d &kp,
                                 const cv::Mat &P) {
   cv::Mat point_mat(4, 1, CV_64F);
   point_mat.at<double>(0) = point3d.x;
@@ -113,10 +111,8 @@ double ComputeReprojectionError(const cv::Point3f &point3d,
   return error;
 }
 
-
 void Normalize(const std::vector<cv::Vec2d> &points,
-                               std::vector<cv::Vec2d> &normalized_points,
-                               cv::Mat &p2norm_p) {
+               std::vector<cv::Vec2d> &normalized_points, cv::Mat &p2norm_p) {
   // Hartley, etc, p107
   // 1. The points are translated so that their centroid is at the origin.
   // 2. The points are then scaled so that the average distance from the origin
@@ -175,9 +171,7 @@ bool MakeMatrixInhomogeneous(cv::Mat &M) {
       M.at<double>(i, j) = M.at<double>(i, j) / M.at<double>(2, 2);
 }
 
-
-bool SolveProjectionFromF(const cv::Mat &F, cv::Mat &P1,
-                                                cv::Mat &P2) {
+bool SolveProjectionFromF(const cv::Mat &F, cv::Mat &P1, cv::Mat &P2) {
   P1 = cv::Mat::eye(3, 4, CV_64F);
   P2 = cv::Mat::zeros(3, 4, CV_64F);
   cv::Mat e2 = cv::Mat::zeros(3, 1, CV_64F);

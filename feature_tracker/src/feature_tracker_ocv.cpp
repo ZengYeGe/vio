@@ -3,13 +3,13 @@
 #include <iostream>
 
 #include "../../util/include/timer.hpp"
-#include "feature_matcher_ocv.hpp"
 #include "feature_matcher_grid_search.hpp"
+#include "feature_matcher_ocv.hpp"
 
 namespace vio {
 
-FeatureTracker *FeatureTracker::CreateFeatureTrackerOCV(FeatureTrackerOptions option,
-                                                        FeatureMatcher *matcher) {
+FeatureTracker *FeatureTracker::CreateFeatureTrackerOCV(
+    FeatureTrackerOptions option, FeatureMatcher *matcher) {
   switch (option.method) {
     case OCV_BASIC_DETECTOR:
     case OCV_BASIC_DETECTOR_EXTRACTOR:
@@ -59,8 +59,7 @@ bool FeatureTrackerOCV::TrackFrame(const ImageFrame &prev_frame,
     return false;
   }
   ComputeFeatures(new_frame);
-  if (!matcher_->Match(prev_frame, new_frame, matches))
-    return false;
+  if (!matcher_->Match(prev_frame, new_frame, matches)) return false;
   return true;
 }
 

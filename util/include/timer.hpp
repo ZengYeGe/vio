@@ -1,9 +1,9 @@
-#include <sys/time.h>
 #include <inttypes.h>
+#include <sys/time.h>
 
 class Timer {
  public:
-  Timer() {};
+  Timer(){};
 
   void Start() { gettimeofday(&tv_start, NULL); }
 
@@ -12,7 +12,7 @@ class Timer {
   int64_t GetInMs() {
     const int64_t seconds = (tv_end.tv_sec - tv_start.tv_sec) * 1000;
     const int64_t milliseconds = (tv_end.tv_usec - tv_start.tv_usec) / 1000;
-    return seconds + milliseconds;  
+    return seconds + milliseconds;
   }
 
  private:

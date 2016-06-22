@@ -4,17 +4,18 @@
 
 namespace vio {
 
-FeatureMatcher *FeatureMatcher::CreateFeatureMatcherGridSearch(FeatureMatcherOptions option) {
+FeatureMatcher *FeatureMatcher::CreateFeatureMatcherGridSearch(
+    FeatureMatcherOptions option) {
   return new FeatureMatcherGridSearch(option);
 }
 
-FeatureMatcherGridSearch::FeatureMatcherGridSearch(FeatureMatcherOptions option) {
+FeatureMatcherGridSearch::FeatureMatcherGridSearch(
+    FeatureMatcherOptions option) {}
 
-}
-
-bool FeatureMatcherGridSearch::Match(const ImageFrame &frame0, const ImageFrame &frame1,
-                     std::vector<cv::DMatch> &matches) {
-  std::vector<std::vector<cv::DMatch> > matches_0to1_k, matches_1to0_k;    
+bool FeatureMatcherGridSearch::Match(const ImageFrame &frame0,
+                                     const ImageFrame &frame1,
+                                     std::vector<cv::DMatch> &matches) {
+  std::vector<std::vector<cv::DMatch> > matches_0to1_k, matches_1to0_k;
   Timer timer;
   timer.Start();
 
@@ -55,10 +56,11 @@ bool FeatureMatcherGridSearch::Match(const ImageFrame &frame0, const ImageFrame 
   timer.Start();
 
   RemoveOutlierMatch(frame0.keypoints(), frame1.keypoints(), matches);
-  //RemoveOutlierMatch(kp0, kp1, matches);
+  // RemoveOutlierMatch(kp0, kp1, matches);
 
   timer.Stop();
-  std::cout << "F matrix outlier test time used: " << timer.GetInMs() << "ms.\n";
+  std::cout << "F matrix outlier test time used: " << timer.GetInMs()
+            << "ms.\n";
 
   if (matches.size() < 3) {
     std::cerr << "Error: Not enough matches after outlier removal.\n";
@@ -68,9 +70,9 @@ bool FeatureMatcherGridSearch::Match(const ImageFrame &frame0, const ImageFrame 
   return true;
 }
 
-bool FeatureMatcherGridSearch::FindMatchNearFeatures(const ImageFrame &query_frame,
-                                                     const ImageFrame &ref_frame,
-                                                     std::vector<std::vector<cv::DMatch> > &matches) {
+bool FeatureMatcherGridSearch::FindMatchNearFeatures(
+    const ImageFrame &query_frame, const ImageFrame &ref_frame,
+    std::vector<std::vector<cv::DMatch> > &matches) {
   const std::vector<cv::KeyPoint> &kp0 = query_frame.keypoints();
   const cv::Mat &desc0 = query_frame.descriptors();
   const cv::Mat &desc1 = ref_frame.descriptors();
@@ -82,10 +84,9 @@ bool FeatureMatcherGridSearch::FindMatchNearFeatures(const ImageFrame &query_fra
     std::vector<int> near_f_id;
     // TODO: Make threshold argument.
     if (!ref_frame.GetNeighborKeypointsInRadius(kp, 20, near_f_id))
-      return false; // This means fail. Not just couldn't find matches.
+      return false;  // This means fail. Not just couldn't find matches.
     // Not enough matches, skip.
-    if (near_f_id.size() < 2)
-      continue; 
+    if (near_f_id.size() < 2) continue;
 
     // Find best 2 matches.
     double best_dist[2];
@@ -123,11 +124,10 @@ bool FeatureMatcherGridSearch::FindMatchNearFeatures(const ImageFrame &query_fra
     matches.push_back(match);
   }
 }
-                                               
-inline double FeatureMatcherGridSearch::ComputeDistance(const cv::Mat &mat0, const cv::Mat &mat1) {
+
+inline double FeatureMatcherGridSearch::ComputeDistance(const cv::Mat &mat0,
+                                                        const cv::Mat &mat1) {
   return cv::norm(mat0, mat1, cv::NORM_L2);
 }
 
-} // vio
-
-
+}  // vio

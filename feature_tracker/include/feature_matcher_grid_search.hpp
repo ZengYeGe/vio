@@ -12,7 +12,8 @@ class FeatureMatcherGridSearch : public FeatureMatcher {
   FeatureMatcherGridSearch(FeatureMatcherOptions option);
 
   bool Match(const ImageFrame &frame0, const ImageFrame &frame1,
-                     std::vector<cv::DMatch> &matches) override;
+             std::vector<cv::DMatch> &matches) override;
+
  private:
   bool FindMatchNearFeatures(const ImageFrame &query_frame,
                              const ImageFrame &ref_frame,
@@ -20,7 +21,6 @@ class FeatureMatcherGridSearch : public FeatureMatcher {
   // TODO: Make it inline
   double ComputeDistance(const cv::Mat &mat0, const cv::Mat &mat1);
 };
-
 
 }  // vio
 

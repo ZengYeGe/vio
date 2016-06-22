@@ -7,8 +7,8 @@
 #include "feature_tracker.hpp"
 #include "graph_optimizer.hpp"
 #include "keyframe_selector.hpp"
-#include "mapdata.hpp"
 #include "map_initializer.hpp"
+#include "mapdata.hpp"
 #include "multiview.hpp"
 #include "pnp_estimator.hpp"
 #include "util.hpp"
@@ -58,7 +58,7 @@ struct VisualOdometryConfig {
   int optimize_every_frame;
 
   bool viz_tracking;
-  int viz_time_per_frame; 
+  int viz_time_per_frame;
   bool viz_landmarks;
   int viz_landmarks_every_frame;
 };
@@ -70,7 +70,7 @@ enum VO_Status {
 
 enum TrackingStatus {
   ERROR = 0,
-  TRACKING_AVAILABLE = 1, 
+  TRACKING_AVAILABLE = 1,
   TRACKING_NOT_AVAILABLE = 2
 };
 
@@ -86,7 +86,7 @@ class VisualOdometry {
 
   void VisualizeMap();
 
- // Methods
+  // Methods
  private:
   bool AddFirstFrame(std::unique_ptr<ImageFrame> frame);
   bool AddNewFrame(std::unique_ptr<ImageFrame> frame);
@@ -98,9 +98,8 @@ class VisualOdometry {
 
   void PlotTracking(const ImageFrame &frame0, const ImageFrame &frame1,
                     const std::vector<cv::DMatch> &matches);
- // Variables
+  // Variables
  private:
-
   VO_Status status_;
 
   const CameraModel *camera_model_;
@@ -128,6 +127,6 @@ class VisualOdometry {
   int plot_3d_landmarks_every_frame_;
 };
 
-} // vio
+}  // vio
 
-#endif // VISUAL_ODOMETRY_
+#endif  // VISUAL_ODOMETRY_

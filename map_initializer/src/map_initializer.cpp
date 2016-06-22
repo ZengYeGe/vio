@@ -2,7 +2,8 @@
 
 namespace vio {
 
-MapInitializer *MapInitializer::CreateMapInitializer(MapInitializerOptions option) {
+MapInitializer *MapInitializer::CreateMapInitializer(
+    MapInitializerOptions option) {
   switch (option.method) {
     case LIVMV:
       return CreateMapInitializerLIBMV();

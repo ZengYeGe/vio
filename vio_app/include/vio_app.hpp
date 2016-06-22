@@ -21,7 +21,8 @@ struct Options {
 
 // int TestTwoFrameWithAccurateMatchFile(Options option);
 
-int TestFramesInFolder(const Options &option, vio::VisualOdometryConfig &vo_config);
+int TestFramesInFolder(const Options &option,
+                       vio::VisualOdometryConfig &vo_config);
 
 int TestVideo(const Options &option, const vio::VisualOdometryConfig &config);
 

@@ -14,8 +14,8 @@ class FeatureMatcherOCV : public FeatureMatcher {
 
   virtual bool Match(const ImageFrame &frame0, const ImageFrame &frame1,
                      std::vector<cv::DMatch> &matches);
- private:
 
+ private:
   cv::Ptr<cv::DescriptorMatcher> matcher_;
 };
 

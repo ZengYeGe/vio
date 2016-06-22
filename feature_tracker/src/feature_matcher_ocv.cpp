@@ -6,22 +6,24 @@
 
 namespace vio {
 
-FeatureMatcher *FeatureMatcher::CreateFeatureMatcherOCV(FeatureMatcherOptions option) {
+FeatureMatcher *FeatureMatcher::CreateFeatureMatcherOCV(
+    FeatureMatcherOptions option) {
   return new FeatureMatcherOCV(option);
 }
 
 FeatureMatcherOCV::FeatureMatcherOCV(FeatureMatcherOptions option) {
-    // TODO: Decide matcher based on descriptors
-    // Hamming-distance works only for binary feature-types like ORB, FREAK
-    // matcher_ = cv::DescriptorMatcher::create("BruteForce-Hamming");
-    matcher_ = cv::DescriptorMatcher::create(option.ocv_matcher_type);
+  // TODO: Decide matcher based on descriptors
+  // Hamming-distance works only for binary feature-types like ORB, FREAK
+  // matcher_ = cv::DescriptorMatcher::create("BruteForce-Hamming");
+  matcher_ = cv::DescriptorMatcher::create(option.ocv_matcher_type);
 
-    std::cout << "Created OCV Matcher " << option.ocv_matcher_type << std::endl;
-    // matcher_ = cv::DescriptorMatcher::create("FlannBased");
+  std::cout << "Created OCV Matcher " << option.ocv_matcher_type << std::endl;
+  // matcher_ = cv::DescriptorMatcher::create("FlannBased");
 }
 
-bool FeatureMatcherOCV::Match(const ImageFrame &frame0, const ImageFrame &frame1,
-                     std::vector<cv::DMatch> &matches) {
+bool FeatureMatcherOCV::Match(const ImageFrame &frame0,
+                              const ImageFrame &frame1,
+                              std::vector<cv::DMatch> &matches) {
   const std::vector<cv::KeyPoint> &kp0 = frame0.keypoints();
   const std::vector<cv::KeyPoint> &kp1 = frame1.keypoints();
   const cv::Mat &desc0 = frame0.descriptors();
@@ -34,9 +36,8 @@ bool FeatureMatcherOCV::Match(const ImageFrame &frame0, const ImageFrame &frame1
   matcher_->knnMatch(desc0, desc1, matches_0to1_k, max_match_per_desc_);
   matcher_->knnMatch(desc1, desc0, matches_1to0_k, max_match_per_desc_);
 
-//  matcher_->radiusMatch(desc0, desc1, matches_0to1_k, 20);
-//  matcher_->radiusMatch(desc1, desc0, matches_1to0_k, 20);
-
+  //  matcher_->radiusMatch(desc0, desc1, matches_0to1_k, 20);
+  //  matcher_->radiusMatch(desc1, desc0, matches_1to0_k, 20);
 
   timer.Stop();
   std::cout << "Knn match time used: " << timer.GetInMs() << "ms.\n";
@@ -73,7 +74,8 @@ bool FeatureMatcherOCV::Match(const ImageFrame &frame0, const ImageFrame &frame1
   RemoveOutlierMatch(kp0, kp1, matches);
 
   timer.Stop();
-  std::cout << "F matrix outlier test time used: " << timer.GetInMs() << "ms.\n";
+  std::cout << "F matrix outlier test time used: " << timer.GetInMs()
+            << "ms.\n";
 
   if (matches.size() < 3) {
     std::cerr << "Error: Not enough matches after outlier removal.\n";

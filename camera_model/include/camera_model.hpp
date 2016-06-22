@@ -7,16 +7,13 @@
 
 namespace vio {
 
-enum CameraType {
-  REGULAR,
-  FISHEYE
-};
+enum CameraType { REGULAR, FISHEYE };
 
 class CameraModelParams {
  public:
-  void read(const cv::FileNode& node) {
+  void read(const cv::FileNode &node) {
     type = static_cast<CameraType>((int)node["Type"]);
-    node["K"] >> K;    
+    node["K"] >> K;
     std::cout << "Loaded camera matrix:\n" << K << std::endl;
   }
 
@@ -28,12 +25,12 @@ class CameraModelParams {
 };
 
 // Following must be defined for the serialization in FileStorage to work
-static void read(const cv::FileNode& node, CameraModelParams& x,
-                 const CameraModelParams& default_value = CameraModelParams()){
-    if(node.empty())
-        x = default_value;
-    else
-        x.read(node);
+static void read(const cv::FileNode &node, CameraModelParams &x,
+                 const CameraModelParams &default_value = CameraModelParams()) {
+  if (node.empty())
+    x = default_value;
+  else
+    x.read(node);
 }
 
 class CameraModel {
@@ -52,8 +49,6 @@ class CameraModel {
   CameraType type_;
   cv::Mat K_;
 };
-
 }
-
 
 #endif

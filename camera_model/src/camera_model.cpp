@@ -6,6 +6,4 @@ void CameraModel::UndistortImage(const cv::Mat &input, cv::Mat &undistort_img) {
 
 }
 
-} // vio
-
-
+}  // vio

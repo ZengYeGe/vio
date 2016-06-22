@@ -7,7 +7,7 @@ namespace vio {
 
 class ImageFrame {
  public:
-  ImageFrame() {};
+  ImageFrame(){};
   ImageFrame(const cv::Mat &image);
 
   // Disabled for Uint test.
@@ -57,7 +57,6 @@ class ImageFrame {
   // How many neighbor grids should be searched
   int grid_search_index_range_;
 
-  
   typedef std::vector<int> KeypointIndexArry;
   std::vector<std::vector<KeypointIndexArry> > grid_keypoints_index_;
 
@@ -65,7 +64,6 @@ class ImageFrame {
     int x, y;
   };
   std::vector<BinCoord> keypoint_bin_coords_;
-
 };
 
 }  // namespace vio

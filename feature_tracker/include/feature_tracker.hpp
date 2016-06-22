@@ -7,8 +7,8 @@
 #include <string>
 #include <vector>
 
-#include "feature_tracker_options.hpp"
 #include "feature_matcher.hpp"
+#include "feature_tracker_options.hpp"
 #include "image_frame.hpp"
 
 namespace vio {
@@ -18,8 +18,8 @@ class FeatureTracker {
   FeatureTracker() {}
   ~FeatureTracker() {}
 
-  static FeatureTracker *CreateFeatureTracker(
-    FeatureTrackerOptions option, FeatureMatcher *matcher);
+  static FeatureTracker *CreateFeatureTracker(FeatureTrackerOptions option,
+                                              FeatureMatcher *matcher);
 
   static FeatureTracker *CreateFeatureTrackerOCV(FeatureTrackerOptions option,
                                                  FeatureMatcher *matcher);
@@ -30,6 +30,7 @@ class FeatureTracker {
   virtual bool TrackFrame(const ImageFrame &prev_frame,
                           ImageFrame &output_frame,
                           std::vector<cv::DMatch> &matches) = 0;
+
  protected:
   FeatureMatcher *matcher_;
 };
