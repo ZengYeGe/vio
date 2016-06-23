@@ -85,6 +85,7 @@ class VisualOdometry {
   TrackingStatus TrackNewRawImage(const cv::Mat &img, FramePose &pose);
 
   void VisualizeMap();
+  void VisualizeNewLandmarks();
 
   // Methods
  private:

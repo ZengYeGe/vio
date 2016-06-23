@@ -303,6 +303,7 @@ bool Mapdata::ApplyOptimization(const std::vector<cv::Mat> &Rs,
 
   for (int i = 0; i < points.size(); ++i) {
     landmarks_[i].position = points[i];
+    landmarks_[i].optimized = true;
   }
   return true;
 }
@@ -322,12 +323,14 @@ bool Mapdata::AddCoordToUninitedPoints(const std::vector<cv::Point3f> &points3d,
   }
 
   int new_ld_count = 0;
+  const int cur_frame_id = keyframes_.size();
   for (int ld_id = 0; ld_id < points3d.size(); ++ld_id) {
     if (points3d_mask[ld_id]) {
       landmark_to_feature_.push_back(
           std::move(uninited_landmark_to_feature_[ld_id]));
       Landmark new_ld;
       new_ld.position = points3d[ld_id];
+      new_ld.added_frame_id = cur_frame_id;
       const int landmark_id = landmarks_.size();
       new_ld_count++;
       landmarks_.push_back(new_ld);

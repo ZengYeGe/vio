@@ -65,8 +65,8 @@ bool GraphOptimizerCeres::Optimize(const cv::Mat &K, std::vector<cv::Mat> &Rs,
   options.linear_solver_type = ceres::DENSE_SCHUR;
   options.minimizer_progress_to_stdout = true;
   options.max_num_iterations = 50;
-  //  options.preconditioner_type = ceres::SCHUR_JACOBI;
-  //  options.linear_solver_type = ceres::ITERATIVE_SCHUR;
+  options.preconditioner_type = ceres::SCHUR_JACOBI;
+  options.linear_solver_type = ceres::ITERATIVE_SCHUR;
   //  options.use_inner_iterations = true;
 
   ceres::Solver::Summary summary;

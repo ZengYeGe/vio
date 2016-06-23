@@ -117,7 +117,7 @@ bool VisualOdometry::AddNewFrame(std::unique_ptr<ImageFrame> frame) {
     OptimizeMap();
   else if (plot_3d_landmarks_ &&
            map_.num_frame() % plot_3d_landmarks_every_frame_ == 0)
-    VisualizeMap();
+    VisualizeNewLandmarks();
 
   return true;
 }
@@ -215,6 +215,25 @@ void VisualOdometry::VisualizeMap() {
   }
   for (int i = 0; i < map_.num_landmark(); ++i) {
     pts_3d.push_back(map_.landmark(i).position);
+  }
+
+  VisualizeCamerasAndPoints(camera_model_->K(), Rs, ts, pts_3d);
+}
+
+void VisualOdometry::VisualizeNewLandmarks() {
+  std::vector<cv::Mat> Rs, ts;
+  std::vector<std::vector<cv::Point3f> > pts_3d(2);
+  for (int i = 0; i < map_.num_frame(); ++i) {
+    const Keyframe &frame = map_.keyframe(i);
+    Rs.push_back(frame.GetRot());
+    ts.push_back(frame.GetT());
+  }
+
+  for (int i = 0; i < map_.num_landmark(); ++i) {
+    if (map_.landmark(i).added_frame_id == map_.num_frame())
+      pts_3d[0].push_back(map_.landmark(i).position);
+    else
+      pts_3d[1].push_back(map_.landmark(i).position);
   }
 
   VisualizeCamerasAndPoints(camera_model_->K(), Rs, ts, pts_3d);

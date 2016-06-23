@@ -12,6 +12,8 @@ namespace vio {
 
 struct Landmark {
   cv::Point3f position;
+  int added_frame_id;
+  bool optimized;
 };
 /*
 struct PoseEdge {

@@ -16,3 +16,9 @@ void VisualizeCamerasAndPoints(const cv::Matx33d &K,
                                const std::vector<cv::Mat> &Rs,
                                const std::vector<cv::Mat> &ts,
                                const std::vector<cv::Point3f> &points);
+
+// Allow plot multiple set of points with different color.
+void VisualizeCamerasAndPoints(
+    const cv::Matx33d &K, const std::vector<cv::Mat> &Rs,
+    const std::vector<cv::Mat> &ts,
+    const std::vector<std::vector<cv::Point3f> > &points);
