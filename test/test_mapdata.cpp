@@ -16,4 +16,3 @@ TEST_F(MapdataTest, TestCreateGridKeypointIndex) {
 
   image_frame.set_keypoints(kp);
 }
-  

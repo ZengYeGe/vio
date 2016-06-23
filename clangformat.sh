@@ -30,4 +30,6 @@ clang-format -style=file -i visual_odometry/src/*.cpp
 clang-format -style=file -i vio_app/include/*.hpp
 clang-format -style=file -i vio_app/src/*.cpp
 
+clang-format -style=file -i test/*.cpp
+
 

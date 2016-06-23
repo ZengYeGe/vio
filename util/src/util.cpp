@@ -112,7 +112,7 @@ void VisualizeCamerasAndPoints(
           point_color = cv::viz::Color::green();
           break;
         case 1:
-	  point_color = cv::viz::Color::red();
+          point_color = cv::viz::Color::red();
           break;
         case 2:
           point_color = cv::viz::Color::cherry();
