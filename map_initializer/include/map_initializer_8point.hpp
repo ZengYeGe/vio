@@ -6,7 +6,7 @@ namespace vio {
 
 class MapInitializer8Point : public MapInitializer {
  public:
-  MapInitializer8Point(MapInitializerOptions option) : MapInitializer(option) {}
+  explicit MapInitializer8Point(MapInitializerOptions option);
   ~MapInitializer8Point() {}
 
   virtual bool Initialize(
@@ -57,7 +57,15 @@ class MapInitializer8Point : public MapInitializer {
   // cv::Mat ComputeEfromF(const cv::Mat &F, const cv::Mat &K);
   void DecomposeE(const cv::Mat &E, cv::Mat &R1, cv::Mat &R2, cv::Mat &t);
 
+  bool use_f_ransac_;
+  double f_ransac_confidence_;
+  double f_ransac_max_dist_to_epipolar_;
+
   int min_triangluated_;
+  double reprojection_error_thresh_;
+  double parallex_thresh_;
+
+  bool verbose_;
 };
 
 }  // vio

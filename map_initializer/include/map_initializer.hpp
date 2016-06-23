@@ -27,6 +27,8 @@ struct MapInitializerOptions {
         verbose(false) {}
 
   MapInitializerMethod method;
+
+  // --------- For NORMALIZED8POINTFUNDAMENTAL method
   // Compute Fundamental
   bool use_f_ransac;
   double f_ransac_confidence;
@@ -34,15 +36,20 @@ struct MapInitializerOptions {
 
   // triangulation
   double reprojection_error_thres;
+  double parallax_thresh;
+  // ------------------------------------------------
 
   bool verbose;
 
   void read(const cv::FileNode &node) {
     method = static_cast<MapInitializerMethod>((int)node["Method"]);
+
     use_f_ransac = (int)node["F_USE_RANSAC"];
     f_ransac_confidence = (double)node["F_RANSAC_CONFIDENCE"];
     f_ransac_max_dist_to_epipolar = (double)node["F_RANSAC_MAX_DIST"];
-    reprojection_error_thres = (double)node["REPROJECTION_ERROR_THRESHOLD"];
+    reprojection_error_thres = (double)node["Reprojection_Error_Threshold"];
+    parallax_thresh = (double)node["Parallax_Threshold"];
+
     verbose = (int)node["VERBOSE"];
   }
 };
@@ -60,7 +67,6 @@ static void read(
 class MapInitializer {
  public:
   MapInitializer() {}
-  MapInitializer(MapInitializerOptions option) : option_(option) {}
   ~MapInitializer() {}
 
   static MapInitializer *CreateMapInitializer(MapInitializerOptions option);
@@ -78,7 +84,6 @@ class MapInitializer {
       std::vector<cv::Mat> &ts) = 0;
 
  protected:
-  MapInitializerOptions option_;
 };
 
 }  // vio

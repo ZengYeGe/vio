@@ -182,8 +182,9 @@ bool SolveProjectionFromF(const cv::Mat &F, cv::Mat &P1, cv::Mat &P2) {
 
   e2.copyTo(P2(cv::Rect(3, 0, 1, 3)));
 
-  std::cout << "Compute P from F...\nP1:\n" << P1 << "\nP2:\n" << P2
-            << std::endl;
+  std::cout << "Compute P from F...\nP1:\n"
+            << P1 << "\nP2:\n"
+            << P2 << std::endl;
 
   return true;
 }

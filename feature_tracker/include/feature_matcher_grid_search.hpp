@@ -9,7 +9,7 @@ namespace vio {
 
 class FeatureMatcherGridSearch : public FeatureMatcher {
  public:
-  FeatureMatcherGridSearch(FeatureMatcherOptions option);
+  explicit FeatureMatcherGridSearch(FeatureMatcherOptions option);
 
   bool Match(const ImageFrame &frame0, const ImageFrame &frame1,
              std::vector<cv::DMatch> &matches) override;
@@ -20,6 +20,8 @@ class FeatureMatcherGridSearch : public FeatureMatcher {
                              std::vector<std::vector<cv::DMatch> > &matches);
   // TODO: Make it inline
   double ComputeDistance(const cv::Mat &mat0, const cv::Mat &mat1);
+
+  double pixel_search_range_;
 };
 
 }  // vio

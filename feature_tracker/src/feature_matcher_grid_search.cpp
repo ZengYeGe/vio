@@ -9,8 +9,8 @@ FeatureMatcher *FeatureMatcher::CreateFeatureMatcherGridSearch(
   return new FeatureMatcherGridSearch(option);
 }
 
-FeatureMatcherGridSearch::FeatureMatcherGridSearch(
-    FeatureMatcherOptions option) {}
+FeatureMatcherGridSearch::FeatureMatcherGridSearch(FeatureMatcherOptions option)
+    : pixel_search_range_(option.pixel_search_range) {}
 
 bool FeatureMatcherGridSearch::Match(const ImageFrame &frame0,
                                      const ImageFrame &frame1,
@@ -83,7 +83,8 @@ bool FeatureMatcherGridSearch::FindMatchNearFeatures(
     const cv::KeyPoint &kp = kp0[i];
     std::vector<int> near_f_id;
     // TODO: Make threshold argument.
-    if (!ref_frame.GetNeighborKeypointsInRadius(kp, 30, near_f_id))
+    if (!ref_frame.GetNeighborKeypointsInRadius(kp, pixel_search_range_,
+                                                near_f_id))
       return false;  // This means fail. Not just couldn't find matches.
     // Not enough matches, skip.
     if (near_f_id.size() < 2) continue;

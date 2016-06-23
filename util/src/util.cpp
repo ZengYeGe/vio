@@ -82,8 +82,7 @@ void VisualizeCamerasAndPoints(const cv::Matx33d &K,
   }
 
   /// Wait for key 'q' to close the window
-  std::cout << std::endl
-            << "Press 'q' to close each windows ... " << std::endl;
+  std::cout << std::endl << "Press 'q' to close each windows ... " << std::endl;
 
   window.spin();
 }
@@ -112,7 +111,7 @@ void VisualizeCamerasAndPoints(
           point_color = cv::viz::Color::green();
           break;
         case 1:
-	  point_color = cv::viz::Color::red();
+          point_color = cv::viz::Color::red();
           break;
         case 2:
           point_color = cv::viz::Color::cherry();
@@ -166,8 +165,7 @@ void VisualizeCamerasAndPoints(
   }
 
   /// Wait for key 'q' to close the window
-  std::cout << std::endl
-            << "Press 'q' to close each windows ... " << std::endl;
+  std::cout << std::endl << "Press 'q' to close each windows ... " << std::endl;
 
   window.spin();
 }

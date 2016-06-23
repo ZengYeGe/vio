@@ -10,6 +10,14 @@ MapInitializer *MapInitializer::CreateMapInitializer8Point(
   return initializer;
 }
 
+MapInitializer8Point::MapInitializer8Point(MapInitializerOptions option)
+    : use_f_ransac_(option.use_f_ransac),
+      f_ransac_confidence_(option.f_ransac_confidence),
+      f_ransac_max_dist_to_epipolar_(option.f_ransac_max_dist_to_epipolar),
+      reprojection_error_thresh_(option.reprojection_error_thres),
+      parallex_thresh_(option.parallax_thresh),
+      verbose_(option.verbose) {}
+
 bool MapInitializer8Point::Initialize(
     const std::vector<std::vector<cv::Vec2d> > &feature_vectors,
     const cv::Mat &K, std::vector<cv::Point3f> &points3d,
@@ -74,7 +82,8 @@ bool MapInitializer8Point::SelectSolutionRT(
     cv::Mat &R_best, cv::Mat &t_best, std::vector<Point3Type> &points_3d,
     std::vector<bool> &points3d_mask) {
   std::cout << "Selecting solutions ... \n"
-            << "K:\n" << K << std::endl;
+            << "K:\n"
+            << K << std::endl;
   int max_num_point_inlier = 0;
   int best_R_id = -1, best_t_id = -1;
   for (int R_id = 0; R_id < 2; ++R_id) {
@@ -124,9 +133,9 @@ bool MapInitializer8Point::SelectSolutionRT(
 bool MapInitializer8Point::ComputeFundamental(const std::vector<cv::Vec2d> &kp0,
                                               const std::vector<cv::Vec2d> &kp1,
                                               cv::Mat &F) {
-  if (option_.use_f_ransac) {
+  if (use_f_ransac_) {
     F = ComputeFundamentalOCV(kp0, kp1);
-    if (option_.verbose) std::cout << "F from OpenCV: \n" << F << std::endl;
+    if (verbose_) std::cout << "F from OpenCV: \n" << F << std::endl;
 
     /* ------------------------- Obsolete code -------------------------------
 
@@ -150,7 +159,7 @@ bool MapInitializer8Point::ComputeFundamental(const std::vector<cv::Vec2d> &kp0,
 
     // Make last element 1
     MakeMatrixInhomogeneous(F);
-    if (option_.verbose) std::cout << "F :\n" << F << std::endl;
+    if (verbose_) std::cout << "F :\n" << F << std::endl;
   }
 
   return true;
@@ -204,8 +213,8 @@ cv::Mat MapInitializer8Point::ComputeFundamentalOCV(
   cv::Mat mask;
   // Default use ransac
   cv::Mat F = cv::findFundamentalMat(points0, points1, CV_FM_RANSAC,
-                                     option_.f_ransac_max_dist_to_epipolar,
-                                     option_.f_ransac_confidence, mask);
+                                     f_ransac_max_dist_to_epipolar_,
+                                     f_ransac_confidence_, mask);
   return F;
 }
 
@@ -244,9 +253,11 @@ int MapInitializer8Point::EvaluateSolutionRT(
     const std::vector<cv::Vec2d> &kp0, const std::vector<cv::Vec2d> &kp1,
     const std::vector<bool> &match_inliers, std::vector<cv::Point3f> &points_3d,
     std::vector<bool> &points3d_mask) {
-  if (option_.verbose)
+  if (verbose_)
     std::cout << "Evaluating solution:\n"
-              << "R:\n" << R << "\nt:\n" << t << std::endl;
+              << "R:\n"
+              << R << "\nt:\n"
+              << t << std::endl;
 
   // Calibration parameters
   const double fx = K.at<double>(0, 0);
@@ -271,9 +282,8 @@ int MapInitializer8Point::EvaluateSolutionRT(
   t.copyTo(P1.rowRange(0, 3).col(3));
   P1 = K * P1;
 
-  if (option_.verbose)
-    std::cout << "P0: \n" << P0 << std::endl
-              << "P1:\n" << P1 << std::endl;
+  if (verbose_)
+    std::cout << "P0: \n" << P0 << std::endl << "P1:\n" << P1 << std::endl;
 
   cv::Mat O2 = -R.t() * t;
 
@@ -319,7 +329,7 @@ int MapInitializer8Point::EvaluateSolutionRT(
     double dist2 = cv::norm(normal2);
     double cosParallax = normal1.dot(normal2) / (dist1 * dist2);
 
-    if (cosParallax > 0.9998) {
+    if (cosParallax > parallex_thresh_) {
       nParallal++;
       points3d_mask.push_back(false);
       points_3d.push_back(cv::Point3f(0, 0, 0));
@@ -329,8 +339,8 @@ int MapInitializer8Point::EvaluateSolutionRT(
     double error0 = ComputeReprojectionError(point3d, kp0[i], P0);
     double error1 = ComputeReprojectionError(point3d, kp1[i], P1);
 
-    if (error0 > option_.reprojection_error_thres ||
-        error1 > option_.reprojection_error_thres) {
+    if (error0 > reprojection_error_thresh_ ||
+        error1 > reprojection_error_thresh_) {
       nLargeError++;
       points3d_mask.push_back(false);
       points_3d.push_back(cv::Point3f(0, 0, 0));
