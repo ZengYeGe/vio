@@ -74,8 +74,7 @@ bool MapInitializer8Point::SelectSolutionRT(
     cv::Mat &R_best, cv::Mat &t_best, std::vector<Point3Type> &points_3d,
     std::vector<bool> &points3d_mask) {
   std::cout << "Selecting solutions ... \n"
-            << "K:\n"
-            << K << std::endl;
+            << "K:\n" << K << std::endl;
   int max_num_point_inlier = 0;
   int best_R_id = -1, best_t_id = -1;
   for (int R_id = 0; R_id < 2; ++R_id) {
@@ -91,8 +90,8 @@ bool MapInitializer8Point::SelectSolutionRT(
                              tmp_points3d, triangulated_mask);
       std::cout << "Solution " << R_id * 2 + t_id + 1 << " has "
                 << num_point_inlier << " points.\n";
-      if (num_point_inlier >
-          max_num_point_inlier) {  // && parallax > minParallax) {
+      if (num_point_inlier > max_num_point_inlier) {
+        // && parallax > minParallax) {
         // Make sure there is a clear winner
         /*
                 if (num_point_inlier > 0.7 * max_num_point_inlier) {
@@ -247,9 +246,7 @@ int MapInitializer8Point::EvaluateSolutionRT(
     std::vector<bool> &points3d_mask) {
   if (option_.verbose)
     std::cout << "Evaluating solution:\n"
-              << "R:\n"
-              << R << "\nt:\n"
-              << t << std::endl;
+              << "R:\n" << R << "\nt:\n" << t << std::endl;
 
   // Calibration parameters
   const double fx = K.at<double>(0, 0);
@@ -275,7 +272,8 @@ int MapInitializer8Point::EvaluateSolutionRT(
   P1 = K * P1;
 
   if (option_.verbose)
-    std::cout << "P0: \n" << P0 << std::endl << "P1:\n" << P1 << std::endl;
+    std::cout << "P0: \n" << P0 << std::endl
+              << "P1:\n" << P1 << std::endl;
 
   cv::Mat O2 = -R.t() * t;
 

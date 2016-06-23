@@ -13,7 +13,7 @@ void TriangulatePoints(const std::vector<cv::Vec2d> &kp0,
                        const cv::Mat &R0, const cv::Mat &t0, const cv::Mat &R1,
                        const cv::Mat &t1, std::vector<cv::Point3f> &points3d,
                        std::vector<bool> &points3d_mask) {
-  double reprojection_error_thres = 50.0;
+  double reprojection_error_thres = 10.0;
 
   cv::Mat P0, P1;
   RtToP(R0, t0, P0);
@@ -182,9 +182,8 @@ bool SolveProjectionFromF(const cv::Mat &F, cv::Mat &P1, cv::Mat &P2) {
 
   e2.copyTo(P2(cv::Rect(3, 0, 1, 3)));
 
-  std::cout << "Compute P from F...\nP1:\n"
-            << P1 << "\nP2:\n"
-            << P2 << std::endl;
+  std::cout << "Compute P from F...\nP1:\n" << P1 << "\nP2:\n" << P2
+            << std::endl;
 
   return true;
 }

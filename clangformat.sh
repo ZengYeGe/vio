@@ -1,3 +1,5 @@
+alias clang-format='clang-format-3.6'
+
 clang-format -style=file -i feature_tracker/include/*.hpp
 clang-format -style=file -i feature_tracker/src/*.cpp
 

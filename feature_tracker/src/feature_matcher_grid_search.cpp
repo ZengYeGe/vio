@@ -83,7 +83,7 @@ bool FeatureMatcherGridSearch::FindMatchNearFeatures(
     const cv::KeyPoint &kp = kp0[i];
     std::vector<int> near_f_id;
     // TODO: Make threshold argument.
-    if (!ref_frame.GetNeighborKeypointsInRadius(kp, 20, near_f_id))
+    if (!ref_frame.GetNeighborKeypointsInRadius(kp, 30, near_f_id))
       return false;  // This means fail. Not just couldn't find matches.
     // Not enough matches, skip.
     if (near_f_id.size() < 2) continue;
