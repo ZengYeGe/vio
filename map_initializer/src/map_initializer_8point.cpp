@@ -82,8 +82,7 @@ bool MapInitializer8Point::SelectSolutionRT(
     cv::Mat &R_best, cv::Mat &t_best, std::vector<Point3Type> &points_3d,
     std::vector<bool> &points3d_mask) {
   std::cout << "Selecting solutions ... \n"
-            << "K:\n"
-            << K << std::endl;
+            << "K:\n" << K << std::endl;
   int max_num_point_inlier = 0;
   int best_R_id = -1, best_t_id = -1;
   for (int R_id = 0; R_id < 2; ++R_id) {
@@ -255,9 +254,7 @@ int MapInitializer8Point::EvaluateSolutionRT(
     std::vector<bool> &points3d_mask) {
   if (verbose_)
     std::cout << "Evaluating solution:\n"
-              << "R:\n"
-              << R << "\nt:\n"
-              << t << std::endl;
+              << "R:\n" << R << "\nt:\n" << t << std::endl;
 
   // Calibration parameters
   const double fx = K.at<double>(0, 0);
@@ -267,8 +264,8 @@ int MapInitializer8Point::EvaluateSolutionRT(
 
   // points_3d.resize(kp0.size());
 
-  std::vector<double> vCosParallax;
-  vCosParallax.reserve(kp0.size());
+  // std::vector<double> vCosParallax;
+  // vCosParallax.reserve(kp0.size());
 
   // Camera 1 Projection Matrix K[I|0]
   cv::Mat P0(3, 4, CV_64F, cv::Scalar(0));
@@ -283,7 +280,8 @@ int MapInitializer8Point::EvaluateSolutionRT(
   P1 = K * P1;
 
   if (verbose_)
-    std::cout << "P0: \n" << P0 << std::endl << "P1:\n" << P1 << std::endl;
+    std::cout << "P0: \n" << P0 << std::endl
+              << "P1:\n" << P1 << std::endl;
 
   cv::Mat O2 = -R.t() * t;
 
@@ -291,6 +289,7 @@ int MapInitializer8Point::EvaluateSolutionRT(
   int nInfinite = 0;
   int nParallal = 0;
   int nLargeError = 0;
+  int nNegativeDepth = 0;
   for (int i = 0; i < match_inliers.size(); ++i) {
     if (!match_inliers[i]) continue;
 
@@ -309,6 +308,7 @@ int MapInitializer8Point::EvaluateSolutionRT(
     if (depth1 <= 0 || depth2 <= 0) {
       points3d_mask.push_back(false);
       points_3d.push_back(cv::Point3f(0, 0, 0));
+      nNegativeDepth++;
       continue;
     }
 
@@ -407,6 +407,8 @@ int MapInitializer8Point::EvaluateSolutionRT(
             << " parallal points during triangulation.\n";
   std::cout << "Found " << nLargeError << " / " << kp0.size()
             << " large error points during triangulation.\n";
+  std::cout << "Found " << nNegativeDepth << " / " << kp0.size()
+            << " negative depth points during triangulation.\n";
 
   return nGood;
 }

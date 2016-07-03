@@ -92,17 +92,22 @@ bool VisualOdometry::AddNewFrame(std::unique_ptr<ImageFrame> frame) {
     std::cerr << "Error: Track new frame failed.\n";
     return false;
   }
+  // TODO: Refine Keyframe Selector.
+  // TODO: Add select keyframe for initialization
+
+  if (matches.size() < 20) {
+    std::cout << "Too few matches.\n";
+    return true;
+  }
+
+  if (map_.state() == Mapdata::INITIALIZED &&
+      !keyframe_selector_.isKeyframe(matches)) {
+    std::cout << "Skipped a frame. Not selected as keyframe.\n\n";
+    return true;
+  }
 
   if (plot_tracking_)
     PlotTracking(*frame, map_.GetLastKeyframe().image_frame(), matches);
-  // TODO: Refine Keyframe Selector.
-  // TODO: Add select keyframe for initialization
-  /*
-    if (!keyframe_selector_.isKeyframe(matches)) {
-      std::cout << "Skipped a frame. Not selected as keyframe.\n";
-      return true;
-    }
-  */
   std::unique_ptr<Keyframe> new_keyframe(new Keyframe(std::move(frame)));
   if (!map_.AddNewKeyframeMatchToLastKeyframe(std::move(new_keyframe), matches))
     return false;
@@ -159,19 +164,29 @@ bool VisualOdometry::EstimateLastFrame() {
   std::vector<cv::Point2f> points2d;
   std::vector<int> points_index;
 
-  map_.PrepareEstimateLastFramePoseData(points3d, points2d, points_index);
+  if (!map_.PrepareEstimateLastFramePoseData(points3d, points2d,
+                                             points_index)) {
+    std::cerr << "Error: Points match from last two frames not available.\n";
+    return false;
+  }
 
   std::vector<bool> inliers;
   cv::Mat R;
   cv::Mat t;
-  pnp_estimator_->EstimatePose(points2d, points3d, camera_model_->K(), inliers,
-                               R, t);
+  if (!pnp_estimator_->EstimatePose(points2d, points3d, camera_model_->K(),
+                                    inliers, R, t)) {
+    std::cerr << "Error: PnP estimation.\n";
+    return false;
+  }
+
   map_.SetLastFramePose(R, t);
 
   // Add new landmarks
   std::vector<cv::Vec2d> kp0, kp1;
   FramePose pose0, pose1;
-  map_.PrepareUninitedPointsFromLastTwoFrames(kp0, kp1, pose0, pose1);
+  if (!map_.PrepareUninitedPointsFromLastTwoFrames(kp0, kp1, pose0, pose1)) {
+    return false;
+  }
 
   std::vector<cv::Point3f> new_points3d;
   std::vector<bool> new_points3d_mask;

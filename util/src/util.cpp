@@ -82,7 +82,8 @@ void VisualizeCamerasAndPoints(const cv::Matx33d &K,
   }
 
   /// Wait for key 'q' to close the window
-  std::cout << std::endl << "Press 'q' to close each windows ... " << std::endl;
+  std::cout << std::endl
+            << "Press 'q' to close each windows ... " << std::endl;
 
   window.spin();
 }
@@ -165,7 +166,8 @@ void VisualizeCamerasAndPoints(
   }
 
   /// Wait for key 'q' to close the window
-  std::cout << std::endl << "Press 'q' to close each windows ... " << std::endl;
+  std::cout << std::endl
+            << "Press 'q' to close each windows ... " << std::endl;
 
   window.spin();
 }
