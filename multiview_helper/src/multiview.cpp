@@ -13,6 +13,35 @@ void TriangulatePoints(const std::vector<cv::Vec2d> &kp0,
                        const cv::Mat &R0, const cv::Mat &t0, const cv::Mat &R1,
                        const cv::Mat &t1, std::vector<cv::Point3f> &points3d,
                        std::vector<bool> &points3d_mask) {
+  bool generate_test = false;
+  if (generate_test) {
+    cv::FileStorage file("triangulation_test_data.txt", cv::FileStorage::WRITE);
+
+    file << "NumPoints" << (int)kp0.size();
+
+    write(file, "kp0", kp0);
+    write(file, "kp1", kp1);
+    file << "K" << K << "R0" << R0 << "t0" << t0 << "R1" << R1 << "t1" << t1;
+    /*
+        cv::FileStorage file_read;
+        file_read.open("triangulation_test_data.txt", cv::FileStorage::READ);
+        int kp_num = (int)file_read["NumPoints"];
+        FileNode kp0node = file_read["kp0"];
+
+        std::vector<cv::Vec2d> kp0_new;
+        std::vector<cv::Vec2d> kp1_new;
+        cv::Mat K_new, R0_new, t0_new, R1_new, t1_new;
+
+        read(file_read["kp0"], kp0_new);
+        read(file_read["kp1"], kp1_new);
+        file_read["K"] >> K_new;
+        file_read["R0"] >> R0_new;
+        file_read["t0"] >> t0_new;
+        file_read["R1"] >> R1_new;
+        file_read["t1"] >> t1_new;
+    */
+  }
+
   double reprojection_error_thres = 50.0;
 
   cv::Mat P0, P1;
