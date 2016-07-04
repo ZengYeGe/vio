@@ -185,6 +185,11 @@ bool Mapdata::PrepareEstimateLastFramePoseData(
     }
   }
 
+  if (points_index.size() < 8) {
+    std::cout << "Not found enough 2d to 3d matches for pnp.\n";
+    return false;
+  }
+
   std::cout << "Found " << points_index.size() << " 2d to 3d match for pnp.\n";
   return true;
 }

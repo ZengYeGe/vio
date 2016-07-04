@@ -115,7 +115,12 @@ bool VisualOdometry::AddNewFrame(std::unique_ptr<ImageFrame> frame) {
   if (map_.state() != Mapdata::INITIALIZED) return true;
 
   // Estimate last frame
-  EstimateLastFrame();
+  if (!EstimateLastFrame()) {
+    map_.DropLastKeyframe();
+    std::cout << "Skipped a frame. Could not add as new frame.\n";
+    return true;
+  }
+
   map_.PrintStats();
 
   if (map_.num_frame() % optimize_every_frame_ == 0)
@@ -190,8 +195,14 @@ bool VisualOdometry::EstimateLastFrame() {
 
   std::vector<cv::Point3f> new_points3d;
   std::vector<bool> new_points3d_mask;
-  TriangulatePoints(kp0, kp1, camera_model_->K(), pose0.R, pose0.t, pose1.R,
-                    pose1.t, new_points3d, new_points3d_mask);
+  int num_good_points =
+      TriangulatePoints(kp0, kp1, camera_model_->K(), pose0.R, pose0.t, pose1.R,
+                        pose1.t, new_points3d, new_points3d_mask);
+
+  if (num_good_points < 30) {
+    std::cerr << "Not enough good triangulated points.\n";
+    return false;
+  }
 
   if (!map_.AddInitedPoints(new_points3d, new_points3d_mask)) return false;
 

@@ -8,11 +8,11 @@ void RtToP(const cv::Mat &R, const cv::Mat &t, cv::Mat &P) {
   t.copyTo(P.rowRange(0, 3).col(3));
 }
 
-void TriangulatePoints(const std::vector<cv::Vec2d> &kp0,
-                       const std::vector<cv::Vec2d> &kp1, const cv::Mat &K,
-                       const cv::Mat &R0, const cv::Mat &t0, const cv::Mat &R1,
-                       const cv::Mat &t1, std::vector<cv::Point3f> &points3d,
-                       std::vector<bool> &points3d_mask) {
+int TriangulatePoints(const std::vector<cv::Vec2d> &kp0,
+                      const std::vector<cv::Vec2d> &kp1, const cv::Mat &K,
+                      const cv::Mat &R0, const cv::Mat &t0, const cv::Mat &R1,
+                      const cv::Mat &t1, std::vector<cv::Point3f> &points3d,
+                      std::vector<bool> &points3d_mask) {
   bool generate_test = false;
   if (generate_test) {
     cv::FileStorage file("triangulation_test_data.txt", cv::FileStorage::WRITE);
@@ -42,7 +42,7 @@ void TriangulatePoints(const std::vector<cv::Vec2d> &kp0,
     */
   }
 
-  double reprojection_error_thres = 10.0;
+  double reprojection_error_thres = 5.0;
 
   cv::Mat P0, P1;
   RtToP(R0, t0, P0);
@@ -55,7 +55,10 @@ void TriangulatePoints(const std::vector<cv::Vec2d> &kp0,
   cv::Mat center1 = -R1.t() * t1;
 
   int nParallal = 0;
+  int nInfinite = 0;
   int nLargeError = 0;
+  int nNegativeDepth = 0;
+  int nGood = 0;
 
   points3d.resize(kp0.size());
   points3d_mask.resize(kp0.size(), true);
@@ -74,6 +77,26 @@ void TriangulatePoints(const std::vector<cv::Vec2d> &kp0,
 
     if (depth0 <= 0 || depth1 <= 0) {
       points3d_mask[i] = false;
+      nNegativeDepth++;
+      continue;
+    }
+
+    // TODO: Make sure isfinite is in std
+    if (!std::isfinite(p3dC0.at<double>(0)) ||
+        !std::isfinite(p3dC0.at<double>(1)) ||
+        !std::isfinite(p3dC0.at<double>(2))) {
+      nInfinite++;
+      points3d_mask[i] = false;
+      continue;
+    }
+
+    // TODO: Make sure isfinite is in std
+    if (!std::isfinite(p3dC1.at<double>(0)) ||
+        !std::isfinite(p3dC1.at<double>(1)) ||
+        !std::isfinite(p3dC1.at<double>(2))) {
+      nInfinite++;
+      points3d_mask[i] = false;
+      continue;
     }
 
     // Check parallax
@@ -86,6 +109,7 @@ void TriangulatePoints(const std::vector<cv::Vec2d> &kp0,
     if (cosParallax > 0.9998) {
       nParallal++;
       points3d_mask[i] = false;
+      continue;
     }
 
     double error0 = ComputeReprojectionError(points3d[i], kp0[i], P0);
@@ -95,12 +119,24 @@ void TriangulatePoints(const std::vector<cv::Vec2d> &kp0,
         error1 > reprojection_error_thres) {
       nLargeError++;
       points3d_mask[i] = false;
+      continue;
     }
+    nGood++;
   }
+
+  std::cout << "Found " << nGood << " / " << kp0.size()
+            << " good triangulated points.\n";
+
+  std::cout << "Found " << nInfinite << " / " << kp0.size()
+            << " infinite points during triangulation.\n";
   std::cout << "Found " << nParallal << " / " << kp0.size()
             << " parallal points during triangulation.\n";
   std::cout << "Found " << nLargeError << " / " << kp0.size()
             << " large error points during triangulation.\n";
+  std::cout << "Found " << nNegativeDepth << " / " << kp0.size()
+            << " negative depth points during triangulation.\n";
+
+  return nGood;
 }
 
 template <typename Point3Type>
