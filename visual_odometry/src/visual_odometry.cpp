@@ -201,8 +201,8 @@ bool VisualOdometry::EstimateLastFrame() {
             << map_.num_landmarks_in_frame(last_second_frame_id)
             << " points are re-seen.\n";
 
-  if (seen_percent > 0.3 && tracking_or_matching_ == 1) {
-    std::cout << "Skipped a frame, overlap > 30%.\n";
+  if (seen_percent > 0.5 && tracking_or_matching_ == 1) {
+    std::cout << "Skipped a frame, overlap > 50%.\n";
     return false;
   }
 
@@ -229,6 +229,11 @@ bool VisualOdometry::EstimateLastFrame() {
   int num_good_points =
       TriangulatePoints(kp0, kp1, camera_model_->K(), pose0.R, pose0.t, pose1.R,
                         pose1.t, new_points3d, new_points3d_mask);
+
+  if ((double)num_good_points / kp0.size() < 0.4) {
+    std::cout << "Skipped a frame, good triangulated point percentage < 40%.\n";
+    return false;
+  } 
 
   if (num_good_points < 30) {
     std::cerr << "Not enough good triangulated points.\n";

@@ -106,7 +106,7 @@ int TriangulatePoints(const std::vector<cv::Vec2d> &kp0,
     double dist1 = cv::norm(p1_vec);
 
     double cosParallax = p0_vec.dot(p1_vec) / (dist0 * dist1);
-    if (cosParallax > 0.9998) {
+    if (cosParallax > 0.998) {
       nParallal++;
       points3d_mask[i] = false;
       continue;
