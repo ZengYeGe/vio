@@ -10,7 +10,7 @@ FeatureMatcher *FeatureMatcher::CreateFeatureMatcherGridSearch(
 }
 
 FeatureMatcherGridSearch::FeatureMatcherGridSearch(FeatureMatcherOptions option)
-    : pixel_search_range_(option.pixel_search_range) {}
+    : FeatureMatcher(option), pixel_search_range_(option.pixel_search_range) {}
 
 bool FeatureMatcherGridSearch::Match(const ImageFrame &frame0,
                                      const ImageFrame &frame1,

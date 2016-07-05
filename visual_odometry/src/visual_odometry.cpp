@@ -8,7 +8,7 @@ VisualOdometry::VisualOdometry(const VisualOdometryConfig &config)
     : status_(UNINITED),
       plot_tracking_(true),
       tracking_wait_time_(10),
-      tracking_or_matching_(0), 
+      tracking_or_matching_(0),
       plot_3d_landmarks_(true),
       plot_3d_landmarks_every_frame_(1) {
   camera_model_ = new CameraModel(config.camera_model_params);

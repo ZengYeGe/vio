@@ -11,7 +11,8 @@ FeatureMatcher *FeatureMatcher::CreateFeatureMatcherOCV(
   return new FeatureMatcherOCV(option);
 }
 
-FeatureMatcherOCV::FeatureMatcherOCV(FeatureMatcherOptions option) {
+FeatureMatcherOCV::FeatureMatcherOCV(FeatureMatcherOptions option)
+    : FeatureMatcher(option) {
   // TODO: Decide matcher based on descriptors
   // Hamming-distance works only for binary feature-types like ORB, FREAK
   // matcher_ = cv::DescriptorMatcher::create("BruteForce-Hamming");
@@ -40,7 +41,7 @@ bool FeatureMatcherOCV::Match(const ImageFrame &frame0,
   //  matcher_->radiusMatch(desc1, desc0, matches_1to0_k, 20);
 
   timer.Stop();
-  std::cout << "Knn match time used: " << timer.GetInMs() << "ms.\n";
+  // std::cout << "Knn match time used: " << timer.GetInMs() << "ms.\n";
   timer.Start();
 
   // Pick matches where the first one is much better than the second match.
@@ -49,7 +50,7 @@ bool FeatureMatcherOCV::Match(const ImageFrame &frame0,
   RatioTestFilter(matches_1to0_k, matches_1to0);
 
   timer.Stop();
-  std::cout << "Ratio test time used: " << timer.GetInMs() << "ms.\n";
+  // std::cout << "Ratio test time used: " << timer.GetInMs() << "ms.\n";
   timer.Start();
 
   if (matches_0to1.size() < 10 || matches_1to0.size() < 10) {
@@ -68,14 +69,14 @@ bool FeatureMatcherOCV::Match(const ImageFrame &frame0,
   }
 
   timer.Stop();
-  std::cout << "Symmetry test time used: " << timer.GetInMs() << "ms.\n";
+  // std::cout << "Symmetry test time used: " << timer.GetInMs() << "ms.\n";
   timer.Start();
 
   RemoveOutlierMatch(kp0, kp1, matches);
 
   timer.Stop();
-  std::cout << "F matrix outlier test time used: " << timer.GetInMs()
-            << "ms.\n";
+  // std::cout << "F matrix outlier test time used: " << timer.GetInMs()
+  //          << "ms.\n";
 
   if (matches.size() < 3) {
     std::cerr << "Error: Not enough matches after outlier removal.\n";

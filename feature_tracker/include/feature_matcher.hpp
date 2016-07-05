@@ -18,11 +18,12 @@ class FeatureMatcherOptions {
   FeatureMatcherOptions()
       : method(GRID_SEARCH),
         ocv_matcher_type("BruteForce"),
-        max_dist_to_epipolar_line(0.5),
-        level_of_confidence(0.999),
         use_ratio_test(true),
+        ratio_test_thresh(0.9),
         use_symmetry_test(true),
-        use_remove_outliers(true) {}
+        use_remove_outliers(true),
+        max_dist_to_epipolar_line(0.5),
+        level_of_confidence(0.999) {}
 
   bool use_ratio_test;
   double ratio_test_thresh;
@@ -72,7 +73,11 @@ static void read(
 
 class FeatureMatcher {
  public:
-  FeatureMatcher() : max_match_per_desc_(2), nn_match_ratio_(0.9f) {}
+  explicit FeatureMatcher(FeatureMatcherOptions option)
+      : max_match_per_desc_(2),
+        max_dist_to_epipolar_line_(option.max_dist_to_epipolar_line),
+        level_of_confidence_(option.level_of_confidence),
+        nn_match_ratio_(option.ratio_test_thresh) {}
 
   static FeatureMatcher *CreateFeatureMatcher(FeatureMatcherOptions option);
 
@@ -98,6 +103,8 @@ class FeatureMatcher {
 
   double nn_match_ratio_;
   int max_match_per_desc_;
+  double max_dist_to_epipolar_line_;
+  double level_of_confidence_;
 };
 
 }  // vio
