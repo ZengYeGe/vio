@@ -45,6 +45,12 @@ FeatureTrackerOCV::FeatureTrackerOCV(FeatureTrackerOptions option,
     }
   }
   matcher_ = matcher;
+
+  FeatureMatcherOptions long_term_matcher_option;
+  long_term_matcher_option.method = OCV;
+
+  long_term_matcher_ =
+      FeatureMatcher::CreateFeatureMatcher(long_term_matcher_option);
 }
 
 bool FeatureTrackerOCV::TrackFirstFrame(ImageFrame &output_frame) {
@@ -60,6 +66,20 @@ bool FeatureTrackerOCV::TrackFrame(const ImageFrame &prev_frame,
   }
   ComputeFeatures(new_frame);
   if (!matcher_->Match(prev_frame, new_frame, matches)) return false;
+
+  return true;
+}
+
+bool FeatureTrackerOCV::MatchFrame(const ImageFrame &prev_frame,
+                                   ImageFrame &new_frame,
+                                   std::vector<cv::DMatch> &matches) {
+  if (!long_term_matcher_) {
+    std::cerr << "Error: Long term FeatureMatcher not set up.\n";
+    return false;
+  }
+  ComputeFeatures(new_frame);
+  if (!long_term_matcher_->Match(prev_frame, new_frame, matches)) return false;
+
   return true;
 }
 

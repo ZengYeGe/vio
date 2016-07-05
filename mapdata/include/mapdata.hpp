@@ -94,6 +94,11 @@ class Mapdata {
   int num_frame() const { return keyframes_.size(); }
   const Keyframe &keyframe(int i) const { return *(keyframes_[i]); }
 
+  // The number of landmarks a keyframe can see.
+  int num_landmarks_in_frame(int i) const {
+    return feature_to_landmark_[i].size();
+  }
+
   int num_landmark() const { return landmarks_.size(); }
   const std::vector<Landmark> &landmarks() { return landmarks_; }
   const Landmark &landmark(int i) { return landmarks_[i]; }

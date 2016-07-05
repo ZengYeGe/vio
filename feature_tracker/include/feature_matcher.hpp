@@ -17,6 +17,7 @@ class FeatureMatcherOptions {
  public:
   FeatureMatcherOptions()
       : method(GRID_SEARCH),
+        ocv_matcher_type("BruteForce"),
         max_dist_to_epipolar_line(0.5),
         level_of_confidence(0.999),
         use_ratio_test(true),

@@ -29,6 +29,7 @@ int TestVideo(const Options &option,
     cv::imshow(window_name, image);
     char key = (char)waitKey(30);
 
+    std::cout << "\nAdding new image.\n";
     vio::FramePose current_pose;
     if (vio::ERROR == vo.TrackNewRawImage(image, current_pose)) return -1;
 

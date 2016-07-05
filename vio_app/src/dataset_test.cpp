@@ -36,7 +36,7 @@ int TestFramesInFolder(const Options &option,
       return -1;
     }
 
-    cout << "Adding image " << i << std::endl;
+    cout << "\nAdding image " << i << std::endl;
 
     vio::FramePose current_pose;
     if (vio::ERROR == vo.TrackNewRawImage(image, current_pose)) return -1;

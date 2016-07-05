@@ -16,6 +16,9 @@ class FeatureTrackerOCV : public FeatureTracker {
   virtual bool TrackFrame(const ImageFrame &prev_frame,
                           ImageFrame &output_frame,
                           std::vector<cv::DMatch> &matches) override;
+  virtual bool MatchFrame(const ImageFrame &prev_frame,
+                          ImageFrame &output_frame,
+                          std::vector<cv::DMatch> &matches) override;
 
  protected:
   void ComputeFeatures(ImageFrame &frame);
