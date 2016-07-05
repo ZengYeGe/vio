@@ -89,7 +89,7 @@ bool Mapdata::DropLastKeyframe() {
   }
 
   // TODO: This pretty redundant. Change to not add?
-  PruneShortTrackLandmarks();
+  // PruneShortTrackLandmarks();
 
   feature_to_landmark_.pop_back();
   match_edges_.pop_back();

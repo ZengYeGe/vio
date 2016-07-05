@@ -124,6 +124,9 @@ class VisualOdometry {
   bool plot_tracking_;
   int tracking_wait_time_;
 
+  // invalid 0, tracking 1, matching 2
+  int tracking_or_matching_;
+
   bool plot_3d_landmarks_;
   int plot_3d_landmarks_every_frame_;
 };

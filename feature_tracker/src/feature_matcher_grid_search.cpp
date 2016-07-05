@@ -23,7 +23,7 @@ bool FeatureMatcherGridSearch::Match(const ImageFrame &frame0,
   FindMatchNearFeatures(frame1, frame0, matches_1to0_k);
 
   timer.Stop();
-  std::cout << "Grid Search Match time used: " << timer.GetInMs() << "ms.\n";
+  // std::cout << "Grid Search Match time used: " << timer.GetInMs() << "ms.\n";
   timer.Start();
 
   // Pick matches where the first one is much better than the second match.
@@ -32,7 +32,7 @@ bool FeatureMatcherGridSearch::Match(const ImageFrame &frame0,
   RatioTestFilter(matches_1to0_k, matches_1to0);
 
   timer.Stop();
-  std::cout << "Ratio test time used: " << timer.GetInMs() << "ms.\n";
+  // std::cout << "Ratio test time used: " << timer.GetInMs() << "ms.\n";
   timer.Start();
 
   if (matches_0to1.size() < 10 || matches_1to0.size() < 10) {
@@ -51,7 +51,7 @@ bool FeatureMatcherGridSearch::Match(const ImageFrame &frame0,
   }
 
   timer.Stop();
-  std::cout << "Symmetry test time used: " << timer.GetInMs() << "ms.\n";
+  // std::cout << "Symmetry test time used: " << timer.GetInMs() << "ms.\n";
 
   timer.Start();
 
@@ -59,8 +59,8 @@ bool FeatureMatcherGridSearch::Match(const ImageFrame &frame0,
   // RemoveOutlierMatch(kp0, kp1, matches);
 
   timer.Stop();
-  std::cout << "F matrix outlier test time used: " << timer.GetInMs()
-            << "ms.\n";
+  // std::cout << "F matrix outlier test time used: " << timer.GetInMs()
+  //          << "ms.\n";
 
   if (matches.size() < 3) {
     std::cerr << "Error: Not enough matches after outlier removal.\n";

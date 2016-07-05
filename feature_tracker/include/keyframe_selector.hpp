@@ -11,6 +11,11 @@ class KeyframeSelector {
 
   bool isKeyframe(const vector<cv::DMatch> &matches) {
     if (matches.size() < num_matches_thres_) return true;
+
+    double total_dist = 0;
+    for (int i = 0; i < matches.size(); ++i) {
+    }
+
     return false;
   }
 

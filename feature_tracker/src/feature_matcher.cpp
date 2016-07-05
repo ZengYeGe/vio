@@ -70,8 +70,8 @@ bool FeatureMatcher::RemoveOutlierMatch(const std::vector<cv::KeyPoint> &pre_kp,
   for (int i = 0; i < matches.size(); ++i) {
     if ((unsigned int)mask.at<uchar>(i)) new_matches.push_back(matches[i]);
   }
-  std::cout << "Outlier matches: " << matches.size() - new_matches.size()
-            << std::endl;
+  // std::cout << "Outlier matches: " << matches.size() - new_matches.size()
+  //          << std::endl;
 
   matches = std::move(new_matches);
   return true;

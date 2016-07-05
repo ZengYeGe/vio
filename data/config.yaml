@@ -35,6 +35,7 @@ FeatureMatcher:
   # Hamming = 0
   # Norm_L2 = 1
   DistType: 1
+  # Half search distance
   PixelSearchRange: 20
 MapInitializer:
   Method: 2

@@ -8,6 +8,7 @@ VisualOdometry::VisualOdometry(const VisualOdometryConfig &config)
     : status_(UNINITED),
       plot_tracking_(true),
       tracking_wait_time_(10),
+      tracking_or_matching_(0), 
       plot_3d_landmarks_(true),
       plot_3d_landmarks_every_frame_(1) {
   camera_model_ = new CameraModel(config.camera_model_params);
@@ -95,17 +96,32 @@ bool VisualOdometry::AddNewFrame(std::unique_ptr<ImageFrame> frame) {
   // TODO: Refine Keyframe Selector.
   // TODO: Add select keyframe for initialization
 
-  if (matches.size() < 20) {
+  if (matches.size() < 50) {
     std::cout << "Too few matches.\n";
-    return true;
+    // TODO: Use track by matching
+    if (!feature_tracker_->MatchFrame(map_.GetLastKeyframe().image_frame(),
+                                      *frame, matches)) {
+      std::cout << "Error: Matching frames failed.\n";
+      return false;
+    }
+    if (matches.size() < 50) {
+      std::cout << "Matching frames too few matches.\n";
+      return true;
+    } else {
+      tracking_or_matching_ = 2;
+      std::cout << "Matching found " << matches.size() << " features.\n";
+    }
+  } else {
+    tracking_or_matching_ = 1;
+    std::cout << "Tracking found " << matches.size() << " features.\n";
   }
-
-  if (map_.state() == Mapdata::INITIALIZED &&
-      !keyframe_selector_.isKeyframe(matches)) {
-    std::cout << "Skipped a frame. Not selected as keyframe.\n\n";
-    return true;
-  }
-
+  /*
+    if (map_.state() == Mapdata::INITIALIZED &&
+        !keyframe_selector_.isKeyframe(matches)) {
+      std::cout << "Skipped a frame. Not selected as keyframe.\n\n";
+      return true;
+    }
+  */
   if (plot_tracking_)
     PlotTracking(*frame, map_.GetLastKeyframe().image_frame(), matches);
   std::unique_ptr<Keyframe> new_keyframe(new Keyframe(std::move(frame)));
@@ -172,6 +188,21 @@ bool VisualOdometry::EstimateLastFrame() {
   if (!map_.PrepareEstimateLastFramePoseData(points3d, points2d,
                                              points_index)) {
     std::cerr << "Error: Points match from last two frames not available.\n";
+    return false;
+  }
+
+  // Find out the the portion of landmarks used in pnp are seen in last second
+  const int last_second_frame_id = map_.num_frame() - 2;
+  const double seen_percent =
+      ((double)points3d.size()) /
+      (double)map_.num_landmarks_in_frame(last_second_frame_id);
+
+  std::cout << points3d.size() << " / "
+            << map_.num_landmarks_in_frame(last_second_frame_id)
+            << " points are re-seen.\n";
+
+  if (seen_percent > 0.3 && tracking_or_matching_ == 1) {
+    std::cout << "Skipped a frame, overlap > 30%.\n";
     return false;
   }
 
