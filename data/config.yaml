@@ -15,28 +15,31 @@ FeatureTracker:
   Method: 1
   DetectorType: "FAST"
   max_num_feature: 10000
-  DescriptorType: "DAISY"
+  # If FREAK, use "BruteForce-Hamming" for OCVMatcherType, 
+  #           use 0 for Method/FeatureMatcher
+  # If DAISY, use "BruteForce" for OCVMatcherType
+  DescriptorType: "FREAK"
 FeatureMatcher:
   UseRatioTest: 1
   RatioTestThresh: 0.9
 
   UseSymmetryTest: 1
 
-  MaxDistToEpipolarLine: 0.5
-  LevelOfConfidence: 0.999 
+  MaxDistToEpipolarLine: 1.0 
+  LevelOfConfidence: 0.99 
   MaxMatchPerFeature: 2
 
   # BRUTE_FORCE = 0
   # GRID_SEARCH = 1
   Method: 1
   # FeatureMatcherOCV:
-  OCVMatcherType: "BruteForce"
+  OCVMatcherType: "BruteForce-Hamming"
   # FeatureMatcherGridSearch:
   # Hamming = 0
   # Norm_L2 = 1
   DistType: 1
   # Half search distance
-  PixelSearchRange: 20
+  PixelSearchRange: 15
 MapInitializer:
   Method: 2
   F_USE_RANSAC: 1

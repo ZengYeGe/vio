@@ -97,7 +97,7 @@ bool VisualOdometry::AddNewFrame(std::unique_ptr<ImageFrame> frame) {
   // TODO: Add select keyframe for initialization
 
   if (matches.size() < 50) {
-    std::cout << "Too few matches.\n";
+    std::cout << "Too few matches. Only " << matches.size() << ".\n";
     // TODO: Use track by matching
     if (!feature_tracker_->MatchFrame(map_.GetLastKeyframe().image_frame(),
                                       *frame, matches)) {
@@ -233,7 +233,7 @@ bool VisualOdometry::EstimateLastFrame() {
   if ((double)num_good_points / kp0.size() < 0.4) {
     std::cout << "Skipped a frame, good triangulated point percentage < 40%.\n";
     return false;
-  } 
+  }
 
   if (num_good_points < 30) {
     std::cerr << "Not enough good triangulated points.\n";

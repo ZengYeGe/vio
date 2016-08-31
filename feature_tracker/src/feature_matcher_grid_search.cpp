@@ -5,11 +5,12 @@
 namespace vio {
 
 FeatureMatcher *FeatureMatcher::CreateFeatureMatcherGridSearch(
-    FeatureMatcherOptions option) {
+    const FeatureMatcherOptions &option) {
   return new FeatureMatcherGridSearch(option);
 }
 
-FeatureMatcherGridSearch::FeatureMatcherGridSearch(FeatureMatcherOptions option)
+FeatureMatcherGridSearch::FeatureMatcherGridSearch(
+    const FeatureMatcherOptions &option)
     : FeatureMatcher(option), pixel_search_range_(option.pixel_search_range) {}
 
 bool FeatureMatcherGridSearch::Match(const ImageFrame &frame0,
@@ -52,6 +53,16 @@ bool FeatureMatcherGridSearch::Match(const ImageFrame &frame0,
 
   timer.Stop();
   // std::cout << "Symmetry test time used: " << timer.GetInMs() << "ms.\n";
+
+  cv::Mat output_img = frame0.GetImage().clone();
+  int thickness = 2;
+  for (int i = 0; i < matches.size(); ++i) {
+    line(output_img, frame1.keypoints()[matches[i].trainIdx].pt,
+         frame0.keypoints()[matches[i].queryIdx].pt, cv::Scalar(255, 0, 0),
+         thickness);
+  }
+  cv::imshow("tracking", output_img);
+  cv::waitKey(0);
 
   timer.Start();
 
@@ -128,7 +139,7 @@ bool FeatureMatcherGridSearch::FindMatchNearFeatures(
 
 inline double FeatureMatcherGridSearch::ComputeDistance(const cv::Mat &mat0,
                                                         const cv::Mat &mat1) {
-  return cv::norm(mat0, mat1, cv::NORM_L2);
+  return cv::norm(mat0, mat1, cv::NORM_HAMMING);
 }
 
 }  // vio

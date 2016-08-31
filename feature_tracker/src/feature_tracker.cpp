@@ -3,7 +3,7 @@
 namespace vio {
 
 FeatureTracker *FeatureTracker::CreateFeatureTracker(
-    FeatureTrackerOptions option, FeatureMatcher *matcher) {
+    const FeatureTrackerOptions &option, FeatureMatcher *matcher) {
   switch (option.method) {
     case OCV_BASIC_DETECTOR:
     case OCV_BASIC_DETECTOR_EXTRACTOR:

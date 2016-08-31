@@ -9,7 +9,7 @@
 namespace vio {
 
 FeatureTracker *FeatureTracker::CreateFeatureTrackerOCV(
-    FeatureTrackerOptions option, FeatureMatcher *matcher) {
+    const FeatureTrackerOptions &option, FeatureMatcher *matcher) {
   switch (option.method) {
     case OCV_BASIC_DETECTOR:
     case OCV_BASIC_DETECTOR_EXTRACTOR:
@@ -40,6 +40,9 @@ FeatureTrackerOCV::FeatureTrackerOCV(FeatureTrackerOptions option,
     } else if (option.descriptor_type == "ORB") {
       descriptor_ = cv::ORB::create();
       std::cout << "Created ORB Descriptor.\n";
+    } else if (option.descriptor_type == "FREAK") {
+      descriptor_ = cv::xfeatures2d::FREAK::create();
+      std::cout << "Created FREAK Descriptor.\n";
     } else {
       return;
     }
@@ -48,6 +51,8 @@ FeatureTrackerOCV::FeatureTrackerOCV(FeatureTrackerOptions option,
 
   FeatureMatcherOptions long_term_matcher_option;
   long_term_matcher_option.method = OCV;
+  if (option.descriptor_type == "ORB" || option.descriptor_type == "FREAK")
+    long_term_matcher_option.ocv_matcher_type = "BruteForce-Hamming";
 
   long_term_matcher_ =
       FeatureMatcher::CreateFeatureMatcher(long_term_matcher_option);

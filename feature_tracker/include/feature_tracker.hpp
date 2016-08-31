@@ -18,11 +18,11 @@ class FeatureTracker {
   FeatureTracker() {}
   ~FeatureTracker() {}
 
-  static FeatureTracker *CreateFeatureTracker(FeatureTrackerOptions option,
-                                              FeatureMatcher *matcher);
+  static FeatureTracker *CreateFeatureTracker(
+      const FeatureTrackerOptions &option, FeatureMatcher *matcher);
 
-  static FeatureTracker *CreateFeatureTrackerOCV(FeatureTrackerOptions option,
-                                                 FeatureMatcher *matcher);
+  static FeatureTracker *CreateFeatureTrackerOCV(
+      const FeatureTrackerOptions &option, FeatureMatcher *matcher);
 
   // TODO: Could change to const.
   virtual bool TrackFirstFrame(ImageFrame &output_frame) = 0;

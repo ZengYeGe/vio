@@ -7,11 +7,11 @@
 namespace vio {
 
 FeatureMatcher *FeatureMatcher::CreateFeatureMatcherOCV(
-    FeatureMatcherOptions option) {
+    const FeatureMatcherOptions &option) {
   return new FeatureMatcherOCV(option);
 }
 
-FeatureMatcherOCV::FeatureMatcherOCV(FeatureMatcherOptions option)
+FeatureMatcherOCV::FeatureMatcherOCV(const FeatureMatcherOptions &option)
     : FeatureMatcher(option) {
   // TODO: Decide matcher based on descriptors
   // Hamming-distance works only for binary feature-types like ORB, FREAK
@@ -71,6 +71,18 @@ bool FeatureMatcherOCV::Match(const ImageFrame &frame0,
   timer.Stop();
   // std::cout << "Symmetry test time used: " << timer.GetInMs() << "ms.\n";
   timer.Start();
+
+  matcher_->match(desc0, desc1, matches); 
+
+  cv::Mat output_img = frame0.GetImage().clone();
+  int thickness = 2;
+  for (int i = 0; i < matches.size(); ++i) {
+    line(output_img, frame1.keypoints()[matches[i].trainIdx].pt,
+         frame0.keypoints()[matches[i].queryIdx].pt, cv::Scalar(255, 0, 0),
+         thickness);
+  }
+  cv::imshow("tracking", output_img);
+  cv::waitKey(0);
 
   RemoveOutlierMatch(kp0, kp1, matches);
 

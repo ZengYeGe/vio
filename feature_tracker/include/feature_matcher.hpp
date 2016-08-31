@@ -73,17 +73,19 @@ static void read(
 
 class FeatureMatcher {
  public:
-  explicit FeatureMatcher(FeatureMatcherOptions option)
+  explicit FeatureMatcher(const FeatureMatcherOptions &option)
       : max_match_per_desc_(2),
         max_dist_to_epipolar_line_(option.max_dist_to_epipolar_line),
         level_of_confidence_(option.level_of_confidence),
         nn_match_ratio_(option.ratio_test_thresh) {}
 
-  static FeatureMatcher *CreateFeatureMatcher(FeatureMatcherOptions option);
+  static FeatureMatcher *CreateFeatureMatcher(
+      const FeatureMatcherOptions &option);
 
-  static FeatureMatcher *CreateFeatureMatcherOCV(FeatureMatcherOptions option);
+  static FeatureMatcher *CreateFeatureMatcherOCV(
+      const FeatureMatcherOptions &option);
   static FeatureMatcher *CreateFeatureMatcherGridSearch(
-      FeatureMatcherOptions option);
+      const FeatureMatcherOptions &option);
 
   // TODO: Consider change to const.
   virtual bool Match(const ImageFrame &frame0, const ImageFrame &frame1,
