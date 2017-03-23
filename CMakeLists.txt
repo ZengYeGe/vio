@@ -64,19 +64,11 @@ add_subdirectory(vio_app)
 
 ###########################################################################
 
-add_subdirectory(test)
+option(test "Build tests." OFF)
 
-
-###########################################################################
-
-# Here we define the include paths that will be used by our clients.
-# BUILD_INTERFACE will be used when this library is consumed in source form.
-# INSTALL_INTERFACE will be used when this library is consumed in binary form.
-#target_include_directories(${TARGET} PUBLIC
-#	                   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-#	                   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-#	                   $<INSTALL_INTERFACE:include/${TARGET}>
-#)
+if (test)
+  add_subdirectory(test)
+endif()
 
 message(STATUS "cmake current source dir:${CMAKE_CURRENT_SOURCE_DIR}")
 message(STATUS "cmake current binary dir:${CMAKE_CURRENT_BINARY_DIR}")
