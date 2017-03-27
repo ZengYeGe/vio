@@ -18,7 +18,10 @@ endif()
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lprofiler")
+option(PROFILE_CPU "Profile CPU." OFF)
+if (PROFILE_CPU)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lprofiler")
+endif()
 
 # TODO: Enable choose compile type.
 if(NOT CMAKE_BUILD_TYPE)
@@ -28,7 +31,7 @@ endif()
 find_package( Ceres REQUIRED )
 find_package( OpenCV REQUIRED )
 find_package( Eigen3 REQUIRED )
-find_package( Doxygen REQUIRED )
+# find_package( Doxygen REQUIRED )
 
 
 message(STATUS "OpenCV library status:")
