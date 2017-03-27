@@ -1,11 +1,11 @@
 %YAML:1.0
 VisualOdometry:
-  VisualizeTracking: 1
+  VisualizeTracking: 0
   # 0 is press key to continue
   TimePerFrame: 10
 
   VisualizeLandmarks: 0
-  VisualizeLandmarksEveryNumFrame: 1
+  VisualizeLandmarksEveryNumFrame: 0
 
   OptimizeEveryNumFrame: 5
 
