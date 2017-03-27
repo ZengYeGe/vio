@@ -1,11 +1,11 @@
 %YAML:1.0
 VisualOdometry:
-  VisualizeTracking: 0
+  VisualizeTracking: 1
   # 0 is press key to continue
   TimePerFrame: 10
 
   VisualizeLandmarks: 0
-  VisualizeLandmarksEveryNumFrame: 0
+  VisualizeLandmarksEveryNumFrame: 1
 
   OptimizeEveryNumFrame: 5
 
@@ -13,8 +13,12 @@ FeatureTracker:
   #  OCV_BASIC_DETECTOR = 0,
   #  OCV_BASIC_DETECTOR_EXTRACTOR = 1
   Method: 1
+  # ORB
+  # FAST
   DetectorType: "FAST"
   max_num_feature: 10000
+  # DASIY
+  # ORB
   DescriptorType: "DAISY"
 FeatureMatcher:
   UseRatioTest: 1
@@ -26,7 +30,7 @@ FeatureMatcher:
   LevelOfConfidence: 0.999 
   MaxMatchPerFeature: 2
 
-  # BRUTE_FORCE = 0
+  # OCV = 0
   # GRID_SEARCH = 1
   Method: 1
   # FeatureMatcherOCV:
